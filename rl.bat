@@ -1,0 +1,1 @@
+c:\Users\masut\Ragel6.6\bin\Ragel.exe command.rl -o command.cpp

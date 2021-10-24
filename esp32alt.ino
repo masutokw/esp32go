@@ -42,6 +42,7 @@ extern long sdt_millis;
 const char* ssid = "MySSID";
 const char* password = "MyPass";
 extern volatile int state;
+
 WiFiServer server(SERVER_PORT);
 WiFiClient serverClients[MAX_SRV_CLIENTS];
 

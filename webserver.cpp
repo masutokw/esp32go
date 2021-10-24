@@ -114,13 +114,13 @@ void handleConfig()
   //  Jsc+=" function showPosition(position) {document.getElementById('lon').value =  position.coords.longitude;document.getElementById('lat').value =  position.coords.latitude;}</script>";
 
   String content = "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE);
-  content += "<body  bgcolor=\"#000000\" text=\"#FF4500\"><form action='/config' method='POST'>";
+  content += "<body  bgcolor=\"#000000\" text=\"#3399ff\"><form action='/config' method='POST'>";
   content+= "<h2>ESP32";
 
 #ifdef IR_CONTROL
-  content += "-PGT++ AltAz IR Control</h2>";
+  content += " AltAz IR Control</h2>";
 #else
-  content += "-PGT++ AltAz NUNCHUCK</h2>";
+  content += "AltAz NUNCHUCK</h2>";
 #endif
 
   content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Login  information:</legend>";

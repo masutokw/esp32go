@@ -39,8 +39,8 @@ hw_timer_t * timer_alt = NULL;
 const char *TZstr = "GMT-1";
 extern long sdt_millis;
 //#include "wifipass.h" //comment wifipass.h and uncomment for your  wifi parameters
-const char* ssid = "OLGUIFIB";
-const char* password = "elpalolaislacartagena";
+const char* ssid = "MySSID";
+const char* password = "MyPass";
 extern volatile int state;
 WiFiServer server(SERVER_PORT);
 WiFiClient serverClients[MAX_SRV_CLIENTS];

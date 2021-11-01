@@ -118,9 +118,9 @@ void handleConfig()
   content+= "<h2>ESP32";
 
 #ifdef IR_CONTROL
-  content += " AltAz IR Control</h2>";
+  content += " IR Control</h2>";
 #else
-  content += "AltAz NUNCHUCK</h2>";
+  content += " NUNCHUCK</h2>";
 #endif
 
   content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Login  information:</legend>";
@@ -145,7 +145,7 @@ void handleConfig()
   content += "<tr><td>Slew</td><td><input type='number' step='0.01' name='SLEW' class=\"text_red\" value='" + String(telescope->rate[3][0]) + "'></td>";
   content += "<td><input type='number' step='0.01' name='SLEWA' class=\"text_red\" value='" + String(telescope->rate[3][1]) + "'></td></tr>";
 
-  content += "<tr><td>Prescaler</td><td><input type='number' name='PRESCALER' class=\"text_red\" value='" + String(telescope->prescaler) + "' uSec</td></tr>";
+  content += "<tr><td>Prescaler</td><td><input type='number' step='0.01' name='PRESCALER' class=\"text_red\" value='" + String(telescope->prescaler) + "' uSec</td></tr>";
   content += "<tr><td>Ramp</td><td><input type='number' step='0.01' name='RAMP' class=\"text_red\" value='" + String(telescope->azmotor->acceleration / SEC_TO_RAD) + "'></td>";
   content += "<td><input type='number' step='0.01' name='RAMPA' class=\"text_red\" value='" + String(telescope->altmotor->acceleration / SEC_TO_RAD) + "'></td></tr>";
 

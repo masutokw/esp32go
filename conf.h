@@ -16,7 +16,7 @@
 //#define PAD
 //#define OLED_DISPLAY
 //#define OTA
-#define FIXED_IP 13
+//#define FIXED_IP 13
 
 
 //mandatory

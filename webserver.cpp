@@ -18,7 +18,7 @@ extern  time_t init_time;
 long getDecimal(float val)
 {
   int intPart = int(val);
-  long decPart = 10000 * (val - intPart); //I am multiplying by 10000 assuming that the foat values will have a maximum of fou decimal places
+  long decPart = 10000 * (val - intPart); //I am multiplying by 10000 assuming that the foat values will have a maximum of four decimal places
   //Change to match the number of decimal places you need
   if (decPart > 0)return (decPart);       //return the decimal part of float number if it is available
   else if (decPart < 0)return ((-1) * decPart); //if negative, multiply by -1
@@ -86,7 +86,8 @@ void handleConfig()
     msg += "\n" + serverweb.arg("RAMPA");
     msg += "\n" + serverweb.arg("BACK_AZ");
     msg += "\n" + serverweb.arg("BACK_ALT");
-    msg += "\n" + serverweb.arg("MOUNT") + "\n";
+    msg += "\n" + serverweb.arg("MOUNT") ;
+    msg += "\n" + serverweb.arg("TRACK") + "\n";
     String temp = serverweb.arg("SLEW");
     telescope->rate[3][0] = temp.toFloat();
     temp = serverweb.arg("SLEWA");
@@ -109,14 +110,10 @@ void handleConfig()
     }
     f.close ();
   }
-  //  String Jsc="<script>function getLocation() {if (navigator.geolocation) {navigator.geolocation.getCurrentPosition(showPosition);";
-  //  Jsc+="} else {x.innerHTML = \"Geolocation not\";}}";
-  //  Jsc+=" function showPosition(position) {document.getElementById('lon').value =  position.coords.longitude;document.getElementById('lat').value =  position.coords.latitude;}</script>";
 
   String content = "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE);
-  content += "<body  bgcolor=\"#000000\" text=\"#3399ff\"><form action='/config' method='POST'>";
+  content += "<body  bgcolor=\"#000000\" text=\"#5599ff\"><form action='/config' method='POST'>";
   content+= "<h2>ESP32";
-
 #ifdef IR_CONTROL
   content += " IR Control</h2>";
 #else
@@ -144,28 +141,36 @@ void handleConfig()
 
   content += "<tr><td>Slew</td><td><input type='number' step='0.01' name='SLEW' class=\"text_red\" value='" + String(telescope->rate[3][0]) + "'></td>";
   content += "<td><input type='number' step='0.01' name='SLEWA' class=\"text_red\" value='" + String(telescope->rate[3][1]) + "'></td></tr>";
-
-  content += "<tr><td>Prescaler</td><td><input type='number' step='0.01' name='PRESCALER' class=\"text_red\" value='" + String(telescope->prescaler) + "' uSec</td></tr>";
+ 
   content += "<tr><td>Ramp</td><td><input type='number' step='0.01' name='RAMP' class=\"text_red\" value='" + String(telescope->azmotor->acceleration / SEC_TO_RAD) + "'></td>";
   content += "<td><input type='number' step='0.01' name='RAMPA' class=\"text_red\" value='" + String(telescope->altmotor->acceleration / SEC_TO_RAD) + "'></td></tr>";
 
   content += "<tr><td>BackSlash</td><td><input type='number' step='1' name='BACK_AZ' class=\"text_red\" value='" + String(telescope->azmotor->backslash) + "'></td>";
   content += "<td><input type='number' step='1' name='BACK_ALT' class=\"text_red\" value='" + String(telescope->altmotor->backslash) + "'></td></tr>";
+  content += "<tr><td>Prescaler</td><td><input type='number' step='0.01' name='PRESCALER' class=\"text_red\" value='" + String(telescope->prescaler) + "' uSec</td></tr>";																																								
+    content += "<tr><td>Track</td><td><input type='number' name='TRACK'  class=\"text_red\" value ='" + String(telescope->track) + "' </td></tr>";																																				  
   // content += "<tr><td>Mount</td><td><input type='number' step='1' name='MOUNT' class=\"text_red\" value='" + String(telescope->mount_mode) + "'></td></tr></table>";
   String checked = "";
 
-  if (telescope->mount_mode) checked = "" ; else checked = " checked "  ;
-  content += "<tr><td>Alt</td><td>  <input type='radio' name='MOUNT' value='0'  class=\"button_red\"'" + checked + "></td>";
-  if (telescope->mount_mode) checked = " checked " ; else checked = ""  ;
-  content += "<td>EQ  <input type='radio' name='MOUNT' value='1'  class=\"button_red\"'" + checked + "></td></tr></table>";
+    if (telescope->mount_mode == EQ) checked = " checked " ;
+    else checked = ""  ;
+    content += "<tr><td>EQ<input type='radio' name='MOUNT' value='0'  class=\"button_red\"'" + checked + "></td>";
+    if (telescope->mount_mode == ALTAZ) checked = " checked " ;
+    else checked = ""  ;
+    content += "<td>ALT-AZ<input type='radio' name='MOUNT' value='1'  class=\"button_red\"'" + checked + "></td>";
+    if (telescope->mount_mode == ALIGN) checked = " checked " ;
+    else checked = ""  ;
+    content += "<td>EQ2-stars<input type='radio' name='MOUNT' value='2'  class=\"button_red\"'" + checked + "></td></tr></table>";
+
+
   checked =(get_pierside(telescope)?"West":"East");
   content += "Meridian side "+checked+"<br>";
-  content += "<button onclick=\"location.href='/park'\" class=\"button_red\" type=\"button\">Park telescope</button>";
-  content += "<button onclick=\"location.href='/home'\" class=\"button_red\" type=\"button\">Reset home</button><br>";
-  content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">2-3 stars Alignment menu</button>";
-  content += "<input type='submit' name='SUBMIT' class=\"button_red\" value='Save'><br>";
   content += "<button onclick=\"location.href='/meridian?SIDE=0'\" class=\"button_red\"  type=\"button\">Meridian Flip EAST</button>";
-    content += "<button onclick=\"location.href='/meridian?SIDE=1'\" class=\"button_red\"  type=\"button\">Meridian Flip WEST</button></fieldset>";
+  content += "<button onclick=\"location.href='/meridian?SIDE=1'\" class=\"button_red\"  type=\"button\">Meridian Flip WEST</button><br>";																														
+  content += "<button onclick=\"location.href='/park'\" class=\"button_red\" type=\"button\">Park telescope</button>";
+  content += "<button onclick=\"location.href='/home'\" class=\"button_red\" type=\"button\">Reset home</button>";
+  content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">2 stars align</button><br>";
+  content += "<input type='submit' name='SUBMIT' class=\"button_red\" value='Save'></fieldset>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Focuser</legend>";
   content += "<table style='width:200px'>";
   content += "<tr><td>Focus Max:</td><td><input type='number'step='1' name='FOCUSMAX' class=\"text_red\" value='" + String(focusmax) + "'></td></tr>";
@@ -185,7 +190,7 @@ void handleConfig()
   content += "<button onclick=\"location.href='/update'\" class=\"button_red\" type=\"button\">Update Firmware</button>";
   content += "<button onclick=\"location.href='/remote'\" class=\"button_red\" type=\"button\">IR Remote </button>";
   content += "<br>Load Time :" + String(ctime(&now)) + "<br>";
-  content += "<br>" + msg + " </body></html>";
+  content += "<br>" + msg + String(telescope->azmotor->slewing)+ " </body></html>";
   serverweb.send(200, "text/html", content);
 
 
@@ -441,10 +446,11 @@ void handleIr(void)
 #endif
 void handleMeridian(void)
 {
-  if (serverweb.hasArg("SIDE")){
+  if (serverweb.hasArg("SIDE"))
+  {
  String net = serverweb.arg("SIDE");
  int   side = net.toInt();
- //meridianflip(telescope,side);
+ if (telescope->mount_mode == EQ) meridianflip(telescope, side);
  }
 
  String content =  "<html><style>" + String(BUTT) + String(TEXTT) + "</style>"+String(AUTO_SIZE)+"<body  bgcolor=\"#000000\" text=\"#FF6000\"><h2>ESP-PGT++ Meridian flip</h2><br>";

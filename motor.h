@@ -11,7 +11,7 @@ typedef struct
          acceleration,
          timertick, maxspeed;
   int counter, maxcounter, slewing, auxcounter,backslash;
-  char id;
+  char id,locked;
 } motor_t;
 
 int sign(double t);
@@ -24,6 +24,7 @@ void  setmaxcounter(motor_t* M, int value);
 int  readcounter(motor_t* mt);
 int readcounter_n(motor_t* mt);
 void  setposition(motor_t* mt, int pos);
+void setpositionf(motor_t* mt, double pos);
 void  settarget(motor_t* mt, int pos);
 void  go_to(motor_t* mt, double position, double speed);
 void  speed_up_down(motor_t* mt);

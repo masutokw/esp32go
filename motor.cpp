@@ -69,15 +69,17 @@ inline void setspeed(motor_t* mt , double tspeed)
 
 }
 
-/*
 
-  void setposition(motor_t* mt, double pos)
+
+  void setpositionf(motor_t* mt, double pos)
   {
   mt->position = pos;
   mt->counter = trunc(mt->position / mt->resolution);
-  set_motor_counter(mt->id, mt->counter);
+  if (mt->id) azcounter = mt->counter ; else
+    altcounter = mt->counter;
+  
   }
-*/
+
 void setposition(motor_t* mt, int pos)
 { if (mt->id) azcounter = pos ; else
     altcounter = pos;

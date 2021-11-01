@@ -20,7 +20,7 @@
 #define ALT_ID 0X00
 #define AZ_ID 0x01
 #define TIME_ZONE 1
-typedef enum {ALTAZ,EQ,ALT_ALT} mount_mode_t;
+typedef enum {EQ, ALTAZ, ALIGN} mount_mode_t;
 typedef struct
 {
   mount_mode_t mount_mode;
@@ -47,14 +47,21 @@ int mount_stop(mount_t *mt,char direction);
 void select_rate(mount_t *mt,char rate);
 int sync_ra_dec(mount_t *mt);
 void thread_motor(mount_t* m);
+void thread_motor2(mount_t* m);
 int get_pierside(mount_t *mt);
 int goto_ra_dec(mount_t *mt,double ra,double dec);
 void mount_lxde_str(char* message,mount_t *mt);
-/*void mount_lxra_str(char *message,mount_t *mt);*/
+void mount_lxra_str(char *message,mount_t *mt);
+void eq_to_enc(double *ra, double *dec, double a, double  b, int pier);																	   
 void mount_park(mount_t *mt);
 void mount_home_set(mount_t *mt);
 void  tak_init(mount_t *mt);
 void track(mount_t *mt1);
+void eq_track(mount_t* mt1);								  
 void align_sync_all(mount_t *mt,long ra,long dec);
 void mount_track_off(mount_t *mt);
+int mount_slew(mount_t *mt);
+int sync_eq(mount_t *mt);
+void pulse_guide(mount_t *mt, char dir, int interval);
+void  meridianflip(mount_t *mt, int side);
 #endif

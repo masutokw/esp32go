@@ -19,8 +19,11 @@
 #define SEC_TO_RAD (M_PI/(3600.0*180.0))
 #define JD2000          2451545.0
 typedef struct timespec wallclock_t;
+void sdt_init(double longitude,int tz);									   
 double sidereal_timeGMT_alt(double longitudez);
 double sidereal_timeGMT (double longitude,int t);
+double calc_Ra(double lha,double longitude);
+double calc_lha(double ra,double longitude);											
 void lxprintde1(char* message,double ang);
 void lxprintde(char* message,double ang);
 void lxprintra1(char *message,double ang);

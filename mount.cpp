@@ -6,6 +6,8 @@ extern c_star  st_now, st_target, st_current, st_1, st_2;
 extern int  focuspeed;
 extern int  focuspeed_low;
 extern int focusmax;
+#include <Ticker.h>
+Ticker pulse_dec_tckr, pulse_ra_tckr;
 char sel_flag;
 char volatile sync_target = TRUE;//
 mount_t* create_mount(void)
@@ -51,13 +53,16 @@ int  destroy_mount(mount_t* m)
   free(m->altmotor);
   free(m);
 }
-/*
-  void thread_motor(mount_t* m)
-  {
-    speed_up_down(((mount_t*)m)->altmotor);
-    speed_up_down(((mount_t*)m)->azmotor);
-  }*/
+
 void thread_motor(mount_t* m)
+{ static  byte n;
+  n++;
+  n %= 30;
+  if (!n)  eq_track(m);
+  speed_up_down(((mount_t*)m)->altmotor);
+  speed_up_down(((mount_t*)m)->azmotor);
+}
+void thread_motor2(mount_t* m)
 { static  byte n;
   n++;
   n %= 30;
@@ -65,6 +70,56 @@ void thread_motor(mount_t* m)
   speed_up_down(((mount_t*)m)->altmotor);
   speed_up_down(((mount_t*)m)->azmotor);
 }
+void eq_track(mount_t* mt1)
+{
+  double  s;
+  double delta;
+  double sgndelta;
+  double speed;
+
+
+
+  readcounter(mt1->altmotor);
+  //goto -------------------------------------------------------------------------
+  if ( mt1->altmotor->slewing)
+  {
+    sgndelta = (sign(delta = mt1->altmotor->delta));
+    if (fabs(delta) > (M_PI)) sgndelta = -sgndelta;
+
+    if ( fabs(delta / (SEC_TO_RAD)) >= 1.0)
+    {
+      speed = fmin(mt1->maxspeed[1], fabs(delta)) * sgndelta;
+      mt1->altmotor->targetspeed = -speed;
+    }
+    else
+    {
+      mt1->altmotor->targetspeed = 0.0;
+      mt1->altmotor->slewing = 0;
+    }
+  }
+
+
+
+  readcounter(mt1->azmotor);
+  sgndelta = sign (delta = mt1->track * (mt1->azmotor->delta = mt1->azmotor->position - calc_Ra(mt1->azmotor->target, mt1->longitude)));
+  if ( mt1->azmotor->slewing)
+  {
+    //  sgndelta = sign (delta =mt1->azmotor->delta= mt1->azmotor->pos_angle - calc_Ra(mt1->azmotor->target, mt1->longitude));
+    if (fabs(delta) > (M_PI)) sgndelta = -sgndelta;
+    if ( fabs(delta / (SEC_TO_RAD)) > ARC_SEC_LMT)
+    {
+      speed = fmin(mt1->maxspeed[0], fabs(delta)) * sgndelta;
+      mt1->azmotor->targetspeed = -(speed) + (SID_RATE * SEC_TO_RAD);
+    }
+    else
+    {
+      mt1->azmotor->targetspeed = SID_RATE * SEC_TO_RAD * mt1->track;
+      mt1->azmotor->slewing = 0;
+    }
+  }
+}
+
+
 
 
 int goto_ra_dec(mount_t *mt, double ra, double dec)
@@ -84,13 +139,25 @@ int sync_ra_dec(mount_t *mt)
   st_current.ra = st_target.ra = mt->ra_target;
   to_alt_az(&st_current);
 
-  setposition(mt->azmotor, st_current.az / mt->azmotor->resolution);
+  setpositionf(mt->azmotor, st_current.az );
 
   if (st_current.alt >= 0.0)
-    setposition(mt->altmotor, st_current.alt / mt->altmotor->resolution);
+    setpositionf(mt->altmotor, st_current.alt );
   else
-    setposition(mt->altmotor, ( M_2PI + st_current.alt) / mt->altmotor->resolution);
+    setpositionf(mt->altmotor, ( M_2PI + st_current.alt));
   mt->sync = FALSE;
+}
+
+int sync_eq(mount_t *mt)
+{
+  mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
+
+  eq_to_enc(&(mt->azmotor->target), &(mt->altmotor->target),
+            mt->ra_target, mt->dec_target, get_pierside(mt));
+
+  setpositionf(mt->altmotor, mt->altmotor->target);
+  setpositionf( mt->azmotor, calc_Ra(mt->azmotor->target, mt->longitude));
+  mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
 }
 
 int mount_stop(mount_t *mt, char direction)
@@ -98,51 +165,73 @@ int mount_stop(mount_t *mt, char direction)
   char n = 0;
   char top = 200;
   mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
-  switch (direction)
+  if (mt->mount_mode != EQ)
   {
-    case 'n':
-    case 's':
-      mt->altmotor->targetspeed = 0.00001;
-      do
-      {
-        yield();
-        delay(5);
-        n++;
-      }
-      while ((n < top) && (fabs(mt->altmotor->current_speed) > 0.00001));
-      break;
+    switch (direction)
+    {
+      case 'n':
+      case 's':
+        mt->altmotor->targetspeed = 0.00001;
+        do
+        {
+          yield();
+          delay(5);
+          n++;
+        }
+        while ((n < top) && (fabs(mt->altmotor->current_speed) > 0.00001));
+        break;
 
 
-    case 'w':
-    case 'e':
-      mt->azmotor->targetspeed = 0.00001;
-      do
-      {
-        yield();
-        delay(5);
-        n++;
-      }
-      while ((n < top) && (fabs(mt->azmotor->current_speed) > 0.00001));
+      case 'w':
+      case 'e':
+        mt->azmotor->targetspeed = 0.00001;
+        do
+        {
+          yield();
+          delay(5);
+          n++;
+        }
+        while ((n < top) && (fabs(mt->azmotor->current_speed) > 0.00001));
 
 
-      break;
+        break;
 
-    default:
-      mt->altmotor->targetspeed = 0.0;
+      default:
+        mt->altmotor->targetspeed = 0.0;
 
-      break;
-  };
-  sync_target = TRUE;
-  // mt->is_tracking = TRUE;
-
+        break;
+    }
+    sync_target = TRUE;
+  }
+  else // mt->is_tracking = TRUE;
+  {  mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
+    switch (direction)
+    {
+      case'n':
+      case's':
+        if ((mt->srate) == 0) mt->altmotor->locked = 1;
+        else mt->altmotor->locked = 0;
+        mt->altmotor->targetspeed = 0.0;
+        break;
+      case 'w':
+      case 'e':
+        mt->azmotor->targetspeed = SID_RATE * SEC_TO_RAD * mt->track;
+        break;
+      default:
+        mt->altmotor->targetspeed = 0.0;
+        mt->azmotor->targetspeed = SID_RATE * SEC_TO_RAD * mt->track;
+        break;
+    }
+  }
 }
-
 void mount_move(mount_t *mt, char dir)
 {
   mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
   mt->is_tracking = FALSE;
   int srate = mt->srate;
-   int invert = (get_pierside(mt)) ? -1 : 1;
+  int invert = (get_pierside(mt)) ? -1 : 1;
+  int  sid = (srate == 0) ? 1 : -1;
+  if (mt->mount_mode != EQ) sid = 0;
   switch (dir)
   {
     case 'n':
@@ -152,14 +241,55 @@ void mount_move(mount_t *mt, char dir)
       mt->altmotor->targetspeed = -SID_RATE * mt->rate[srate][1] * SEC_TO_RAD * invert;
       break;
     case 'w':
-      mt->azmotor->targetspeed = SID_RATE * mt->rate[srate][0]  * SEC_TO_RAD;
+      mt->azmotor->targetspeed = SID_RATE * (mt->rate[srate][0] + sid) * SEC_TO_RAD;
       break;
     case 'e':
-      mt->azmotor->targetspeed = -SID_RATE * mt->rate[srate][0]  * SEC_TO_RAD;
+      mt->azmotor->targetspeed = -SID_RATE * (mt->rate[srate][0] - sid) * SEC_TO_RAD;
       break;
   };
 }
+void pulse_stop_dec(mount_t *mt)
+{
+  mt->altmotor->slewing = FALSE;
+  mt->altmotor->locked = 1;
+  mt->altmotor->targetspeed = 0.0;
+  //  pulse_dec_tckr.detach();
+}
+void pulse_stop_ra(mount_t *mt)
+{
+  mt->azmotor->slewing = FALSE;
+  mt->azmotor->targetspeed = SID_RATE * SEC_TO_RAD * mt->track;
+  // pulse_ra_tckr.detach();
 
+}
+
+void pulse_guide(mount_t *mt, char dir, int interval)
+{
+  mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
+  int srate = mt->srate;
+  int invert = (get_pierside(mt)) ? -1 : 1;
+  int  sid = (srate == 0) ? 1 : -1;
+  switch (dir)
+  {
+    case 'n':
+      mt->altmotor->targetspeed = SID_RATE * mt->rate[0][1] * SEC_TO_RAD * invert;
+      pulse_dec_tckr.once_ms(interval, pulse_stop_dec, mt);
+      break;
+    case 's':
+      mt->altmotor->targetspeed = -SID_RATE * mt->rate[0][1] * SEC_TO_RAD * invert;
+      pulse_dec_tckr.once_ms(interval, pulse_stop_dec, mt);
+      break;
+    case 'w':
+      mt->azmotor->targetspeed = SID_RATE * (mt->rate[0][0] + sid) * SEC_TO_RAD;
+      pulse_ra_tckr.once_ms(interval, pulse_stop_ra, mt);
+      break;
+    case 'e':
+      mt->azmotor->targetspeed = -SID_RATE * (mt->rate[0][0] - sid) * SEC_TO_RAD;
+      pulse_dec_tckr.once_ms(interval, pulse_stop_ra, mt);
+      break;
+  };
+
+}
 void select_rate(mount_t *mt, char dir)
 {
   switch (dir)
@@ -182,6 +312,12 @@ void select_rate(mount_t *mt, char dir)
 
 }
 
+int mount_slew(mount_t *mt)
+{
+  eq_to_enc(&(mt->azmotor->target), &(mt->altmotor->target),
+            mt->ra_target, mt->dec_target, get_pierside(mt));
+  mt->azmotor->slewing = mt->altmotor->slewing = true;
+}
 
 
 int get_pierside(mount_t *mt)
@@ -213,6 +349,27 @@ void mount_lxde_str(char* message, mount_t *mt)
 
 
 };
+void mount_lxra_str(char *message, mount_t *mt)
+{
+
+  double ang = calc_Ra(mt->azmotor->position, mt->longitude);
+  if (get_pierside(mt))
+  {
+    if (ang < M_PI) ang += M_PI;
+    else ang -= M_PI;
+  }
+  int seconds = ang * RAD_TO_DEG * 3600.0;
+  int x = trunc (seconds) / 15.0;
+  int rest = ((seconds % 15) * 2) / 3;
+  rest %= 15;
+  rest *= 10;
+  int gra = x / 3600;
+  int temp = (x % 3600);
+  int min = temp / 60;
+  int sec = temp % 60;
+  sprintf(message, "%02d:%02d:%02d.%d#", gra, min, sec, rest);
+};
+
 
 int readconfig(mount_t *mt)
 {
@@ -264,6 +421,8 @@ int readconfig(mount_t *mt)
   back_alt = s.toInt();
   s = f.readStringUntil('\n');
   mt->mount_mode = (mount_mode_t)s.toInt();
+  s = f.readStringUntil('\n');
+  mt->track = (s.toInt() > 0);
   init_motor( mt->azmotor, AZ_ID, maxcounter, 0, mt->prescaler, mt->maxspeed[0], tmp, back_az);
   init_motor( mt->altmotor,  ALT_ID, maxcounteralt, 0, mt->prescaler, mt->maxspeed[1], tmp2, back_alt);
   return 0;
@@ -284,11 +443,11 @@ void mount_park(mount_t *mt)
   mt->altmotor->targetspeed = 0.0;
   mt->azmotor->targetspeed = 0.0;
 
- /* delay(100);
-  save_counters(ALT_ID);
-  delay(10);
-  save_counters(AZ_ID);
-  delay(10);*/
+  /* delay(100);
+    save_counters(ALT_ID);
+    delay(10);
+    save_counters(AZ_ID);
+    delay(10);*/
 }
 
 void mount_home_set(mount_t *mt)
@@ -297,24 +456,44 @@ void mount_home_set(mount_t *mt)
   mt->altmotor->slewing = mt->azmotor->slewing = mt->is_tracking = FALSE;
   mt->altmotor->targetspeed = 0.0;
   mt->azmotor->targetspeed = 0.0;
-    delay(100);
-  if (mt->mount_mode == 0) {
-  
-    setposition(mt->azmotor, M_PI / mt->azmotor->resolution);
-    delay(10);
-    setposition(mt->altmotor, (M_PI / 4) / mt->altmotor->resolution);
-  }
-  else
+  delay(100);
+  switch (mt->mount_mode)
   {
-    setposition(mt->azmotor, (3.0*M_PI / 2.0) / mt->azmotor->resolution);
-    delay(10);
-    setposition(mt->altmotor, (M_PI) / mt->altmotor->resolution);
-  };
-
+    case ALTAZ:
+      setpositionf(mt->azmotor, M_PI );
+      delay(10);
+      setpositionf(mt->altmotor, M_PI / 4 );
+      break;
+    case ALIGN:
+      setpositionf(mt->azmotor, (3.0 * M_PI / 2.0) );
+      delay(10);
+      setpositionf(mt->altmotor, M_PI) ;
+      break;
+    case EQ:
+      setpositionf(mt->azmotor, M_PI / 2 );
+      delay(10);
+      setpositionf(mt->altmotor, M_PI );
+      break;
+  }
   //   save_counters(ALT_ID);
   //  delay(10);
   //  save_counters(AZ_ID);
   //  delay(10);
+}
+void  meridianflip(mount_t *mt, int side)
+{
+  int  artemp, count, dectemp;
+  if (side != get_pierside(mt))
+  {
+    mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
+    if  (mt->altmotor->counter <= ( mt->altmotor->maxcounter / 2))
+      dectemp = (mt->altmotor->maxcounter / 2) - mt->altmotor->counter;
+    else
+      dectemp = (mt->altmotor->maxcounter + mt->altmotor->maxcounter / 2) - mt->altmotor->counter ;
+    artemp = (mt->azmotor->counter + mt->azmotor->maxcounter / 2) % mt->azmotor->maxcounter;
+    setposition(mt->altmotor, dectemp);
+    setposition(mt->azmotor, artemp );
+  }
 }
 void  tak_init(mount_t *mt)
 {
@@ -331,7 +510,7 @@ void  tak_init(mount_t *mt)
     //   init_star(2, &st_now);
 
   }
-  else if (mt->mount_mode == EQ)
+  else if ((mt->mount_mode == ALIGN) || (mt->mount_mode == EQ))
   {
     double ra    ;
     set_star(&st_1,  temp, 0.0, 180.0, 0.0, 0);
@@ -360,39 +539,42 @@ void track(mount_t *mt)
 {
   double d_az_r, d_alt_r;
 
-    readcounter_n(mt->altmotor); readcounter(mt->azmotor);
-    st_target.timer_count = st_current.timer_count = ((millis() - sdt_millis) / 1000.0);
-    st_current.az = mt->azmotor->position;
-    st_current.alt = mt->altmotor->position;
-    st_current.p_mode=st_target.p_mode=get_pierside(mt);
 
-    //compute ecuatorial current equatorial values to be send out from LX200 protocol interface
-    to_equatorial(&st_current);
-    if (sync_target ) {
-      st_target.ra = mt->ra_target = st_current.ra;
-      st_target.dec = mt->dec_target = st_current.dec;
-      sync_target = FALSE;
-      mt->is_tracking = TRUE;
-    }
 
-    if (mt->is_tracking)
-    {
-      //compute next alt/az mount values  for target next lap second
-      st_target.timer_count += 1.0;
-      to_alt_az(&st_target);
-      //compute delta values :next values from actual values for desired target coordinates
-      d_az_r = (st_target.az) - st_current.az;
-      // if (fabs(d_az_r) > (M_PI)) d_az_r -= M_2PI;
-      if (fabs(d_az_r) > (M_PI)) d_az_r -= (M_2PI * sign( d_az_r));
-      d_alt_r = (st_target.alt) - st_current.alt;;
-      if (fabs(d_alt_r) > (M_PI)) d_alt_r -= M_2PI;
 
-      // Compute and set timer intervals for stepper  rates
-      settargetspeed(mt->azmotor, d_az_r);
-      settargetspeed(mt->altmotor, d_alt_r);
+  readcounter_n(mt->altmotor); readcounter(mt->azmotor);
+  st_target.timer_count = st_current.timer_count = ((millis() - sdt_millis) / 1000.0);
+  st_current.az = mt->azmotor->position;
+  st_current.alt = mt->altmotor->position;
+  st_current.p_mode = st_target.p_mode = get_pierside(mt);
 
-    }
- if (mt->sync) sync_ra_dec(mt);
+  //compute ecuatorial current equatorial values to be send out from LX200 protocol interface
+  to_equatorial(&st_current);
+  if (sync_target ) {
+    st_target.ra = mt->ra_target = st_current.ra;
+    st_target.dec = mt->dec_target = st_current.dec;
+    sync_target = FALSE;
+    mt->is_tracking = TRUE;
+  }
+
+  if (mt->is_tracking)
+  {
+    //compute next alt/az mount values  for target next lap second
+    st_target.timer_count += 1.0;
+    to_alt_az(&st_target);
+    //compute delta values :next values from actual values for desired target coordinates
+    d_az_r = (st_target.az) - st_current.az;
+    // if (fabs(d_az_r) > (M_PI)) d_az_r -= M_2PI;
+    if (fabs(d_az_r) > (M_PI)) d_az_r -= (M_2PI * sign( d_az_r));
+    d_alt_r = (st_target.alt) - st_current.alt;;
+    if (fabs(d_alt_r) > (M_PI)) d_alt_r -= M_2PI;
+
+    // Compute and set timer intervals for stepper  rates
+    settargetspeed(mt->azmotor, d_az_r);
+    settargetspeed(mt->altmotor, d_alt_r);
+
+  }
+  if (mt->sync) sync_ra_dec(mt);
 
 }
 
@@ -405,7 +587,7 @@ void align_sync_all(mount_t *mt, long ra, long dec)
       mt->ra_target = ra * 15.0 * SEC_TO_RAD;
       mt->dec_target = dec * SEC_TO_RAD;
       mt->sync = TRUE;
-      
+      break;
     case 1:
       reset_transforms(0.0, 0.0, 0.0);
       set_star(&st_1, ra * (15.0 / 3600.0), dec / 3600.0, mt->azmotor->position * RAD_TO_DEG, RAD_TO_DEG * mt->altmotor->position,  ((millis() - sdt_millis) / 1000.0));

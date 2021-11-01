@@ -1,5 +1,5 @@
 /*
- * Parses LX200 protocol.
+ * Parses LX200 protocol you must process this file with RAGEL compiler to get command.cpp file
  */
 
 #define ADD_DIGIT(var,digit) var=var*10+digit-'0';
@@ -15,7 +15,6 @@
 
 char response [200];
 char tmessage[50];
-const int month_days[] = {31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
 extern c_star st_now, st_target, st_current;
 struct _telescope_
 {   long dec_target,ra_target;
@@ -29,35 +28,30 @@ struct _telescope_
 mount;
 extern long sdt_millis;
 extern mount_t *telescope;
-void lxprintdate(void)
-{
-sprintf(tmessage,"%02d/%02d/%02d#",mount.month,mount.day,mount.year); APPEND;
-  //sprintf(tmessage,"%02d/%02d/%02d#",9,19,21); APPEND;
-}
-void lxprinttime(void)
-{
-  // sprintf(tmessage,"%02d:%02d:%02d#",17,05,mount.sec);APPEND;
-   sprintf(tmessage,"%02d:%02d:%02d#",mount.hour,mount.min,mount.sec);APPEND;
-}
+
 void lxprintsite(void)
 {
     sprintf(tmessage,"Site Name#");APPEND;
 };
 
-void ltime(void)
-{
-    long pj =(long)1;
-}
 
 void set_cmd_exe(char cmd,long date)
 { int temp ;
     switch (cmd)
     {
     case 'r':
-        mount.ra_target=date;
+       if (telescope->mount_mode) mount.ra_target=date;
+	   else
+	    telescope->azmotor->target=telescope->ra_target=date*SEC_TO_RAD*15.0;
         break;
     case 'd':
-        mount.dec_target=date ;
+        if (telescope->mount_mode) mount.dec_target=date;
+		else
+		{  telescope->dec_target=date*SEC_TO_RAD;
+        if  (telescope->dec_target<0.0)
+            telescope->altmotor->target=2*M_PI+telescope->dec_target;
+        else
+            telescope->altmotor->target=telescope->dec_target;}
         break;
     case 'a':
         mount.alt_target=date;
@@ -95,21 +89,16 @@ void set_date( int day,int month,int year)
 {   mount.month=month-1;
     mount.day=day;
     mount.year=100+year;
-     setclock (mount.year,mount.month,mount.day,mount.hour,mount.min,mount.sec,telescope->time_zone);
-	//sprintf(tmessage,"%cUpdating Planetary Data# %d %d %d  #",'1', mount.month,mount.day,mount.year);APPEND;
+    setclock (mount.year,mount.month,mount.day,mount.hour,mount.min,mount.sec,telescope->time_zone);
 	sprintf(tmessage,"%cUpdating Planetary Data#     #",'1');APPEND;
 }
 void set_time( int hour,int min,int sec)
-{  //sprintf(tmessage,"year %d  month %d day %d Hour %d Min %d sec %d GMT %d" ,mount.year,mount.month, mount.day,hour,min,sec,telescope->time_zone);APPEND;
-   //setclock (mount.year,mount.month, mount.day,hour,min,sec,telescope->time_zone);
+{
     mount.min=min;
     mount.hour=hour;
     mount.sec=sec;
-  // setclock (mount.year,mount.month,mount.day,hour,min,sec,telescope->time_zone);
-   sprintf(tmessage,"1");APPEND;
-
+    sprintf(tmessage,"1");APPEND;
 }
-
 
 //----------------------------------------------------------------------------------------
 long command( char *str )
@@ -123,6 +112,7 @@ long command( char *str )
     int neg = 1;
     tmessage[0]=0;
     response[0]=0;
+	int pulse=0;
 
     %%{
         machine command;
@@ -133,17 +123,24 @@ long command( char *str )
 
 
     %%{
-#Acciones
+#Actions
         action getgrads {ADD_DIGIT(deg,fc); }
         action getmin {ADD_DIGIT(min,fc); }
         action getsec {ADD_DIGIT(sec,fc); }
+		action getpulse{ADD_DIGIT(pulse,fc);}
         action neg { neg=-1;}
         action dir {mount_move(telescope,stcmd);}
-        action Goto {goto_ra_dec(telescope,mount.ra_target*15.0*SEC_TO_RAD,mount.dec_target*SEC_TO_RAD); sprintf(tmessage,"0");APPEND;}
+		action pulse_dir{pulse_guide(telescope,stcmd,pulse);}
+        action Goto {if (telescope->mount_mode)
+					{goto_ra_dec(telescope,mount.ra_target*15.0*SEC_TO_RAD,mount.dec_target*SEC_TO_RAD);}
+					 else mount_slew(telescope);
+					 sprintf(tmessage,"0");APPEND;}
         action stop {mount_stop(telescope,stcmd);}
         action rate {select_rate(telescope,stcmd); }
-        action return_ra { lxprintra1(tmessage, st_current.ra); APPEND;}
-        action return_dec {lxprintde1(tmessage, st_current.dec); APPEND;}
+        action return_ra {if (telescope->mount_mode) lxprintra1(tmessage, st_current.ra);
+							else mount_lxra_str(tmessage,telescope); APPEND;}
+        action return_dec {if (telescope->mount_mode) lxprintde1(tmessage, st_current.dec);
+							else mount_lxde_str(tmessage,telescope); APPEND;}
         action return_az { lxprintaz1(tmessage, st_current.az); APPEND;}
         action return_alt {lxprintde1(tmessage, st_current.alt); APPEND;}
         action return_ra_target { lxprintra1(tmessage, st_target.ra); APPEND;}
@@ -154,7 +151,13 @@ long command( char *str )
         action return_longitude {lxprintlong1(tmessage,telescope->longitude);APPEND;}
         action return_lat {lxprintlat1(tmessage,telescope->lat);APPEND;}
         action return_sid_time { ;}
-        action sync { align_sync_all(telescope,mount.ra_target,mount.dec_target); sprintf(tmessage,"sync#");APPEND;}
+
+        action sync {if (telescope->mount_mode)
+						align_sync_all(telescope,mount.ra_target,mount.dec_target);
+						else
+						{sync_eq(telescope);telescope->altmotor->slewing= telescope->azmotor->slewing=FALSE;}
+						sprintf(tmessage,"sync#");APPEND;
+						}
         action rafrac {deg+=(fc-'0')*6;}
         action return_local_time { lxprinttime1(tmessage);APPEND;}
         action set_cmd_exec {set_cmd_exe(stcmd,(neg*(deg )));
@@ -164,18 +167,18 @@ long command( char *str )
         action addsec {deg+=sec;}
         action storecmd {stcmd=fc;}
         action setdate {set_date(min,deg,sec);}
-        action return_align{sprintf(tmessage,"A"); APPEND; }
+        action return_align{if (telescope->mount_mode==ALTAZ) sprintf(tmessage,"A");else sprintf(tmessage,"P") ; APPEND; }
 		action set_gmt_offset{ telescope->time_zone=deg;}
 		action return_GMT_offset {lxprintGMT_offset(tmessage,telescope->time_zone );APPEND}
         action settime{set_time(deg,min,sec);}
-#definicion sintaxis LX terminos auxiliares
+# LX200  auxiliary terms syntax definitions
         sexmin =  ([0-5][0-9])$getmin@addmin ;
-        sex= ([0-5][0-9] )$getsec@addsec;
+        sex= ([0-5][0-9] )$getsec@addsec (('.'digit{1,2}){,1});
 		grad=([\+] |''|space | [\-]@neg) ((digit @getgrads){2,3});
         deg = grad punct sexmin (any  sex)? ;
         RA = ([0-2] digit) $getgrads   (':'|'/') sexmin ('.'digit@rafrac | (':'|'/') sex) ;
 
-#Definicion sintaxis comandos
+#Lx200 commands syntax definition
         Poll= 'G'( 'R'%return_ra |
                    'D'%return_dec|
                    'r'%return_ra_target |
@@ -190,7 +193,7 @@ long command( char *str )
                    'g'%return_longitude|
                    't'%return_lat);
 
-        Move = 'M' ([nswe]@storecmd %dir | 'S'%Goto);
+        Move = 'M' (([nswe]@storecmd %dir) | ('S'%Goto)|('G'[nsew]@storecmd digit{4}$getpulse %pulse_dir));
         Rate = 'R' [CGMS]@storecmd (''|[0-4]) %rate;
 		Timezone='G'(''|space)([\+] | [\-]@neg)((digit @getgrads){1,2}) ('.' digit)? %set_gmt_offset%ok;
         date ='C' (''|space)  (digit@getgrads){2} '/' (digit @getmin){2} '/' (digit @getsec){2}%setdate;

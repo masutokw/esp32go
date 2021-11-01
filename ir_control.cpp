@@ -217,7 +217,7 @@ void ir_read(void)
     last = 0xFFFF;
   }
 }
-uint32 get_IR_lcode(uint32_t bcode)
+uint32_t get_IR_lcode(uint32_t bcode)
 {
   uint32_t n;
   for (n = 0; n < 31; n++)

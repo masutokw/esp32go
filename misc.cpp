@@ -2,6 +2,11 @@
 #include "time.h"
 double sdt;
 long sdt_millis;
+void sdt_init(double longitude, int tz)
+{
+    sdt_millis = millis();
+    sdt = sidereal_timeGMT(longitude, tz);
+}
 //input deg ,output hour
 double ln_range_degrees (double angle)
 {
@@ -32,6 +37,26 @@ double sidereal_timeGMT (double longitude, int tz)
   /* change to hours */
   sidereal /= 15.0 ;
   return sidereal;
+}
+//input rad,deg output rad
+double calc_Ra( double lha, double longitude)
+
+{
+    double temp;
+    double sid = sidereal_timeGMT_alt(longitude) * 15.0;
+    temp = (lha * 180.0) / M_PI;
+    /*  if  (sid>=temp) return ((sid-lha) *M_PI)/180.0                             ;
+      else return  ((sid-lha+360.0) *(M_PI))/180.0;*/
+    if  (sid >= temp) return sid * (M_PI / 180.0) - lha;
+    else return  sid * (M_PI / 180.0) - lha + 2.0 * M_PI;
+
+
+}
+double calc_lha(double ra, double longitude)
+{
+    double sid = sidereal_timeGMT(longitude, 1) * 15.0;
+
+    return (sid - (ra * 180.0 / M_PI)) * (M_PI / 180.0);
 }
 
 void lxprintde1(char* message, double ang)
@@ -158,7 +183,8 @@ void lxprintdate1(char *message)
   sprintf(message, "%02d/%02d/%02d#", mtime->tm_mon + 1, mtime->tm_mday, mtime->tm_year - 100);
 }
 void lxprintGMT_offset(char *message, double offset )
-{ int gmt = offset;
+{ 
+int gmt = offset;
   char c = '+';
   if (offset > 0) c = '-';
 
@@ -185,9 +211,46 @@ void setclock (int year, int month, int day, int hour, int min, int sec, int gmt
 
 void config_NTP(int zone, int dls)
 {
-  configTime(zone * 3600, dls * 3600,  "pool.ntp.org");
+  configTime(zone * 3600, dls * 3600,  "pool.ntp.org");													 
 }
 
+void enc_to_eq(double x, double y, double *a, double  *b, char *pier)
+{
+    *a = x;
+    *pier = true;
+    if (y <= M_PI / 2.0) *b = y;
+    else if (y < (M_PI * 3 / 2))
+    {
+        {
+            *b = M_PI - y ;
+            if (x < M_PI) *a += M_PI ;
+            else *a -= M_PI;
+            *pier = false;
+        }
+
+    }
+    else  *b = y - M_PI * 2;
+
+}
+
+
+void eq_to_enc(double *ra, double *dec, double a, double  b, int pier)
+{
+
+    if (!pier)
+    {
+        *ra = a;
+        if (b < 0.0)  *dec = b + 2 * M_PI;
+        else *dec = b;
+    }
+    else
+    {
+        *dec = M_PI - b;
+        if (a >= M_PI) *ra = a - M_PI;
+        else *ra = M_PI + a;
+    }
+}
+//output hours							
 
 double sidereal_timeGMT_alt(double longitude)
 {
@@ -196,6 +259,7 @@ double sidereal_timeGMT_alt(double longitude)
   if (temp >= 24.0) return temp - 24.0;
   return temp;
 }
+//from LIBNOVA			  
 void ln_get_equ_prec (double mean_ra, double mean_dec, double JD, double  *position_ra, double *position_dec)
 {
   double t, t2, t3, A, B, C, zeta, eta, theta, ra, dec;

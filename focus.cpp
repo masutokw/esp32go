@@ -3,7 +3,6 @@
 int  focuspeed=20;
 int  focuspeed_low=100;
 int focusmax=50000;
-#define AZ_ID 0xFD
 void setfocuserspeed(motor_t* mt,int speed)
 {
  // aux_set_period(mt->id, speed);

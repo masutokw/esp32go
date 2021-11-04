@@ -18,10 +18,6 @@
 #ifdef  NUNCHUCK_CONTROL
 #include "nunchuck.h"
 #endif
-#define  CLOCK_OUT_AZ 4
-#define DIR_OUT_AZ 19
-#define  CLOCK_OUT_ALT 5
-#define DIR_OUT_ALT 2
 uint64_t  volatile period_az, period_alt;
 int volatile azcounter, altcounter;
 int  volatile azdir, altdir;
@@ -268,16 +264,11 @@ void setup()
     speed_control_tckr.attach_ms(SPEED_CONTROL_TICKER, thread_motor2, telescope);
   }
 
-
-
-
-
 #ifdef PAD
   pad_Init();
 #endif //PAD
 #ifdef NUNCHUCK_CONTROL
-  // nunchuck_init(D6, D5);
-  nunchuck_init(2, 0);
+   nunchuck_init( SDA_PIN, SCL_PIN);
 #endif
 #ifdef OTA
   InitOTA();
@@ -286,16 +277,15 @@ void setup()
   ir_init();
 #endif
 
-  // Set BTN_STOP_ALARM to input mode
-  // pinMode(BTN_STOP_ALARM, INPUT);
   pinMode(CLOCK_OUT_AZ, OUTPUT);
   pinMode(CLOCK_OUT_ALT, OUTPUT);
   pinMode(DIR_OUT_AZ, OUTPUT);
   pinMode(DIR_OUT_ALT, OUTPUT);
-  // Create semaphore to inform us when the timer has fired
-  // timerSemaphore = xSemaphoreCreateBinary();
-
-  // Use 1st timer of 4 (counted from zero).
+  pinMode(ENABLE_AZ, OUTPUT);
+  pinMode(ENABLE_ALT, OUTPUT);
+  digitalWrite(ENABLE_AZ, 0);
+  digitalWrite(ENABLE_ALT, 0);
+   // Use 1st timer of 4 (counted from zero).
   // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
   // info).
   timer_alt = timerBegin(2, 80, true);
@@ -305,8 +295,6 @@ void setup()
   timerAttachInterrupt(timer_az, &onTimer_az, true);
   timerAttachInterrupt(timer_alt, &onTimer_alt, true);
 
-  // Set alarm to call onTimer function every second (value in microseconds).
-  // Repeat the alarm (third parameter)
   timerAlarmWrite(timer_az, 100000, true);
   timerAlarmWrite(timer_alt, 100000, true);
 

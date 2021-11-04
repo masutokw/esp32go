@@ -15,7 +15,7 @@ extern int focusmax;
 extern  int align_star_index;
 extern c_star st_1, st_2;
 extern  time_t init_time;
-long getDecimal(float val)
+/*long getDecimal(float val)
 {
   int intPart = int(val);
   long decPart = 10000 * (val - intPart); //I am multiplying by 10000 assuming that the foat values will have a maximum of four decimal places
@@ -23,7 +23,7 @@ long getDecimal(float val)
   if (decPart > 0)return (decPart);       //return the decimal part of float number if it is available
   else if (decPart < 0)return ((-1) * decPart); //if negative, multiply by -1
   else if (decPart = 0)return (00);       //return 0 if decimal part of float number is not available
-}
+}*/
 
 
 

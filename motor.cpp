@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
-#define DIR_OUT_AZ 19
-#define DIR_OUT_ALT 2
+//#define DIR_OUT_AZ 19
+//#define DIR_OUT_ALT 2
 extern int aux_count;
 extern uint64_t period_az, period_alt;
 extern int   azcounter, altcounter, azdir, altdir;

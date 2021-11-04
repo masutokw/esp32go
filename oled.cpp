@@ -2,8 +2,7 @@
 #ifdef OLED_DISPLAY
 #include "oled.h"
 extern mount_t *telescope;
-//SSD1306 display(0x3c, D5, D6);
-SSD1306 display(0x3c, 0, 2);
+SSD1306 display(0x3c, SDA_PIN, SCL_PIN);
 extern time_t now;
 void oledDisplay()
 {

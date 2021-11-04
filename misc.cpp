@@ -305,3 +305,12 @@ void ln_get_equ_prec (double mean_ra, double mean_dec, double JD, double  *posit
   *position_ra = ln_range_degrees ((RAD_TO_DEG) * (ra));
   *position_dec = (RAD_TO_DEG) * (dec);
 }
+long getDecimal(float val)
+{
+  int intPart = int(val);
+  long decPart = 10000 * (val - intPart); //I am multiplying by 10000 assuming that the foat values will have a maximum of four decimal places
+  //Change to match the number of decimal places you need
+  if (decPart > 0)return (decPart);       //return the decimal part of float number if it is available
+  else if (decPart < 0)return ((-1) * decPart); //if negative, multiply by -1
+  else if (decPart = 0)return (00);       //return 0 if decimal part of float number is not available
+}

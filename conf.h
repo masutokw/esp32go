@@ -8,7 +8,12 @@
 #define IR_PIN 15
 #define SDA_PIN 21
 #define SCL_PIN 22
-
+#define  CLOCK_OUT_AZ 4
+#define DIR_OUT_AZ 2
+#define  CLOCK_OUT_ALT 5
+#define  DIR_OUT_ALT 18
+#define ENABLE_AZ 16
+#define ENABLE_ALT 23
 //optional
 
 #define NUNCHUCK_CONTROL

@@ -6,6 +6,7 @@ extern c_star  st_now, st_target, st_current, st_1, st_2;
 extern int  focuspeed;
 extern int  focuspeed_low;
 extern int focusmax;
+extern int azcounter, altcounter;
 #include <Ticker.h>
 Ticker pulse_dec_tckr, pulse_ra_tckr;
 char sel_flag;
@@ -204,7 +205,7 @@ int mount_stop(mount_t *mt, char direction)
     sync_target = TRUE;
   }
   else // mt->is_tracking = TRUE;
-  {  mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
+  { mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
     switch (direction)
     {
       case'n':
@@ -425,9 +426,14 @@ int readconfig(mount_t *mt)
   mt->track = (s.toInt() > 0);
   init_motor( mt->azmotor, AZ_ID, maxcounter, 0, mt->prescaler, mt->maxspeed[0], tmp, back_az);
   init_motor( mt->altmotor,  ALT_ID, maxcounteralt, 0, mt->prescaler, mt->maxspeed[1], tmp2, back_alt);
-  return 0;
-
-
+  f.close();
+  f = SPIFFS.open("/savedpos", "r");
+  s = f.readStringUntil('\n');
+  azcounter = s.toInt();
+    s = f.readStringUntil('\n');
+  altcounter= s.toInt();
+   f.close();
+ return 0;
 }
 void mount_track_off(mount_t *mt)
 
@@ -442,7 +448,10 @@ void mount_park(mount_t *mt)
   mt->altmotor->slewing = mt->azmotor->slewing = mt->is_tracking = FALSE;
   mt->altmotor->targetspeed = 0.0;
   mt->azmotor->targetspeed = 0.0;
-
+  File f = SPIFFS.open("/savedpos", "w");
+  f.println(azcounter);
+  f.println(altcounter);
+  f.close ();
   /* delay(100);
     save_counters(ALT_ID);
     delay(10);

@@ -18,6 +18,7 @@
 #ifdef  NUNCHUCK_CONTROL
 #include "nunchuck.h"
 #endif
+
 uint64_t  volatile period_az, period_alt;
 int volatile azcounter, altcounter;
 int  volatile azdir, altdir;
@@ -58,6 +59,7 @@ Ticker speed_control_tckr, counters_poll_tkr;
 extern long command( char *str );
 time_t now;
 time_t init_time;
+char counter;
 void IRAM_ATTR onTimer_az() {
 
   if (azdir) {
@@ -94,6 +96,8 @@ void bttask(void) {
   if (SerialBT.available()) {
     char n = 0;
     while (SerialBT.available())  buff[n++] = (char) SerialBT.read() ;
+     buff[n] = 0;
+  //  Serial.write((const uint8_t* )buff, n);
     command(buff);
     buff[n] = 0;
     SerialBT.write((const uint8_t* )response, strlen(response));
@@ -154,6 +158,8 @@ void serialtask(void) {
   if (Serial.available()) {
     char n = 0;
     while (Serial.available())  buff[n++] = (char) Serial.read() ;
+   // SerialBT.write((const uint8_t* )buff, n);
+  //  SerialBT.println(n);
     command(buff);
     buff[n] = 0;
     Serial.write((const uint8_t* )response, strlen(response));
@@ -169,12 +175,11 @@ void setup()
 #endif
 
   SerialBT.setPin(pin);
-  SerialBT.begin("PGTA_ESP32");
+  SerialBT.begin("ESP32go_BT");
   SerialBT.setPin(pin);
 
   WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP("ESP-PGT", "boquerones");
-  // WiFi.softAP("TUBOSAURIO", "acebuche");
+  WiFi.softAP("ESP32go", "boquerones");
   SPIFFS.begin();
   File f = SPIFFS.open("/wifi.config", "r");
   if (f)
@@ -306,9 +311,10 @@ void setup()
 void loop()
 {
   delay(10);
+  
   net_task();
   bttask();
-  //serialtask();
+  serialtask();
 
   now = time(nullptr);
   serverweb.handleClient();
@@ -327,6 +333,7 @@ void loop()
 #endif
 
 #ifdef OTA
+if (counter++%10==0)
   ArduinoOTA.handle();
 #endif
 

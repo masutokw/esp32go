@@ -20,7 +20,7 @@
 //#define IR_CONTROL
 //#define PAD
 //#define OLED_DISPLAY
-//#define OTA
+#define OTA
 //#define FIXED_IP 13
 
 
@@ -28,7 +28,7 @@
 #define EPOCH_1_1_2019 1546300800
 #define SERVER_PORT 10001
 #define WEB_PORT 80
-#define BAUDRATE 19200
+#define BAUDRATE 115200
 #define MAX_SRV_CLIENTS 3
 #define SPEED_CONTROL_TICKER 20
 #define COUNTERS_POLL_TICKER 100

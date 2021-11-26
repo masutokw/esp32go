@@ -1,6 +1,7 @@
 #include "time.h"
 #include "taki.h"
 #include "webserver.h"
+#include "nunchuck.h"					 
 #ifdef IR_CONTROL
 extern uint32_t truecode, lasti;
 extern byte cmd_map [];
@@ -15,17 +16,6 @@ extern int focusmax;
 extern  int align_star_index;
 extern c_star st_1, st_2;
 extern  time_t init_time;
-/*long getDecimal(float val)
-{
-  int intPart = int(val);
-  long decPart = 10000 * (val - intPart); //I am multiplying by 10000 assuming that the foat values will have a maximum of four decimal places
-  //Change to match the number of decimal places you need
-  if (decPart > 0)return (decPart);       //return the decimal part of float number if it is available
-  else if (decPart < 0)return ((-1) * decPart); //if negative, multiply by -1
-  else if (decPart = 0)return (00);       //return 0 if decimal part of float number is not available
-}*/
-
-
 
 String getContentType(String filename)
 {
@@ -117,7 +107,7 @@ void handleConfig()
 #ifdef IR_CONTROL
   content += " IR Control</h2>";
 #else
-  content += " NUNCHUCK</h2>";
+  content += " NUNCHUK</h2>";
 #endif
 
   content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Login  information:</legend>";
@@ -147,12 +137,10 @@ void handleConfig()
 
   content += "<tr><td>BackSlash</td><td><input type='number' step='1' name='BACK_AZ' class=\"text_red\" value='" + String(telescope->azmotor->backslash) + "'></td>";
   content += "<td><input type='number' step='1' name='BACK_ALT' class=\"text_red\" value='" + String(telescope->altmotor->backslash) + "'></td></tr>";
-  content += "<tr><td>Prescaler</td><td><input type='number' step='0.01' name='PRESCALER' class=\"text_red\" value='" + String(telescope->prescaler) + "' uSec</td></tr>";																																								
-    content += "<tr><td>Track</td><td><input type='number' name='TRACK'  class=\"text_red\" value ='" + String(telescope->track) + "' </td></tr>";																																				  
-  // content += "<tr><td>Mount</td><td><input type='number' step='1' name='MOUNT' class=\"text_red\" value='" + String(telescope->mount_mode) + "'></td></tr></table>";
+  content += "<tr><td>Prescaler</td><td><input type='number' step='0.0001' name='PRESCALER' class=\"text_red\" value='" + String(telescope->prescaler) + "' uSec</td></tr>";																																								
+  content += "<tr><td>EQ Track</td><td><input type='number' min='0' max='4' title='0.No track 1-Sideral 2-Solar 3-Lunar 4-King.' step='1' name='TRACK'  class=\"text_red\" value ='" + String(telescope->track) + "' </td></tr>";
   String checked = "";
-
-    if (telescope->mount_mode == EQ) checked = " checked " ;
+	if (telescope->mount_mode == EQ) checked = " checked " ;
     else checked = ""  ;
     content += "<tr><td>EQ<input type='radio' name='MOUNT' value='0'  class=\"button_red\"'" + checked + "></td>";
     if (telescope->mount_mode == ALTAZ) checked = " checked " ;
@@ -188,7 +176,12 @@ void handleConfig()
   content += "</form>";
   content += "<button onclick=\"location.href='/restart'\"class=\"button_red\"  type=\"button\">Restart device</button>";
   content += "<button onclick=\"location.href='/update'\" class=\"button_red\" type=\"button\">Update Firmware</button>";
-  content += "<button onclick=\"location.href='/remote'\" class=\"button_red\" type=\"button\">IR Remote </button>";
+   #ifdef IR_CONTROL
+    content += "<button onclick=\"location.href='/remote'\" class=\"button_red\" type=\"button\">IR Remote </button>";
+   #endif
+   #ifdef NUNCHUCK_CONTROL
+    content += "<button onclick=\"location.href='/nunchuk'\" class=\"button_red\" type=\"button\">Init Nunchuk </button>";
+   #endif	 
   content += "<br>Load Time :" + String(ctime(&now)) + "<br>";
   content += "<br>" + msg + String(telescope->azmotor->slewing)+ " </body></html>";
   serverweb.send(200, "text/html", content);
@@ -292,6 +285,18 @@ void handleRestart(void)
   delay(1000);
   ESP.restart();
 }
+void handleNunchuk(void)
+{
+  
+    String content =   "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP-PGT++ restarted</h2><br>";
+   
+    content += "AZ Counter:" + String(telescope->azmotor->counter) + "<br>";
+    content += "Alt Counter:" + String(telescope->altmotor->counter) + "<br>";
+    content += "<button onclick=\"location.href='/'\"  type=\"button\">Home</button><br>";
+    content += "</body></html>";
+    serverweb.send(200, "text/html", content);
+    nunchuck_init(SDA_PIN, SCL_PIN);
+}		
 void handleStar( void)
 {
   String msg, txt;
@@ -477,6 +482,9 @@ void initwebserver(void)
   serverweb.on("/remote", handleRemote);
    serverweb.on("/IR", handleIr);
 #endif
+  #ifdef NUNCHUCK_CONTROL
+    serverweb.on("/nunchuk",handleNunchuk);
+#endif						 
   serverweb.onNotFound([]()
   {
     if (!handleFileRead(serverweb.uri()))

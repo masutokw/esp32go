@@ -8,6 +8,11 @@
 #include <math.h>
 #include "taki.h"
 #define SID_RATE 15.04106711786691
+#define SID_RATE_RAD  SID_RATE * SEC_TO_RAD
+#define SIDERALF = 15.041068558362671057482635080546
+#define SOLAR_RATE 15.0
+#define LUNAR_RATE 14.685
+#define KING_RATE  15.0369
 #define ARC_SEC_LMT 1.0
 #define AZ_RED 8000*6*180
 #define ALT_RED  8000*6*180
@@ -37,6 +42,7 @@ typedef struct
     char is_tracking;
     char sync;
     int smode;
+    double track_speed;
 } mount_t;
 
 mount_t* create_mount(void);
@@ -64,4 +70,5 @@ int mount_slew(mount_t *mt);
 int sync_eq(mount_t *mt);
 void pulse_guide(mount_t *mt, char dir, int interval);
 void  meridianflip(mount_t *mt, int side);
+void set_track_speed(mount_t *mt,int index);
 #endif

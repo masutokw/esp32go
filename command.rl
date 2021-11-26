@@ -203,8 +203,7 @@ long command( char *str )
         Sync = "CM"(''|'R')%sync;
         Stop ='Q' (''|[nsew])@storecmd %stop;
        	ACK = 0x06 @return_align;
-        main :=  (ACK|''|'#') ((''|'#')':' (Set | Move | Stop|Rate | Sync | Poll) '#')* ;
-
+		main :=   ((ACK|''|'#')':' (Set | Move | Stop|Rate | Sync | Poll) '#')* ;
 # Initialize and execute.
         write init;
         write exec;

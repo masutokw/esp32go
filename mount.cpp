@@ -45,6 +45,8 @@ mount_t* create_mount(void)
   m->sync = FALSE;
   m->smode = 0;
   m->track_speed = SID_RATE_RAD;
+  load_saved_pos();
+
   return m;
 }
 
@@ -102,7 +104,7 @@ void eq_track(mount_t* mt1)
 
 
   readcounter(mt1->azmotor);
-  sgndelta = sign (delta =  (mt1->azmotor->delta = mt1->azmotor->position - calc_Ra(mt1->azmotor->target, mt1->longitude)));																																	  
+  sgndelta = sign (delta =  (mt1->azmotor->delta = mt1->azmotor->position - calc_Ra(mt1->azmotor->target, mt1->longitude)));
   //sgndelta = sign (delta = mt1->track * (mt1->azmotor->delta = mt1->azmotor->position - calc_Ra(mt1->azmotor->target, mt1->longitude)));
   if ( mt1->azmotor->slewing)
   {
@@ -115,7 +117,7 @@ void eq_track(mount_t* mt1)
     }
     else
     {
-       mt1->azmotor->targetspeed =  mt1->track_speed ;// * mt1->track;
+      mt1->azmotor->targetspeed =  mt1->track_speed ;// * mt1->track;
       mt1->azmotor->slewing = 0;
     }
   }
@@ -206,8 +208,8 @@ int mount_stop(mount_t *mt, char direction)
     sync_target = TRUE;
   }
   else // mt->is_tracking = TRUE;
-  { 
-	mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
+  {
+    mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
     switch (direction)
     {
       case'n':
@@ -218,7 +220,7 @@ int mount_stop(mount_t *mt, char direction)
         break;
       case 'w':
       case 'e':
-         mt->azmotor->targetspeed = mt->track_speed ;//* mt->track;
+        mt->azmotor->targetspeed = mt->track_speed ;//* mt->track;
         break;
       default:
         mt->altmotor->targetspeed = 0.0;
@@ -238,17 +240,17 @@ void mount_move(mount_t *mt, char dir)
   switch (dir)
   {
     case 'n':
-          mt->altmotor->targetspeed =  SID_RATE_RAD * mt->rate[srate][1] * invert;
-        break;
+      mt->altmotor->targetspeed =  SID_RATE_RAD * mt->rate[srate][1] * invert;
+      break;
     case 's':
-        mt->altmotor->targetspeed = - SID_RATE_RAD * mt->rate[srate][1] * invert;
-        break;
+      mt->altmotor->targetspeed = - SID_RATE_RAD * mt->rate[srate][1] * invert;
+      break;
     case 'w':
-        mt->azmotor->targetspeed =  SID_RATE_RAD * (mt->rate[srate][0] + sid);
-        break;
+      mt->azmotor->targetspeed =  SID_RATE_RAD * (mt->rate[srate][0] + sid);
+      break;
     case 'e':
-        mt->azmotor->targetspeed = - SID_RATE_RAD * (mt->rate[srate][0] - sid);
-        break;
+      mt->azmotor->targetspeed = - SID_RATE_RAD * (mt->rate[srate][0] - sid);
+      break;
   };
 }
 void pulse_stop_dec(mount_t *mt)
@@ -261,7 +263,7 @@ void pulse_stop_dec(mount_t *mt)
 void pulse_stop_ra(mount_t *mt)
 {
   mt->azmotor->slewing = FALSE;
-    mt->azmotor->targetspeed =  mt->track_speed ;//* mt->track;
+  mt->azmotor->targetspeed =  mt->track_speed ;//* mt->track;
   // pulse_ra_tckr.detach();
 
 }
@@ -275,22 +277,22 @@ void pulse_guide(mount_t *mt, char dir, int interval)
   switch (dir)
   {
     case 'n':
-        mt->altmotor->targetspeed =  SID_RATE_RAD * mt->rate[0][1] * invert;
-        pulse_dec_tckr.once_ms(interval, pulse_stop_dec, mt);
-        break;
+      mt->altmotor->targetspeed =  SID_RATE_RAD * mt->rate[0][1] * invert;
+      pulse_dec_tckr.once_ms(interval, pulse_stop_dec, mt);
+      break;
     case 's':
-        mt->altmotor->targetspeed = - SID_RATE_RAD * mt->rate[0][1]  * invert;
-        pulse_dec_tckr.once_ms(interval, pulse_stop_dec, mt);
-        break;
+      mt->altmotor->targetspeed = - SID_RATE_RAD * mt->rate[0][1]  * invert;
+      pulse_dec_tckr.once_ms(interval, pulse_stop_dec, mt);
+      break;
     case 'w':
-        mt->azmotor->targetspeed =  SID_RATE_RAD * (mt->rate[0][0] + sid) ;
-        pulse_ra_tckr.once_ms(interval, pulse_stop_ra, mt);
-        break;
+      mt->azmotor->targetspeed =  SID_RATE_RAD * (mt->rate[0][0] + sid) ;
+      pulse_ra_tckr.once_ms(interval, pulse_stop_ra, mt);
+      break;
     case 'e':
-        mt->azmotor->targetspeed = - SID_RATE_RAD * (mt->rate[0][0] - sid);
-        pulse_dec_tckr.once_ms(interval, pulse_stop_ra, mt);
-        break;
-    };
+      mt->azmotor->targetspeed = - SID_RATE_RAD * (mt->rate[0][0] - sid);
+      pulse_dec_tckr.once_ms(interval, pulse_stop_ra, mt);
+      break;
+  };
 
 }
 void select_rate(mount_t *mt, char dir)
@@ -379,11 +381,11 @@ int readconfig(mount_t *mt)
   int maxcounter, maxcounteralt, back_az, back_alt;
   double tmp, tmp2;
   File f = SPIFFS.open("/mount.config", "r");
-  if (!f) 
-  {	
+  if (!f)
+  {
     init_motor( mt->azmotor, AZ_ID, AZ_RED,  SID_RATE_RAD, mt->prescaler, mt->maxspeed[0], 0, 0);
-    init_motor( mt->altmotor,  ALT_ID, ALT_RED, 0, mt->prescaler, mt->maxspeed[1], 0, 0); 
-	return -1;
+    init_motor( mt->altmotor,  ALT_ID, ALT_RED, 0, mt->prescaler, mt->maxspeed[1], 0, 0);
+    return -1;
   }
   String s = f.readStringUntil('\n');
   maxcounter = s.toInt();
@@ -396,8 +398,8 @@ int readconfig(mount_t *mt)
       mt->rate[n][j] = s.toFloat();
     };
   mt->srate = 0;
-    mt->maxspeed[0] = (mt->rate[3][0] *  SID_RATE_RAD);
-    mt->maxspeed[1] = (mt->rate[3][1] *  SID_RATE_RAD);
+  mt->maxspeed[0] = (mt->rate[3][0] *  SID_RATE_RAD);
+  mt->maxspeed[1] = (mt->rate[3][1] *  SID_RATE_RAD);
   s = f.readStringUntil('\n');
   mt->prescaler = s.toFloat();
   if ((mt->prescaler < 0.3) || (mt->prescaler > 2.0)) mt->prescaler = 0.4;
@@ -428,17 +430,11 @@ int readconfig(mount_t *mt)
   mt->mount_mode = (mount_mode_t)s.toInt();
   s = f.readStringUntil('\n');
   mt->track = (s.toInt() > 0);
-  set_track_speed(mt, s.toInt()); 								   
+  set_track_speed(mt, s.toInt());
   init_motor( mt->azmotor, AZ_ID, maxcounter, 0, mt->prescaler, mt->maxspeed[0], tmp, back_az);
   init_motor( mt->altmotor,  ALT_ID, maxcounteralt, 0, mt->prescaler, mt->maxspeed[1], tmp2, back_alt);
   f.close();
-  f = SPIFFS.open("/savedpos", "r");
-  s = f.readStringUntil('\n');
-  azcounter = s.toInt();
-    s = f.readStringUntil('\n');
-  altcounter= s.toInt();
-   f.close();
- return 0;
+  return 0;
 }
 void mount_track_off(mount_t *mt)
 
@@ -623,28 +619,41 @@ void align_sync_all(mount_t *mt, long ra, long dec)
 };
 void set_track_speed(mount_t *mt, int index)
 {
-    if (index < 5) mt->track = index;
-    else mt->track = 1;
-    switch (mt->track)
-    {
+  if (index < 5) mt->track = index;
+  else mt->track = 1;
+  switch (mt->track)
+  {
     case 0:
-        mt->track_speed = 0.0;
-        break;
+      mt->track_speed = 0.0;
+      break;
     case 1:
-        mt->track_speed = SID_RATE_RAD;
-        break;
+      mt->track_speed = SID_RATE_RAD;
+      break;
     case 2:
-        mt->track_speed = SOLAR_RATE * SEC_TO_RAD;
-        break;
+      mt->track_speed = SOLAR_RATE * SEC_TO_RAD;
+      break;
     case 3:
-        mt->track_speed = LUNAR_RATE * SEC_TO_RAD;
-        break;
+      mt->track_speed = LUNAR_RATE * SEC_TO_RAD;
+      break;
     case 4:
-        mt->track_speed = KING_RATE * SEC_TO_RAD;
-        break;
+      mt->track_speed = KING_RATE * SEC_TO_RAD;
+      break;
     default:
-        mt->track_speed = SID_RATE_RAD;
-        break;
-    }
-    mt->azmotor->targetspeed = mt->track_speed;
+      mt->track_speed = SID_RATE_RAD;
+      break;
+  }
+  mt->azmotor->targetspeed = mt->track_speed;
+}
+
+void load_saved_pos(void)
+{ String s;
+  File f = SPIFFS.open("/mount.config", "r");
+  if (f)
+  { f = SPIFFS.open("/savedpos", "r");
+    s = f.readStringUntil('\n');
+    azcounter = s.toInt();
+    s = f.readStringUntil('\n');
+    altcounter = s.toInt();
+  }
+  f.close();
 }

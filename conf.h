@@ -20,7 +20,7 @@
 //#define IR_CONTROL
 //#define PAD
 //#define OLED_DISPLAY
-#define OTA
+//#define OTA
 //#define FIXED_IP 13
 
 

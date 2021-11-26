@@ -71,4 +71,5 @@ int sync_eq(mount_t *mt);
 void pulse_guide(mount_t *mt, char dir, int interval);
 void  meridianflip(mount_t *mt, int side);
 void set_track_speed(mount_t *mt,int index);
+void load_saved_pos(void);
 #endif

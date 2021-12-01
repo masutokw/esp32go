@@ -68,6 +68,7 @@ void IRAM_ATTR onTimer_az() {
 
     if (azcounter < 0)  azcounter = telescope->azmotor->maxcounter;
     if (azcounter > telescope->azmotor->maxcounter)  azcounter = 0;
+     delayMicroseconds(1) ;
     digitalWrite(CLOCK_OUT_AZ, 1);
     // digitalWrite(CLOCK_OUT_AZ, !digitalRead(CLOCK_OUT_AZ));
   }
@@ -78,6 +79,7 @@ void IRAM_ATTR onTimer_alt() {
     altcounter += altdir;
     if (altcounter < 0) altcounter = telescope->altmotor->maxcounter;
     if (altcounter > telescope->altmotor->maxcounter)  altcounter = 0;
+     delayMicroseconds(1) ;
     digitalWrite(CLOCK_OUT_ALT, 1);
   }
 }
@@ -288,8 +290,12 @@ void setup()
   pinMode(DIR_OUT_ALT, OUTPUT);
   pinMode(ENABLE_AZ, OUTPUT);
   pinMode(ENABLE_ALT, OUTPUT);
+   pinMode(AZ_RES, OUTPUT);
+    pinMode(ALT_RES, OUTPUT);
   digitalWrite(ENABLE_AZ, 0);
   digitalWrite(ENABLE_ALT, 0);
+   digitalWrite(AZ_RES, 1);
+   digitalWrite(ALT_RES, 1);
    // Use 1st timer of 4 (counted from zero).
   // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
   // info).

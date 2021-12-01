@@ -14,13 +14,15 @@
 #define  DIR_OUT_ALT 18
 #define ENABLE_AZ 16
 #define ENABLE_ALT 23
+#define AZ_RES 17
+#define ALT_RES 19
 //optional
 
 #define NUNCHUCK_CONTROL
 //#define IR_CONTROL
 //#define PAD
 //#define OLED_DISPLAY
-//#define OTA
+#define OTA
 //#define FIXED_IP 13
 
 

@@ -18,7 +18,7 @@ int sign(double t)
 
 }
 
-void init_motor(motor_t* mt, char ref, int maxcounter, double spd, double tick, double maxspd, double accel,int back)
+void init_motor(motor_t* mt, char ref, int maxcounter, double spd, double tick, double maxspd, double accel, int back)
 {
   mt->speed = 0;
   mt->targetspeed = spd;
@@ -31,9 +31,9 @@ void init_motor(motor_t* mt, char ref, int maxcounter, double spd, double tick, 
   mt->id = ref;
   mt->slewing = 0;
   mt->maxspeed = maxspd;
- // set_motor_max_counter(ref, maxcounter);
-  mt->backslash=back;
-  setbackslash(mt,back);
+  // set_motor_max_counter(ref, maxcounter);
+  mt->backslash = back;
+  setbackslash(mt, back);
 }
 
 inline void setspeed(motor_t* mt , double tspeed)
@@ -51,14 +51,14 @@ inline void setspeed(motor_t* mt , double tspeed)
   if (base > 10000000) base = 10000000;
   if (mt->id) {
     azdir = sign(tspeed);
-    if (azdir > 0) digitalWrite( DIR_OUT_AZ, AZ_CW) ; else digitalWrite( DIR_OUT_AZ,AZ_CCW );
+    if (azdir > 0) digitalWrite( DIR_OUT_AZ, AZ_CW) ; else digitalWrite( DIR_OUT_AZ, AZ_CCW );
     if (base != period_az)
     { timerAlarmWrite(timer_az, period_az = base, true);
       timerAlarmEnable(timer_az);
     }
   } else
-  { if (altdir > 0) digitalWrite( DIR_OUT_ALT, ALT_CW); else digitalWrite( DIR_OUT_ALT, ALT_CCW );
-    altdir = sign(tspeed);
+  { altdir = sign(tspeed);
+    if (altdir > 0) digitalWrite( DIR_OUT_ALT, ALT_CW); else digitalWrite( DIR_OUT_ALT, ALT_CCW );
     if (base != period_alt)
     { timerAlarmWrite(timer_alt, period_alt = base, true);
       timerAlarmEnable(timer_alt);
@@ -66,19 +66,19 @@ inline void setspeed(motor_t* mt , double tspeed)
 
   }
 
-
+ 
 }
 
 
 
-  void setpositionf(motor_t* mt, double pos)
-  {
+void setpositionf(motor_t* mt, double pos)
+{
   mt->position = pos;
   mt->counter = trunc(mt->position / mt->resolution);
   if (mt->id) azcounter = mt->counter ; else
     altcounter = mt->counter;
-  
-  }
+
+}
 
 void setposition(motor_t* mt, int pos)
 { if (mt->id) azcounter = pos ; else
@@ -105,7 +105,7 @@ int readcounter(motor_t* mt)
 int readcounter_n(motor_t* mt)
 {
   int temp = altcounter;
-   if (temp >= 0)
+  if (temp >= 0)
   {
     mt->counter = temp;
     if (temp > (mt->maxcounter / 2))
@@ -115,17 +115,17 @@ int readcounter_n(motor_t* mt)
     mt->position = mt->resolution * (temp);
     //    mt->delta= mt->position-mt->target;
   }
-return 1;
+  return 1;
 }
 
 
 void setmaxcounter(motor_t* M, int value)
 {
-   M->maxcounter = value;
+  M->maxcounter = value;
 }
 void settarget(motor_t* mt, int pos)
 {
- // set_motor_target(mt->id, pos);
+  // set_motor_target(mt->id, pos);
 }
 
 void speed_up_down(motor_t* mt)
@@ -162,8 +162,8 @@ void settargetspeed(motor_t* mt, double tspeed)
   else mt->targetspeed = mt->maxspeed * sign (tspeed);
 }
 
-void setbackslash(motor_t* mt,int back)
+void setbackslash(motor_t* mt, int back)
 {
-//setmotorbackslash(mt->id,abs(back));
-//set_motor_back_slash_mode(mt->id,(back>0)? 1:0);
+  //setmotorbackslash(mt->id,abs(back));
+  //set_motor_back_slash_mode(mt->id,(back>0)? 1:0);
 }

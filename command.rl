@@ -193,7 +193,7 @@ long command( char *str )
                    'g'%return_longitude|
                    't'%return_lat);
 
-        Move = 'M' (([nswe]@storecmd %dir) | ('S'%Goto)|('G'[nsew]@storecmd digit{4}$getpulse %pulse_dir));
+        Move = 'M' (([nswe]@storecmd %dir) | ('S'%Goto)|('g'[nsew]@storecmd digit{4}$getpulse %pulse_dir));
         Rate = 'R' [CGMS]@storecmd (''|[0-4]) %rate;
 		Timezone='G'(''|space)([\+] | [\-]@neg)((digit @getgrads){1,2}) ('.' digit)? %set_gmt_offset%ok;
         date ='C' (''|space)  (digit@getgrads){2} '/' (digit @getmin){2} '/' (digit @getsec){2}%setdate;

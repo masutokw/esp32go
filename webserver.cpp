@@ -1,7 +1,8 @@
 #include "time.h"
 #include "taki.h"
 #include "webserver.h"
-#include "nunchuck.h"					 
+#include "nunchuck.h"	
+#include "tb6612.h"				 
 #ifdef IR_CONTROL
 extern uint32_t truecode, lasti;
 extern byte cmd_map [];
@@ -16,7 +17,7 @@ extern int focusmax;
 extern  int align_star_index;
 extern c_star st_1, st_2;
 extern  time_t init_time;
-
+extern stepper focus_motor;
 String getContentType(String filename)
 {
   if (serverweb.hasArg("download")) return "application/octet-stream";
@@ -449,6 +450,22 @@ void handleIr(void)
   serverweb.send(200, "text/html", content);
 }
 #endif
+void handleFocus(void) {
+  if (serverweb.hasArg("FOCUS")) {
+    String net = serverweb.arg("FOCUS");
+    focus_motor.target = net.toInt();
+     move_to(&focus_motor,focus_motor.target);
+  }
+  String content =  "<html><head><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "</head><body  bgcolor=\"#000000\" text=\"#FF6000\"><h2>Focus</h2><br>";
+  content += "Estado : " + String( focus_motor.position) + "<br>" + "<form action='/focus' method='POST'>";
+
+  content += "<td><input type='number' step='1' name='FOCUS' class=\"text_red\" value='" + String(focus_motor.target) + "'></td></tr>";
+  content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Set'></form>"  "<br>";
+  content += "<button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Home</button><br>";
+  content += "</body></html>";
+  serverweb.send(200, "text/html", content);
+}
+
 void handleMeridian(void)
 {
   if (serverweb.hasArg("SIDE"))
@@ -477,7 +494,8 @@ void initwebserver(void)
   serverweb.on("/Align", handleStar);
   serverweb.on("/home", handleHome);
   serverweb.on("/network", handleNetwork);
-   serverweb.on("/meridian",handleMeridian);
+  serverweb.on("/meridian",handleMeridian);
+  serverweb.on("/focus",handleFocus);
 #ifdef IR_CONTROL
   serverweb.on("/remote", handleRemote);
    serverweb.on("/IR", handleIr);

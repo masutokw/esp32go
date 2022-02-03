@@ -51,13 +51,13 @@ inline void setspeed(motor_t* mt , double tspeed)
   if (base > 10000000) base = 10000000;
   if (mt->id) {
     azdir = sign(tspeed);
-    if (azdir > 0) digitalWrite( DIR_OUT_AZ, 0) ; else digitalWrite( DIR_OUT_AZ, 1 );
+    if (azdir > 0) digitalWrite( DIR_OUT_AZ, AZ_CW) ; else digitalWrite( DIR_OUT_AZ,AZ_CCW );
     if (base != period_az)
     { timerAlarmWrite(timer_az, period_az = base, true);
       timerAlarmEnable(timer_az);
     }
   } else
-  { if (altdir > 0) digitalWrite( DIR_OUT_ALT, 0); else digitalWrite( DIR_OUT_ALT, 1 );
+  { if (altdir > 0) digitalWrite( DIR_OUT_ALT, ALT_CW); else digitalWrite( DIR_OUT_ALT, ALT_CCW );
     altdir = sign(tspeed);
     if (base != period_alt)
     { timerAlarmWrite(timer_alt, period_alt = base, true);

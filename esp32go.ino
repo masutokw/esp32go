@@ -7,7 +7,7 @@
 #include "mount.h"
 #include "webserver.h"
 #include "taki.h"
-
+#include "tb6612.h"
 //Comment out undesired Feature
 //---------------------------
 //#define NUNCHUCK_CONTROL
@@ -18,7 +18,7 @@
 #ifdef  NUNCHUCK_CONTROL
 #include "nunchuck.h"
 #endif
-
+int stepcounter;
 uint64_t  volatile period_az, period_alt;
 int volatile azcounter, altcounter;
 int  volatile azdir, altdir;
@@ -36,10 +36,10 @@ hw_timer_t * timer_alt = NULL;
 const char *TZstr = "GMT-1";
 extern long sdt_millis;
 //#include "wifipass.h" //comment wifipass.h and uncomment for your  wifi parameters
-const char* ssid = "MySSID";
-const char* password = "MyPass";
+const char* ssid = "OLGUIFIB";
+const char* password = "elpalolaislacartagena";
 extern volatile int state;
-
+extern stepper focus_motor;
 WiFiServer server(SERVER_PORT);
 WiFiClient serverClients[MAX_SRV_CLIENTS];
 
@@ -55,31 +55,35 @@ mount_t *telescope;
 c_star volatile st_now, st_target, st_current, st_1, st_2;
 String ssi;
 String pwd;
-Ticker speed_control_tckr, counters_poll_tkr;
+Ticker speed_control_tckr, counters_poll_tkr,focuser_tckr;
 extern long command( char *str );
 time_t now;
 time_t init_time;
 char counter;
 void IRAM_ATTR onTimer_az() {
-
+  uint32_t delay;
   if (azdir) {
-    digitalWrite(CLOCK_OUT_AZ, 0);
-    azcounter += azdir;
 
+    digitalWrite(CLOCK_OUT_AZ, 0);
+    char pulse_w;
+    azcounter += azdir;
     if (azcounter < 0)  azcounter = telescope->azmotor->maxcounter;
     if (azcounter > telescope->azmotor->maxcounter)  azcounter = 0;
-     delayMicroseconds(1) ;
+    // delayMicroseconds(1) ;
+    for (pulse_w = 0; pulse_w < STEP_PULSE; pulse_w++) __asm__ __volatile__("nop;nop;nop;nop;nop;nop;nop;");
     digitalWrite(CLOCK_OUT_AZ, 1);
     // digitalWrite(CLOCK_OUT_AZ, !digitalRead(CLOCK_OUT_AZ));
   }
 }
 void IRAM_ATTR onTimer_alt() {
   if (altdir) {
+    char pulse_w;
     digitalWrite(CLOCK_OUT_ALT, 0);
     altcounter += altdir;
     if (altcounter < 0) altcounter = telescope->altmotor->maxcounter;
     if (altcounter > telescope->altmotor->maxcounter)  altcounter = 0;
-     delayMicroseconds(1) ;
+    //delayMicroseconds(1) ;
+    for (pulse_w = 0; pulse_w < STEP_PULSE; pulse_w++) __asm__ __volatile__("nop;nop;nop;nop;nop;nop;nop;");
     digitalWrite(CLOCK_OUT_ALT, 1);
   }
 }
@@ -98,8 +102,8 @@ void bttask(void) {
   if (SerialBT.available()) {
     char n = 0;
     while (SerialBT.available())  buff[n++] = (char) SerialBT.read() ;
-     buff[n] = 0;
-  //  Serial.write((const uint8_t* )buff, n);
+    buff[n] = 0;
+    //  Serial.write((const uint8_t* )buff, n);
     command(buff);
     buff[n] = 0;
     SerialBT.write((const uint8_t* )response, strlen(response));
@@ -160,8 +164,8 @@ void serialtask(void) {
   if (Serial.available()) {
     char n = 0;
     while (Serial.available())  buff[n++] = (char) Serial.read() ;
-   // SerialBT.write((const uint8_t* )buff, n);
-  //  SerialBT.println(n);
+    // SerialBT.write((const uint8_t* )buff, n);
+    //  SerialBT.println(n);
     command(buff);
     buff[n] = 0;
     Serial.write((const uint8_t* )response, strlen(response));
@@ -246,6 +250,7 @@ void setup()
   server.begin();
   server.setNoDelay(true);
   telescope = create_mount();
+  init_stepper(&focus_motor);
   readconfig(telescope);
   httpUpdater.setup(&serverweb);
   config_NTP(telescope->time_zone, 0);
@@ -261,11 +266,12 @@ void setup()
   }
 
   initwebserver();
+   focuser_tckr.attach_ms(5,do_step,&focus_motor);
   if (telescope->mount_mode == EQ) {
     sdt_init(telescope->longitude, telescope->time_zone);
     speed_control_tckr.attach_ms(SPEED_CONTROL_TICKER, thread_motor, telescope);
-   // counters_poll_tkr.attach_ms(COUNTERS_POLL_TICKER, eq_track, telescope);
-  }
+    // counters_poll_tkr.attach_ms(COUNTERS_POLL_TICKER, eq_track, telescope);
+     }
   else
   { tak_init(telescope);
     speed_control_tckr.attach_ms(SPEED_CONTROL_TICKER, thread_motor2, telescope);
@@ -275,7 +281,7 @@ void setup()
   pad_Init();
 #endif //PAD
 #ifdef NUNCHUCK_CONTROL
-   nunchuck_init( SDA_PIN, SCL_PIN);
+  nunchuck_init( SDA_PIN, SCL_PIN);
 #endif
 #ifdef OTA
   InitOTA();
@@ -290,13 +296,25 @@ void setup()
   pinMode(DIR_OUT_ALT, OUTPUT);
   pinMode(ENABLE_AZ, OUTPUT);
   pinMode(ENABLE_ALT, OUTPUT);
-   pinMode(AZ_RES, OUTPUT);
-    pinMode(ALT_RES, OUTPUT);
+  pinMode(AZ_RES, OUTPUT);
+  pinMode(ALT_RES, OUTPUT);
+  pinMode(PWM_A,OUTPUT);
+  pinMode(PWM_B,OUTPUT);
+  pinMode(AIN_1,OUTPUT);
+  pinMode(AIN_2,OUTPUT);
+  pinMode(BIN_1,OUTPUT);
+  pinMode(BIN_2,OUTPUT);
+  digitalWrite(PWM_A,1);
+  digitalWrite(PWM_B,1);
+  digitalWrite(AIN_1, 0);
+  digitalWrite(AIN_2, 1);
+  digitalWrite(BIN_1, 1);
+  digitalWrite(BIN_2, 0);
   digitalWrite(ENABLE_AZ, 0);
   digitalWrite(ENABLE_ALT, 0);
-   digitalWrite(AZ_RES, 1);
-   digitalWrite(ALT_RES, 1);
-   // Use 1st timer of 4 (counted from zero).
+  digitalWrite(AZ_RES, 1);
+  digitalWrite(ALT_RES, 1);
+  // Use 1st timer of 4 (counted from zero).
   // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
   // info).
   timer_alt = timerBegin(2, 80, true);
@@ -317,7 +335,7 @@ void setup()
 void loop()
 {
   delay(10);
-  
+
   net_task();
   bttask();
   serialtask();
@@ -339,8 +357,8 @@ void loop()
 #endif
 
 #ifdef OTA
-if (counter++%10==0)
-  ArduinoOTA.handle();
+  if (counter++ % 10 == 0)
+    ArduinoOTA.handle();
 #endif
-
+//step_out(stepcounter++ % 8);
 }

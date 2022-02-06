@@ -169,7 +169,11 @@ void ir_read(void)
         {
           ln_get_equ_prec(Messier[n - 1][0], Messier[n - 1][1], JD2000 + 7665.0, &ra, &dec);//cal
           //telescope->ra_target = ra / (RAD_TO_DEG); telescope->dec_target = dec / (RAD_TO_DEG);
-          goto_ra_dec(telescope, ra / (RAD_TO_DEG), dec / (RAD_TO_DEG));
+          //goto_ra_dec(telescope, ra / (RAD_TO_DEG), dec / (RAD_TO_DEG));
+          if (telescope->mount_mode)
+          {goto_ra_dec(telescope, ra / (RAD_TO_DEG), dec / (RAD_TO_DEG));}
+           else{telescope->ra_target = ra / (RAD_TO_DEG); telescope->dec_target = dec / (RAD_TO_DEG);mount_slew(telescope);}
+          
         }
         break;
       case CLEAR :

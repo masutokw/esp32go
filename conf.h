@@ -31,7 +31,7 @@
 //optional
 
 #define NUNCHUCK_CONTROL
-//#define IR_CONTROL
+#define IR_CONTROL
 //#define PAD
 //#define OLED_DISPLAY
 #define OTA
@@ -57,7 +57,7 @@
 #define BIN_1 27
 #define BIN_2 14
 
-#define AZ_INV
+//#define AZ_INV
 #ifdef AZ_INV
 #define AZ_CW 1
 #define AZ_CCW 0

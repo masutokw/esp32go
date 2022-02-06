@@ -36,8 +36,8 @@ hw_timer_t * timer_alt = NULL;
 const char *TZstr = "GMT-1";
 extern long sdt_millis;
 //#include "wifipass.h" //comment wifipass.h and uncomment for your  wifi parameters
-const char* ssid = "OLGUIFIB";
-const char* password = "elpalolaislacartagena";
+const char* ssid = "MyWIFI";
+const char* password = "Mypassword";
 extern volatile int state;
 extern stepper focus_motor;
 WiFiServer server(SERVER_PORT);
@@ -317,15 +317,15 @@ void setup()
   // Use 1st timer of 4 (counted from zero).
   // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
   // info).
-  timer_alt = timerBegin(2, 80, true);
-  timer_az = timerBegin(3, 80, true);
+  timer_alt = timerBegin(0, 80, true);
+  timer_az = timerBegin(1, 80, true);
 
   // Attach onTimer function to our timer.
-  timerAttachInterrupt(timer_az, &onTimer_az, true);
+ timerAttachInterrupt(timer_az, &onTimer_az, true);
   timerAttachInterrupt(timer_alt, &onTimer_alt, true);
 
   timerAlarmWrite(timer_az, 100000, true);
-  timerAlarmWrite(timer_alt, 100000, true);
+ timerAlarmWrite(timer_alt, 100000, true);
 
   // Start an alarm
   timerAlarmEnable(timer_az);

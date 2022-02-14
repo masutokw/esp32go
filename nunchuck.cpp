@@ -15,6 +15,7 @@ int lastx, lasty, lastpress;
 void nunchuck_init(int sda, int scl)
 {
     Wire.begin(sda, scl);
+ //   Wire.setClock(50000);
     Wire.beginTransmission(ADDRESS);
     Wire.write(0xF0);
     Wire.write(0x55);

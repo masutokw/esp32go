@@ -51,11 +51,11 @@ char buff[50] = "Waiting for connection..";
 char *pin = "0000";
 extern char  response[200];
 byte napt = 0;
-mount_t *telescope;
+mount_t  *telescope;
 c_star volatile st_now, st_target, st_current, st_1, st_2;
 String ssi;
 String pwd;
-Ticker speed_control_tckr, counters_poll_tkr,focuser_tckr;
+Ticker speed_control_tckr, counters_poll_tkr, focuser_tckr;
 extern long command( char *str );
 time_t now;
 time_t init_time;
@@ -69,8 +69,9 @@ void IRAM_ATTR onTimer_az() {
     azcounter += azdir;
     if (azcounter < 0)  azcounter = telescope->azmotor->maxcounter;
     if (azcounter > telescope->azmotor->maxcounter)  azcounter = 0;
-    // delayMicroseconds(1) ;
-    for (pulse_w = 0; pulse_w < STEP_PULSE; pulse_w++) __asm__ __volatile__("nop;nop;nop;nop;nop;nop;nop;");
+#ifdef AZ_P_DELAY
+    for (pulse_w = 0; pulse_w < AZ_P_DELAY; pulse_w++) __asm__ __volatile__("nop;nop;nop;nop;nop;nop;nop;");
+#endif
     digitalWrite(CLOCK_OUT_AZ, 1);
     // digitalWrite(CLOCK_OUT_AZ, !digitalRead(CLOCK_OUT_AZ));
   }
@@ -82,8 +83,9 @@ void IRAM_ATTR onTimer_alt() {
     altcounter += altdir;
     if (altcounter < 0) altcounter = telescope->altmotor->maxcounter;
     if (altcounter > telescope->altmotor->maxcounter)  altcounter = 0;
-    //delayMicroseconds(1) ;
-    for (pulse_w = 0; pulse_w < STEP_PULSE; pulse_w++) __asm__ __volatile__("nop;nop;nop;nop;nop;nop;nop;");
+#ifdef ALT_P_DELAY
+    for (pulse_w = 0; pulse_w < ALT_P_DELAY; pulse_w++) __asm__ __volatile__("nop;nop;nop;nop;nop;nop;nop;");
+#endif
     digitalWrite(CLOCK_OUT_ALT, 1);
   }
 }
@@ -175,6 +177,10 @@ void serialtask(void) {
 
 void setup()
 {
+  pinMode(ENABLE_AZ, OUTPUT);
+  pinMode(ENABLE_ALT, OUTPUT);
+  digitalWrite(ENABLE_AZ, DEN_DRIVER);
+  digitalWrite(ENABLE_ALT, DEN_DRIVER);
 
 #ifdef OLED_DISPLAY
   oled_initscr();
@@ -266,15 +272,16 @@ void setup()
   }
 
   initwebserver();
-   focuser_tckr.attach_ms(5,do_step,&focus_motor);
+  //  focuser_tckr.attach_ms(5,do_step,&focus_motor);
   if (telescope->mount_mode == EQ) {
     sdt_init(telescope->longitude, telescope->time_zone);
     speed_control_tckr.attach_ms(SPEED_CONTROL_TICKER, thread_motor, telescope);
     // counters_poll_tkr.attach_ms(COUNTERS_POLL_TICKER, eq_track, telescope);
-     }
+  }
   else
   { tak_init(telescope);
     speed_control_tckr.attach_ms(SPEED_CONTROL_TICKER, thread_motor2, telescope);
+   // counters_poll_tkr.attach_ms(COUNTERS_POLL_TICKER, track, telescope);
   }
 
 #ifdef PAD
@@ -289,7 +296,8 @@ void setup()
 #ifdef IR_CONTROL
   ir_init();
 #endif
-
+pinMode(SDA_PIN, INPUT_PULLUP);
+pinMode(SCL_PIN, INPUT_PULLUP);
   pinMode(CLOCK_OUT_AZ, OUTPUT);
   pinMode(CLOCK_OUT_ALT, OUTPUT);
   pinMode(DIR_OUT_AZ, OUTPUT);
@@ -298,34 +306,34 @@ void setup()
   pinMode(ENABLE_ALT, OUTPUT);
   pinMode(AZ_RES, OUTPUT);
   pinMode(ALT_RES, OUTPUT);
-  pinMode(PWM_A,OUTPUT);
-  pinMode(PWM_B,OUTPUT);
-  pinMode(AIN_1,OUTPUT);
-  pinMode(AIN_2,OUTPUT);
-  pinMode(BIN_1,OUTPUT);
-  pinMode(BIN_2,OUTPUT);
-  digitalWrite(PWM_A,1);
-  digitalWrite(PWM_B,1);
+  pinMode(PWM_A, OUTPUT);
+  pinMode(PWM_B, OUTPUT);
+  pinMode(AIN_1, OUTPUT);
+  pinMode(AIN_2, OUTPUT);
+  pinMode(BIN_1, OUTPUT);
+  pinMode(BIN_2, OUTPUT);
+  digitalWrite(PWM_A, 1);
+  digitalWrite(PWM_B, 1);
   digitalWrite(AIN_1, 0);
   digitalWrite(AIN_2, 1);
   digitalWrite(BIN_1, 1);
   digitalWrite(BIN_2, 0);
-  digitalWrite(ENABLE_AZ, 0);
-  digitalWrite(ENABLE_ALT, 0);
+  digitalWrite(ENABLE_AZ, EN_DRIVER);
+  digitalWrite(ENABLE_ALT, EN_DRIVER);
   digitalWrite(AZ_RES, 1);
   digitalWrite(ALT_RES, 1);
   // Use 1st timer of 4 (counted from zero).
   // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
   // info).
-  timer_alt = timerBegin(0, 80, true);
-  timer_az = timerBegin(1, 80, true);
+  timer_alt = timerBegin(TIMER_ALT, 80, true);
+  timer_az = timerBegin(TIMER_AZ, 80, true);
 
   // Attach onTimer function to our timer.
- timerAttachInterrupt(timer_az, &onTimer_az, true);
+  timerAttachInterrupt(timer_az, &onTimer_az, true);
   timerAttachInterrupt(timer_alt, &onTimer_alt, true);
 
   timerAlarmWrite(timer_az, 100000, true);
- timerAlarmWrite(timer_alt, 100000, true);
+  timerAlarmWrite(timer_alt, 100000, true);
 
   // Start an alarm
   timerAlarmEnable(timer_az);
@@ -338,15 +346,17 @@ void loop()
 
   net_task();
   bttask();
-  serialtask();
+ serialtask();
 
   now = time(nullptr);
   serverweb.handleClient();
 #ifdef IR_CONTROL
-  ir_read();
+ //if (counter % 17 == 0)
+ ir_read();
 #endif
 #ifdef  NUNCHUCK_CONTROL
-  nunchuck_read();
+//  if (counter % 10  == 5) 
+   nunchuck_read();
 #endif
 
 #ifdef OLED_DISPLAY
@@ -359,6 +369,7 @@ void loop()
 #ifdef OTA
   if (counter++ % 10 == 0)
     ArduinoOTA.handle();
+    
 #endif
-//step_out(stepcounter++ % 8);
+  //step_out(stepcounter++ % 8);
 }

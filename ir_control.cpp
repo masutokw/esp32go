@@ -179,6 +179,13 @@ void ir_read(void)
       case CLEAR :
         n = 0;
         break;
+        case FLIP_W:
+       if (telescope->mount_mode == EQ) meridianflip(telescope, 0);
+       break;
+       case FLIP_E:
+       if (telescope->mount_mode == EQ) meridianflip(telescope, 1);
+       break;
+       
       case 0xFFFF:
         lastpresstime = millis();
         ir_state = 1;

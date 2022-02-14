@@ -166,8 +166,8 @@ int sync_eq(mount_t *mt)
 
 int mount_stop(mount_t *mt, char direction)
 {
-  char n = 0;
-  char top = 200;
+  uint16_t n = 0;
+  uint16_t top = 200;
   mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
   if (mt->mount_mode != EQ)
   {
@@ -175,37 +175,38 @@ int mount_stop(mount_t *mt, char direction)
     {
       case 'n':
       case 's':
-        mt->altmotor->targetspeed = 0.00001;
-        do
+        mt->altmotor->targetspeed = 0.;
+      /*  do
         {
           yield();
           delay(5);
           n++;
         }
-        while ((n < top) && (fabs(mt->altmotor->current_speed) > 0.00001));
+        while ((n < top) && (fabs(mt->altmotor->current_speed) > 0.00001));*/
         break;
 
 
       case 'w':
       case 'e':
-        mt->azmotor->targetspeed = 0.00001;
-        do
+        mt->azmotor->targetspeed = 0.00;
+      /*  do
         {
           yield();
           delay(5);
           n++;
         }
-        while ((n < top) && (fabs(mt->azmotor->current_speed) > 0.00001));
+        while ((n < top) && (fabs(mt->azmotor->current_speed) > 0.00001));*/
 
 
         break;
 
       default:
-        mt->altmotor->targetspeed = 0.0;
-
+      //  mt->altmotor->targetspeed = 0.0;
         break;
     }
+
     sync_target = TRUE;
+    //track(mt);
   }
   else // mt->is_tracking = TRUE;
   {
@@ -548,19 +549,14 @@ void  tak_init(mount_t *mt)
 void track(mount_t *mt)
 {
   double d_az_r, d_alt_r;
-
-
-
-
   readcounter_n(mt->altmotor); readcounter(mt->azmotor);
   st_target.timer_count = st_current.timer_count = ((millis() - sdt_millis) / 1000.0);
   st_current.az = mt->azmotor->position;
   st_current.alt = mt->altmotor->position;
   st_current.p_mode = st_target.p_mode = get_pierside(mt);
-
-  //compute ecuatorial current equatorial values to be send out from LX200 protocol interface
+ //compute ecuatorial current equatorial values to be send out from LX200 protocol interface
   to_equatorial(&st_current);
-  if (sync_target ) {
+  if ((sync_target )&&((mt->azmotor->speed==0.0)||mt->altmotor->speed==0.0)) {
     st_target.ra = mt->ra_target = st_current.ra;
     st_target.dec = mt->dec_target = st_current.dec;
     sync_target = FALSE;

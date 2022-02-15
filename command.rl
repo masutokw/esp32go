@@ -16,6 +16,7 @@
 char response [200];
 char tmessage[50];
 extern c_star st_now, st_target, st_current;
+extern char volatile sync_target;
 struct _telescope_
 {   long dec_target,ra_target;
     long alt_target,az_target;
@@ -90,6 +91,17 @@ void set_date( int day,int month,int year)
     mount.day=day;
     mount.year=100+year;
     setclock (mount.year,mount.month,mount.day,mount.hour,mount.min,mount.sec,telescope->time_zone);
+    if (telescope->mount_mode == EQ) {
+    sdt_init(telescope->longitude, telescope->time_zone);
+    }
+  else
+  { telescope->is_tracking = FALSE;
+    sync_target = TRUE;
+    tak_init(telescope);
+    telescope->is_tracking = TRUE;
+	telescope->azmotor->targetspeed=0.0;
+    telescope->altmotor->targetspeed=0.0;
+  }
 	sprintf(tmessage,"%cUpdating Planetary Data#     #",'1');APPEND;
 }
 void set_time( int hour,int min,int sec)

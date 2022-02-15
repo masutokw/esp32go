@@ -1,8 +1,8 @@
 #include "time.h"
 #include "taki.h"
 #include "webserver.h"
-#include "nunchuck.h"	
-#include "tb6612.h"				 
+#include "nunchuck.h"
+#include "tb6612.h"
 #ifdef IR_CONTROL
 extern uint32_t truecode, lasti;
 extern byte cmd_map [];
@@ -104,7 +104,7 @@ void handleConfig()
 
   String content = "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE);
   content += "<body  bgcolor=\"#000000\" text=\"#5599ff\"><form action='/config' method='POST'>";
-  content+= "<h2>ESP32";
+  content += "<h2>ESP32go";
 #ifdef IR_CONTROL
   content += " IR Control</h2>";
 #else
@@ -132,30 +132,30 @@ void handleConfig()
 
   content += "<tr><td>Slew</td><td><input type='number' step='0.01' name='SLEW' class=\"text_red\" value='" + String(telescope->rate[3][0]) + "'></td>";
   content += "<td><input type='number' step='0.01' name='SLEWA' class=\"text_red\" value='" + String(telescope->rate[3][1]) + "'></td></tr>";
- 
+
   content += "<tr><td>Ramp</td><td><input type='number' step='0.01' name='RAMP' class=\"text_red\" value='" + String(telescope->azmotor->acceleration / SEC_TO_RAD) + "'></td>";
   content += "<td><input type='number' step='0.01' name='RAMPA' class=\"text_red\" value='" + String(telescope->altmotor->acceleration / SEC_TO_RAD) + "'></td></tr>";
 
   content += "<tr><td>BackSlash</td><td><input type='number' step='1' name='BACK_AZ' class=\"text_red\" value='" + String(telescope->azmotor->backslash) + "'></td>";
   content += "<td><input type='number' step='1' name='BACK_ALT' class=\"text_red\" value='" + String(telescope->altmotor->backslash) + "'></td></tr>";
-  content += "<tr><td>Prescaler</td><td><input type='number' step='0.0001' name='PRESCALER' class=\"text_red\" value='" + String(telescope->prescaler) + "' uSec</td></tr>";																																								
+  content += "<tr><td>Prescaler</td><td><input type='number' step='0.0001' name='PRESCALER' class=\"text_red\" value='" + String(telescope->prescaler) + "' uSec</td></tr>";
   content += "<tr><td>EQ Track</td><td><input type='number' min='0' max='4' title='0.No track 1-Sideral 2-Solar 3-Lunar 4-King.' step='1' name='TRACK'  class=\"text_red\" value ='" + String(telescope->track) + "' </td></tr>";
   String checked = "";
-	if (telescope->mount_mode == EQ) checked = " checked " ;
-    else checked = ""  ;
-    content += "<tr><td>EQ<input type='radio' name='MOUNT' value='0'  class=\"button_red\"'" + checked + "></td>";
-    if (telescope->mount_mode == ALTAZ) checked = " checked " ;
-    else checked = ""  ;
-    content += "<td>ALT-AZ<input type='radio' name='MOUNT' value='1'  class=\"button_red\"'" + checked + "></td>";
-    if (telescope->mount_mode == ALIGN) checked = " checked " ;
-    else checked = ""  ;
-    content += "<td>EQ2-stars<input type='radio' name='MOUNT' value='2'  class=\"button_red\"'" + checked + "></td></tr></table>";
+  if (telescope->mount_mode == EQ) checked = " checked " ;
+  else checked = ""  ;
+  content += "<tr><td>EQ<input type='radio' name='MOUNT' value='0'  class=\"button_red\"'" + checked + "></td>";
+  if (telescope->mount_mode == ALTAZ) checked = " checked " ;
+  else checked = ""  ;
+  content += "<td>ALT-AZ<input type='radio' name='MOUNT' value='1'  class=\"button_red\"'" + checked + "></td>";
+  if (telescope->mount_mode == ALIGN) checked = " checked " ;
+  else checked = ""  ;
+  content += "<td>EQ2-stars<input type='radio' name='MOUNT' value='2'  class=\"button_red\"'" + checked + "></td></tr></table>";
 
 
-  checked =(get_pierside(telescope)?"West":"East");
-  content += "Meridian side "+checked+"<br>";
+  checked = (get_pierside(telescope) ? "West" : "East");
+  content += "Meridian side " + checked + "<br>";
   content += "<button onclick=\"location.href='/meridian?SIDE=0'\" class=\"button_red\"  type=\"button\">Meridian Flip EAST</button>";
-  content += "<button onclick=\"location.href='/meridian?SIDE=1'\" class=\"button_red\"  type=\"button\">Meridian Flip WEST</button><br>";																														
+  content += "<button onclick=\"location.href='/meridian?SIDE=1'\" class=\"button_red\"  type=\"button\">Meridian Flip WEST</button><br>";
   content += "<button onclick=\"location.href='/park'\" class=\"button_red\" type=\"button\">Park telescope</button>";
   content += "<button onclick=\"location.href='/home'\" class=\"button_red\" type=\"button\">Reset home</button>";
   content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">2 stars align</button><br>";
@@ -177,14 +177,14 @@ void handleConfig()
   content += "</form>";
   content += "<button onclick=\"location.href='/restart'\"class=\"button_red\"  type=\"button\">Restart device</button>";
   content += "<button onclick=\"location.href='/update'\" class=\"button_red\" type=\"button\">Update Firmware</button>";
-   #ifdef IR_CONTROL
-    content += "<button onclick=\"location.href='/remote'\" class=\"button_red\" type=\"button\">IR Remote </button>";
-   #endif
-   #ifdef NUNCHUCK_CONTROL
-    content += "<button onclick=\"location.href='/nunchuk'\" class=\"button_red\" type=\"button\">Init Nunchuk </button>";
-   #endif	 
+#ifdef IR_CONTROL
+  content += "<button onclick=\"location.href='/remote'\" class=\"button_red\" type=\"button\">IR Remote </button>";
+#endif
+#ifdef NUNCHUCK_CONTROL
+  content += "<button onclick=\"location.href='/nunchuk'\" class=\"button_red\" type=\"button\">Init Nunchuk </button>";
+#endif
   content += "<br>Load Time :" + String(ctime(&now)) + "<br>";
-  content += "<br>" + msg + String(telescope->azmotor->slewing)+ " </body></html>";
+  content += "<br>" + msg + String(telescope->azmotor->slewing) + " </body></html>";
   serverweb.send(200, "text/html", content);
 
 
@@ -239,10 +239,18 @@ void handleSync(void)
     //timezone tz = {msg.toInt()  ,0 };
     settimeofday(&tv, nullptr);
     rtc = time(nullptr);
-    telescope->is_tracking = FALSE;
-    sync_target = TRUE;
-    tak_init(telescope);
-    telescope->is_tracking = TRUE;
+    if (telescope->mount_mode == EQ) {
+      sdt_init(telescope->longitude, telescope->time_zone);
+    }
+    else
+    { telescope->is_tracking = FALSE;
+      sync_target = TRUE;
+      tak_init(telescope);
+      //telescope->is_tracking = TRUE;
+      telescope->azmotor->targetspeed = 0.0;
+      telescope->altmotor->targetspeed = 0.0;
+    }
+
   }
   String content =  "<!DOCTYPE html><html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP-PGT++ Sync </h2><br>";
   content += "<p id=\"fecha\">" + msg + " " + String(ctime(&rtc)) + "</p>";
@@ -288,16 +296,16 @@ void handleRestart(void)
 }
 void handleNunchuk(void)
 {
-  
-    String content =   "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP-PGT++ restarted</h2><br>";
-   
-    content += "AZ Counter:" + String(telescope->azmotor->counter) + "<br>";
-    content += "Alt Counter:" + String(telescope->altmotor->counter) + "<br>";
-    content += "<button onclick=\"location.href='/'\"  type=\"button\">Home</button><br>";
-    content += "</body></html>";
-    serverweb.send(200, "text/html", content);
-    nunchuck_init(SDA_PIN, SCL_PIN);
-}		
+
+  String content =   "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP-PGT++ restarted</h2><br>";
+
+  content += "AZ Counter:" + String(telescope->azmotor->counter) + "<br>";
+  content += "Alt Counter:" + String(telescope->altmotor->counter) + "<br>";
+  content += "<button onclick=\"location.href='/'\"  type=\"button\">Home</button><br>";
+  content += "</body></html>";
+  serverweb.send(200, "text/html", content);
+  nunchuck_init(SDA_PIN, SCL_PIN);
+}
 void handleStar( void)
 {
   String msg, txt;
@@ -454,7 +462,7 @@ void handleFocus(void) {
   if (serverweb.hasArg("FOCUS")) {
     String net = serverweb.arg("FOCUS");
     focus_motor.target = net.toInt();
-     move_to(&focus_motor,focus_motor.target);
+    move_to(&focus_motor, focus_motor.target);
   }
   String content =  "<html><head><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "</head><body  bgcolor=\"#000000\" text=\"#FF6000\"><h2>Focus</h2><br>";
   content += "Estado : " + String( focus_motor.position) + "<br>" + "<form action='/focus' method='POST'>";
@@ -470,12 +478,12 @@ void handleMeridian(void)
 {
   if (serverweb.hasArg("SIDE"))
   {
- String net = serverweb.arg("SIDE");
- int   side = net.toInt();
- if (telescope->mount_mode == EQ) meridianflip(telescope, side);
- }
+    String net = serverweb.arg("SIDE");
+    int   side = net.toInt();
+    if (telescope->mount_mode == EQ) meridianflip(telescope, side);
+  }
 
- String content =  "<html><style>" + String(BUTT) + String(TEXTT) + "</style>"+String(AUTO_SIZE)+"<body  bgcolor=\"#000000\" text=\"#FF6000\"><h2>ESP-PGT++ Meridian flip</h2><br>";
+  String content =  "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FF6000\"><h2>ESP-PGT++ Meridian flip</h2><br>";
   content += "Pier side: " + String(get_pierside(telescope)  ? "WEST" : "EAST") + "<br>";
   content += "AZ Counter:" + String(telescope->azmotor->counter) + "<br>";
   content += "Alt Counter:" + String(telescope->altmotor->counter) + "<br>";
@@ -494,15 +502,15 @@ void initwebserver(void)
   serverweb.on("/Align", handleStar);
   serverweb.on("/home", handleHome);
   serverweb.on("/network", handleNetwork);
-  serverweb.on("/meridian",handleMeridian);
-  serverweb.on("/focus",handleFocus);
+  serverweb.on("/meridian", handleMeridian);
+  serverweb.on("/focus", handleFocus);
 #ifdef IR_CONTROL
   serverweb.on("/remote", handleRemote);
-   serverweb.on("/IR", handleIr);
+  serverweb.on("/IR", handleIr);
 #endif
-  #ifdef NUNCHUCK_CONTROL
-    serverweb.on("/nunchuk",handleNunchuk);
-#endif						 
+#ifdef NUNCHUCK_CONTROL
+  serverweb.on("/nunchuk", handleNunchuk);
+#endif
   serverweb.onNotFound([]()
   {
     if (!handleFileRead(serverweb.uri()))

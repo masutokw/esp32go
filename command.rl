@@ -98,8 +98,7 @@ void set_date( int day,int month,int year)
   { telescope->is_tracking = FALSE;
     sync_target = TRUE;
     tak_init(telescope);
-    telescope->is_tracking = TRUE;
-	telescope->azmotor->targetspeed=0.0;
+    telescope->azmotor->targetspeed=0.0;
     telescope->altmotor->targetspeed=0.0;
   }
 	sprintf(tmessage,"%cUpdating Planetary Data#     #",'1');APPEND;

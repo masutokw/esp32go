@@ -272,7 +272,7 @@ void setup()
   }
 
   initwebserver();
-  //  focuser_tckr.attach_ms(5,do_step,&focus_motor);
+  focuser_tckr.attach_ms(5, do_step, &focus_motor);
   if (telescope->mount_mode == EQ) {
     sdt_init(telescope->longitude, telescope->time_zone);
     speed_control_tckr.attach_ms(SPEED_CONTROL_TICKER, thread_motor, telescope);
@@ -281,7 +281,7 @@ void setup()
   else
   { tak_init(telescope);
     speed_control_tckr.attach_ms(SPEED_CONTROL_TICKER, thread_motor2, telescope);
-   // counters_poll_tkr.attach_ms(COUNTERS_POLL_TICKER, track, telescope);
+    // counters_poll_tkr.attach_ms(COUNTERS_POLL_TICKER, track, telescope);
   }
 
 #ifdef PAD
@@ -296,8 +296,8 @@ void setup()
 #ifdef IR_CONTROL
   ir_init();
 #endif
-pinMode(SDA_PIN, INPUT_PULLUP);
-pinMode(SCL_PIN, INPUT_PULLUP);
+  pinMode(SDA_PIN, INPUT_PULLUP);
+  pinMode(SCL_PIN, INPUT_PULLUP);
   pinMode(CLOCK_OUT_AZ, OUTPUT);
   pinMode(CLOCK_OUT_ALT, OUTPUT);
   pinMode(DIR_OUT_AZ, OUTPUT);
@@ -346,17 +346,17 @@ void loop()
 
   net_task();
   bttask();
- serialtask();
+  serialtask();
 
   now = time(nullptr);
   serverweb.handleClient();
 #ifdef IR_CONTROL
- //if (counter % 17 == 0)
- ir_read();
+  //if (counter % 17 == 0)
+  ir_read();
 #endif
 #ifdef  NUNCHUCK_CONTROL
-//  if (counter % 10  == 5) 
-   nunchuck_read();
+  //  if (counter % 10  == 5)
+  nunchuck_read();
 #endif
 
 #ifdef OLED_DISPLAY
@@ -369,7 +369,7 @@ void loop()
 #ifdef OTA
   if (counter++ % 10 == 0)
     ArduinoOTA.handle();
-    
+
 #endif
   //step_out(stepcounter++ % 8);
 }

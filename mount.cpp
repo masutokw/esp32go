@@ -373,7 +373,7 @@ void mount_lxra_str(char *message, mount_t *mt)
   int temp = (x % 3600);
   int min = temp / 60;
   int sec = temp % 60;
-  sprintf(message, "%02d:%02d:%02d.%d#", gra, min, sec, rest);
+  sprintf(message, "%02d:%02d:%02d.%02d#", gra, min, sec, rest);
 };
 
 

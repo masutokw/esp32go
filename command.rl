@@ -12,11 +12,13 @@
 #include "mount.h"
 #include "misc.h"
 #include <math.h>
+#include "tb6612.h"
 
 char response [200];
 char tmessage[50];
 extern c_star st_now, st_target, st_current;
 extern char volatile sync_target;
+extern stepper focus_motor;
 struct _telescope_
 {   long dec_target,ra_target;
     long alt_target,az_target;
@@ -124,7 +126,7 @@ long command( char *str )
     tmessage[0]=0;
     response[0]=0;
 	int pulse=0;
-
+	int focus_counter=0;
     %%{
         machine command;
         write data;
@@ -139,6 +141,7 @@ long command( char *str )
         action getmin {ADD_DIGIT(min,fc); }
         action getsec {ADD_DIGIT(sec,fc); }
 		action getpulse{ADD_DIGIT(pulse,fc);}
+		action getfocuscounter{ADD_DIGIT(focus_counter,fc);}
         action neg { neg=-1;}
         action dir {mount_move(telescope,stcmd);}
 		action pulse_dir{pulse_guide(telescope,stcmd,pulse);}
@@ -182,6 +185,13 @@ long command( char *str )
 		action set_gmt_offset{ telescope->time_zone=deg;}
 		action return_GMT_offset {lxprintGMT_offset(tmessage,telescope->time_zone );APPEND}
         action settime{set_time(deg,min,sec);}
+		action fmove_in {move_to(&focus_motor,0);}
+		action fmove_out {move_to(&focus_motor,focus_motor.max_steps);}
+		action fmove_rel {move_to(&focus_motor,focus_motor.position+(focus_counter*neg));}
+		action fmove_to {move_to(&focus_motor,focus_counter);}
+		action fstop {move_to(&focus_motor,focus_motor.position);}
+		action fsync_to{focus_motor.position=focus_motor.target=focus_counter;}
+		action fquery{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
 # LX200  auxiliary terms syntax definitions
         sexmin =  ([0-5][0-9])$getmin@addmin ;
         sex= ([0-5][0-9] )$getsec@addsec (('.'digit{1,2}){,1});
@@ -214,7 +224,18 @@ long command( char *str )
         Sync = "CM"(''|'R')%sync;
         Stop ='Q' (''|[nsew])@storecmd %stop;
        	ACK = 0x06 @return_align;
-		main :=   ((ACK|''|'#')':' (Set | Move | Stop|Rate | Sync | Poll) '#')* ;
+		f_in = '-'%fmove_in;
+		f_out = '+'%fmove_out;
+		f_stop ='Q'%fstop;
+		f_rel='P'([\+]|[\-]@neg)digit{5}$getfocuscounter %fmove_rel;
+		f_sync='LS1'([\+]|[\-]@neg)digit{5}$getfocuscounter %fsync_to;
+		f_query='p'%fquery;
+		f_go='A'([\+]|[\-]@neg)digit{5}$getfocuscounter %fmove_to;
+		
+		
+#focuser
+		Focuser='F'(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel);  
+		main :=   ((ACK|''|'#')':' (Set | Move | Stop|Rate | Sync | Poll|Focuser) '#')* ;
 # Initialize and execute.
         write init;
         write exec;

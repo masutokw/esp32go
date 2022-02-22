@@ -368,13 +368,15 @@ void mount_lxra_str(char *message, mount_t *mt)
   int x = trunc (seconds) / 15.0;
   int rest = ((seconds % 15) * 2) / 3;
   rest %= 15;
-  rest *= 10;
+  //rest *= 10;
   int gra = x / 3600;
   int temp = (x % 3600);
   int min = temp / 60;
   int sec = temp % 60;
-  sprintf(message, "%02d:%02d:%02d.%02d#", gra, min, sec, rest);
+//  sprintf(message, "%02d:%02d:%02d#", gra, min, sec);
+ sprintf(message, "%02d:%02d:%02d.%d#", gra, min, sec,rest);
 };
+
 
 
 int readconfig(mount_t *mt)

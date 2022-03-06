@@ -62,6 +62,7 @@ inline void setspeed(motor_t* mt , double tspeed)
     if (base != period_alt)
     { timerAlarmWrite(timer_alt, period_alt = base, true);
       timerAlarmEnable(timer_alt);
+      timerWrite(timer_alt,0);
     }
 
   }

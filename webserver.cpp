@@ -18,6 +18,9 @@ extern  int align_star_index;
 extern c_star st_1, st_2;
 extern  time_t init_time;
 extern stepper focus_motor;
+extern  int stepcounter1,stepcounter2;
+extern hw_timer_t * timer_az;
+extern hw_timer_t * timer_alt;
 String getContentType(String filename)
 {
   if (serverweb.hasArg("download")) return "application/octet-stream";
@@ -466,12 +469,18 @@ void handleFocus(void) {
   }
   String content =  "<html><head><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "</head><body  bgcolor=\"#000000\" text=\"#FF6000\"><h2>Focus</h2><br>";
   content += "Estado : " + String( focus_motor.position) + "<br>" + "<form action='/focus' method='POST'>";
-
+ 
   content += "<td><input type='number' step='1' name='FOCUS' class=\"text_red\" value='" + String(focus_motor.target) + "'></td></tr>";
   content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Set'></form>"  "<br>";
   content += "<button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Home</button><br>";
+   content += "Timer1 " + String(stepcounter1) + "<br>";
+   content += "Timer2 " + String(stepcounter2) + "<br>";
+    
+   
   content += "</body></html>";
   serverweb.send(200, "text/html", content);
+    timerAlarmDisable(timer_alt);
+     timerAlarmEnable(timer_alt);
 }
 
 void handleMeridian(void)

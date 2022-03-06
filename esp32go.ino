@@ -18,7 +18,7 @@
 #ifdef  NUNCHUCK_CONTROL
 #include "nunchuck.h"
 #endif
-int stepcounter;
+volatile int stepcounter1,stepcounter2;
 uint64_t  volatile period_az, period_alt;
 int volatile azcounter, altcounter;
 int  volatile azdir, altdir;
@@ -62,6 +62,7 @@ time_t init_time;
 char counter;
 void IRAM_ATTR onTimer_az() {
   uint32_t delay;
+  stepcounter1++;
   if (azdir) {
 
     digitalWrite(CLOCK_OUT_AZ, 0);
@@ -77,6 +78,7 @@ void IRAM_ATTR onTimer_az() {
   }
 }
 void IRAM_ATTR onTimer_alt() {
+   stepcounter2++;
   if (altdir) {
     char pulse_w;
     digitalWrite(CLOCK_OUT_ALT, 0);
@@ -165,6 +167,7 @@ int net_task(void)
 void serialtask(void) {
   if (Serial.available()) {
     char n = 0;
+    delay(2);
     while (Serial.available())  buff[n++] = (char) Serial.read() ;
     // SerialBT.write((const uint8_t* )buff, n);
     //  SerialBT.println(n);
@@ -187,7 +190,7 @@ void setup()
 #endif
 
   SerialBT.setPin(pin);
-  SerialBT.begin("ESP32go_BT");
+  SerialBT.begin(BT_NAME);
   SerialBT.setPin(pin);
 
   WiFi.mode(WIFI_AP_STA);
@@ -288,6 +291,8 @@ void setup()
   pad_Init();
 #endif //PAD
 #ifdef NUNCHUCK_CONTROL
+ pinMode(SDA_PIN, INPUT_PULLUP);
+  pinMode(SCL_PIN, INPUT_PULLUP);
   nunchuck_init( SDA_PIN, SCL_PIN);
 #endif
 #ifdef OTA
@@ -296,8 +301,7 @@ void setup()
 #ifdef IR_CONTROL
   ir_init();
 #endif
-  pinMode(SDA_PIN, INPUT_PULLUP);
-  pinMode(SCL_PIN, INPUT_PULLUP);
+ 
   pinMode(CLOCK_OUT_AZ, OUTPUT);
   pinMode(CLOCK_OUT_ALT, OUTPUT);
   pinMode(DIR_OUT_AZ, OUTPUT);
@@ -355,7 +359,7 @@ void loop()
   ir_read();
 #endif
 #ifdef  NUNCHUCK_CONTROL
-  //  if (counter % 10  == 5)
+    if (counter % 5  == 3)
   nunchuck_read();
 #endif
 

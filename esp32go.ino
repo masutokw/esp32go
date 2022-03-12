@@ -179,7 +179,7 @@ void serialtask(void) {
 }
 
 void setup()
-{
+{delay(300);
   pinMode(ENABLE_AZ, OUTPUT);
   pinMode(ENABLE_ALT, OUTPUT);
   digitalWrite(ENABLE_AZ, DEN_DRIVER);
@@ -306,8 +306,6 @@ void setup()
   pinMode(CLOCK_OUT_ALT, OUTPUT);
   pinMode(DIR_OUT_AZ, OUTPUT);
   pinMode(DIR_OUT_ALT, OUTPUT);
-  pinMode(ENABLE_AZ, OUTPUT);
-  pinMode(ENABLE_ALT, OUTPUT);
   pinMode(AZ_RES, OUTPUT);
   pinMode(ALT_RES, OUTPUT);
   pinMode(PWM_A, OUTPUT);
@@ -359,7 +357,7 @@ void loop()
   ir_read();
 #endif
 #ifdef  NUNCHUCK_CONTROL
-    if (counter % 5  == 3)
+    if (counter % 10  == 3)
   nunchuck_read();
 #endif
 

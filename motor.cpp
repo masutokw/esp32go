@@ -58,6 +58,7 @@ inline void setspeed(motor_t* mt , double tspeed)
     }
   } else
   { altdir = sign(tspeed);
+  //  if (altdir==0) digitalWrite( ENABLE_ALT,DEN_DRIVER);else digitalWrite( ENABLE_ALT,EN_DRIVER);
     if (altdir > 0) digitalWrite( DIR_OUT_ALT, ALT_CW); else digitalWrite( DIR_OUT_ALT, ALT_CCW );
     if (base != period_alt)
     { timerAlarmWrite(timer_alt, period_alt = base, true);

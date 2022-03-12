@@ -4,6 +4,7 @@
 #include <Wire.h>
 #include "mount.h"
 #include "focus.h"
+
 extern mount_t *telescope;
 extern int  focuspeed;
 extern int  focuspeed_low;
@@ -15,7 +16,7 @@ int lastx, lasty, lastpress;
 void nunchuck_init(int sda, int scl)
 {
   Wire.begin(sda, scl);
-  Wire.setClock(50000);
+  Wire.setClock(100000);
   Wire.beginTransmission(ADDRESS);
   Wire.write(0xF0);
   Wire.write(0x55);
@@ -33,7 +34,7 @@ void nunchuck_read(void)
 { char cls;
   int count = 0;
   int pressed;
-  if (Wire.available()) {
+if (Wire.available()) {
     while (Wire.available())
       cls = Wire.read();
   }
@@ -44,17 +45,14 @@ void nunchuck_read(void)
     count++;
   }
  
-  if ((count == 6) && (chuckbuffer[3] != 0) && (chuckbuffer[3] != 255))
+  if ((count == 6) && (chuckbuffer[4] != 0) && (chuckbuffer[4] != 255)&&(chuckbuffer[3] != 0) && (chuckbuffer[3] != 255)&&(chuckbuffer[5] != 129))
   {
     pressed = ~chuckbuffer[5] & 0x03;
     if (pressed) lastpress = pressed;
     //if (pressed) telescope->srate = pressed;
     if (lastx != (chuckbuffer[0] /= 86))
     {
-
-
-      //telescope->srate = ~chuckbuffer[5]&0x03;
-      switch (chuckbuffer[0])
+       switch (chuckbuffer[0])
       {
         case 0 :
           // if (pressed==3) telescope->smode=1;
@@ -85,7 +83,6 @@ void nunchuck_read(void)
     lastx = chuckbuffer[0];
     if (lasty != (chuckbuffer[1]  /= 86))
     {
-      //   telescope->srate = ~chuckbuffer[5]&0x03;
       switch (chuckbuffer[1] )
       {
         case 0 :

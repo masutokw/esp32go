@@ -133,7 +133,7 @@
 #define N_WEST 68
 #define S_EAST 76
 #define S_WEST 72
-#define TRACK 89
+#define TRACK 31
 #define TRACK_OFF 30
 #define B_1 14
 #define B_2 15
@@ -148,7 +148,7 @@
 #define GO_TO 28
 #define CLEAR 29
 #define FLIP_W 25
-#define FLIP_E 89
+#define FLIP_E 24
 #endif
 
 #if REMOTE_T == 0

@@ -46,7 +46,7 @@ mount_t* create_mount(void)
   m->smode = 0;
   m->track_speed = SID_RATE_RAD;
   load_saved_pos();
-
+  m->autoflip = 0;
   return m;
 }
 
@@ -88,6 +88,12 @@ void eq_track(mount_t* mt1)
   {
     sgndelta = (sign(delta = mt1->altmotor->delta));
     if (fabs(delta) > (M_PI)) sgndelta = -sgndelta;
+
+    if (  sgndelta && mt1->autoflip && (get_pierside(mt1) != get_pierside_target(mt1)))
+      sgndelta = (get_pierside(mt1)) ? mt1->hmf : - mt1->hmf;
+
+
+
 
     if ( fabs(delta / (SEC_TO_RAD)) >= 1.0)
     {
@@ -176,32 +182,32 @@ int mount_stop(mount_t *mt, char direction)
       case 'n':
       case 's':
         mt->altmotor->targetspeed = 0.;
-      /*  do
-        {
-          yield();
-          delay(5);
-          n++;
-        }
-        while ((n < top) && (fabs(mt->altmotor->current_speed) > 0.00001));*/
+        /*  do
+          {
+            yield();
+            delay(5);
+            n++;
+          }
+          while ((n < top) && (fabs(mt->altmotor->current_speed) > 0.00001));*/
         break;
 
 
       case 'w':
       case 'e':
         mt->azmotor->targetspeed = 0.00;
-      /*  do
-        {
-          yield();
-          delay(5);
-          n++;
-        }
-        while ((n < top) && (fabs(mt->azmotor->current_speed) > 0.00001));*/
+        /*  do
+          {
+            yield();
+            delay(5);
+            n++;
+          }
+          while ((n < top) && (fabs(mt->azmotor->current_speed) > 0.00001));*/
 
 
         break;
 
       default:
-      //  mt->altmotor->targetspeed = 0.0;
+        //  mt->altmotor->targetspeed = 0.0;
         break;
     }
 
@@ -320,8 +326,12 @@ void select_rate(mount_t *mt, char dir)
 
 int mount_slew(mount_t *mt)
 {
-  eq_to_enc(&(mt->azmotor->target), &(mt->altmotor->target),
-            mt->ra_target, mt->dec_target, get_pierside(mt));
+  if (mt->autoflip) {
+    bool  side = (calc_lha(mt->ra_target, mt->longitude) > 180.0);
+    eq_to_enc(&(mt->azmotor->target), &(mt->altmotor->target), mt->ra_target, mt->dec_target, side);
+  }
+  else
+    eq_to_enc(&(mt->azmotor->target), &(mt->altmotor->target), mt->ra_target, mt->dec_target, (get_pierside(mt)));
   mt->azmotor->slewing = mt->altmotor->slewing = true;
 }
 
@@ -330,6 +340,11 @@ int get_pierside(mount_t *mt)
 {
 
   return (((mt->altmotor->counter) > (mt->altmotor->maxcounter / 4 )) && ((mt->altmotor->counter) < (3 * mt->altmotor->maxcounter / 4 )));
+}
+int get_pierside_target(mount_t *mt)
+{
+
+  return (((mt->altmotor->target) > (M_PI / 2.0 )) && ((mt->altmotor->target) < (M_PI * 1.5 )));
 }
 
 void mount_lxde_str(char* message, mount_t *mt)
@@ -373,8 +388,8 @@ void mount_lxra_str(char *message, mount_t *mt)
   int temp = (x % 3600);
   int min = temp / 60;
   int sec = temp % 60;
-//  sprintf(message, "%02d:%02d:%02d#", gra, min, sec);
- sprintf(message, "%02d:%02d:%02d.%d#", gra, min, sec,rest);
+  //  sprintf(message, "%02d:%02d:%02d#", gra, min, sec);
+  sprintf(message, "%02d:%02d:%02d.%d#", gra, min, sec, rest);
 };
 
 
@@ -410,6 +425,7 @@ int readconfig(mount_t *mt)
   mt->longitude = s.toFloat();
   s = f.readStringUntil('\n');
   mt->lat = s.toFloat();
+  mt->hmf=(mt->lat<0)? -1:1;
   s = f.readStringUntil('\n');
   mt->time_zone = s.toInt();
 
@@ -434,6 +450,8 @@ int readconfig(mount_t *mt)
   s = f.readStringUntil('\n');
   mt->track = (s.toInt() > 0);
   set_track_speed(mt, s.toInt());
+  s = f.readStringUntil('\n');
+  mt->autoflip = s.toInt();
   init_motor( mt->azmotor, AZ_ID, maxcounter, 0, mt->prescaler, mt->maxspeed[0], tmp, back_az);
   init_motor( mt->altmotor,  ALT_ID, maxcounteralt, 0, mt->prescaler, mt->maxspeed[1], tmp2, back_alt);
   f.close();
@@ -556,9 +574,9 @@ void track(mount_t *mt)
   st_current.az = mt->azmotor->position;
   st_current.alt = mt->altmotor->position;
   st_current.p_mode = st_target.p_mode = get_pierside(mt);
- //compute ecuatorial current equatorial values to be send out from LX200 protocol interface
+  //compute ecuatorial current equatorial values to be send out from LX200 protocol interface
   to_equatorial(&st_current);
-  if ((sync_target )&&((mt->azmotor->speed==0.0)||mt->altmotor->speed==0.0)) {
+  if ((sync_target ) && ((mt->azmotor->speed == 0.0) || mt->altmotor->speed == 0.0)) {
     st_target.ra = mt->ra_target = st_current.ra;
     st_target.dec = mt->dec_target = st_current.dec;
     sync_target = FALSE;

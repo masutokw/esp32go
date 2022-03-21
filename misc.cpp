@@ -55,8 +55,9 @@ double calc_Ra( double lha, double longitude)
 double calc_lha(double ra, double longitude)
 {
     double sid = sidereal_timeGMT(longitude, 1) * 15.0;
-
-    return (sid - (ra * 180.0 / M_PI)) * (M_PI / 180.0);
+    double tmp=(sid - (ra *RAD_TO_DEG));
+    if (tmp<0.0 ) tmp+=360.0;
+    return tmp ;
 }
 
 void lxprintde1(char* message, double ang)

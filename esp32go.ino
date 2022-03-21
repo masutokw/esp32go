@@ -48,7 +48,7 @@ WebServer serverweb(WEB_PORT);
 HTTPUpdateServer httpUpdater;
 
 char buff[50] = "Waiting for connection..";
-char *pin = "0000";
+const char *pin ="0000";
 extern char  response[200];
 byte napt = 0;
 mount_t  *telescope;

@@ -11,12 +11,12 @@ typedef struct
          acceleration,
          timertick, maxspeed;
   int counter, maxcounter, slewing, auxcounter,backslash;
-  char id,locked;
+  char id,locked,cw;
 } motor_t;
 
 int sign(double t);
 
-void init_motor(motor_t* mt, char ref, int maxcounter, double spd, double tick, double maxspd, double accel,int back);
+void init_motor(motor_t* mt, char ref, int maxcounter, double spd, double tick, double maxspd, double accel,int back,boolean invert);
 double getposition(motor_t* mt);
 void  setspeed(motor_t* mt, double tspeed);
 void  settargetspeed(motor_t* mt, double tspeed);

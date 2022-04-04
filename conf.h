@@ -66,7 +66,7 @@
 #define BIN_1 27
 #define BIN_2 14
 
-//#define AZ_INV
+#define AZ_INV
 #ifdef AZ_INV
 #define AZ_CW 1
 #define AZ_CCW 0
@@ -75,7 +75,7 @@
 #define AZ_CCW 1
 #endif
 
-//#define ALT_INV
+#define ALT_INV
 #ifdef ALT_INV
 #define ALT_CW 1
 #define ALT_CCW 0

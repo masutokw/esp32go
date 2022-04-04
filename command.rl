@@ -192,6 +192,7 @@ long command( char *str )
 		action fstop {move_to(&focus_motor,focus_motor.position);}
 		action fsync_to{focus_motor.position=focus_motor.target=focus_counter;}
 		action fquery{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
+		action home{mount_home_set(telescope);}
 # LX200  auxiliary terms syntax definitions
         sexmin =  ([0-5][0-9])$getmin@addmin ;
         sex= ([0-5][0-9] )$getsec@addsec (('.'digit{1,2}){,1});
@@ -232,10 +233,11 @@ long command( char *str )
 		f_query='p'%fquery;
 		f_go='A'([\+]|[\-]@neg)digit{5}$getfocuscounter %fmove_to;
 		
-		
+# custom
+		Private = 'pH'%home;
 #focuser
 		Focuser='F'(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel);  
-		main :=   ((ACK|''|'#')':' (Set | Move | Stop|Rate | Sync | Poll|Focuser) '#')* ;
+		main :=   ((ACK|''|'#')':' (Set | Move | Stop|Rate | Sync | Poll|Focuser|Private) '#')* ;
 # Initialize and execute.
         write init;
         write exec;

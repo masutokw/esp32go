@@ -18,7 +18,7 @@ int sign(double t)
 
 }
 
-void init_motor(motor_t* mt, char ref, int maxcounter, double spd, double tick, double maxspd, double accel, int back)
+void init_motor(motor_t* mt, char ref, int maxcounter, double spd, double tick, double maxspd, double accel, int back,boolean invert)
 {
   mt->speed = 0;
   mt->targetspeed = spd;
@@ -34,6 +34,7 @@ void init_motor(motor_t* mt, char ref, int maxcounter, double spd, double tick, 
   // set_motor_max_counter(ref, maxcounter);
   mt->backslash = back;
   setbackslash(mt, back);
+  mt->cw=invert;
 }
 
 inline void setspeed(motor_t* mt , double tspeed)
@@ -51,7 +52,8 @@ inline void setspeed(motor_t* mt , double tspeed)
   if (base > 10000000) base = 10000000;
   if (mt->id) {
     azdir = sign(tspeed);
-    if (azdir > 0) digitalWrite( DIR_OUT_AZ, AZ_CW) ; else digitalWrite( DIR_OUT_AZ, AZ_CCW );
+  //  if (azdir > 0) digitalWrite( DIR_OUT_AZ, AZ_CW) ; else digitalWrite( DIR_OUT_AZ, AZ_CCW );
+  if (azdir > 0) digitalWrite( DIR_OUT_AZ, mt->cw) ; else digitalWrite( DIR_OUT_AZ,!mt->cw );
     if (base != period_az)
     { timerAlarmWrite(timer_az, period_az = base, true);
       timerAlarmEnable(timer_az);
@@ -59,7 +61,8 @@ inline void setspeed(motor_t* mt , double tspeed)
   } else
   { altdir = sign(tspeed);
   //  if (altdir==0) digitalWrite( ENABLE_ALT,DEN_DRIVER);else digitalWrite( ENABLE_ALT,EN_DRIVER);
-    if (altdir > 0) digitalWrite( DIR_OUT_ALT, ALT_CW); else digitalWrite( DIR_OUT_ALT, ALT_CCW );
+   // if (altdir > 0) digitalWrite( DIR_OUT_ALT, ALT_CW); else digitalWrite( DIR_OUT_ALT, ALT_CCW );
+    if (altdir > 0) digitalWrite( DIR_OUT_ALT, mt->cw); else digitalWrite( DIR_OUT_ALT, !mt->cw );
     if (base != period_alt)
     { timerAlarmWrite(timer_alt, period_alt = base, true);
       timerAlarmEnable(timer_alt);

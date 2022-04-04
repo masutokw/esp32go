@@ -401,8 +401,8 @@ int readconfig(mount_t *mt)
   File f = SPIFFS.open("/mount.config", "r");
   if (!f)
   {
-    init_motor( mt->azmotor, AZ_ID, AZ_RED,  SID_RATE_RAD, mt->prescaler, mt->maxspeed[0], 0, 0);
-    init_motor( mt->altmotor,  ALT_ID, ALT_RED, 0, mt->prescaler, mt->maxspeed[1], 0, 0);
+    init_motor( mt->azmotor, AZ_ID, AZ_RED,  SID_RATE_RAD, mt->prescaler, mt->maxspeed[0], 0, 0,0);
+    init_motor( mt->altmotor,  ALT_ID, ALT_RED, 0, mt->prescaler, mt->maxspeed[1], 0, 0,0);
     return -1;
   }
   String s = f.readStringUntil('\n');
@@ -452,8 +452,12 @@ int readconfig(mount_t *mt)
   set_track_speed(mt, s.toInt());
   s = f.readStringUntil('\n');
   mt->autoflip = s.toInt();
-  init_motor( mt->azmotor, AZ_ID, maxcounter, 0, mt->prescaler, mt->maxspeed[0], tmp, back_az);
-  init_motor( mt->altmotor,  ALT_ID, maxcounteralt, 0, mt->prescaler, mt->maxspeed[1], tmp2, back_alt);
+  s = f.readStringUntil('\n');
+  int tmpaz =s.toInt(); 
+  s = f.readStringUntil('\n');
+  int tmpalt =s.toInt(); 
+  init_motor( mt->azmotor, AZ_ID, maxcounter, 0, mt->prescaler, mt->maxspeed[0], tmp, back_az, tmpaz);
+  init_motor( mt->altmotor,  ALT_ID, maxcounteralt, 0, mt->prescaler, mt->maxspeed[1], tmp2, back_alt,tmpalt);
   f.close();
   return 0;
 }

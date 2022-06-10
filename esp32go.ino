@@ -46,7 +46,7 @@ WiFiClient serverClients[MAX_SRV_CLIENTS];
 BluetoothSerial SerialBT;
 WebServer serverweb(WEB_PORT);
 HTTPUpdateServer httpUpdater;
-
+bool bnunchuk=0;
 char buff[50] = "Waiting for connection..";
 const char *pin ="0000";
 extern char  response[200];
@@ -60,6 +60,10 @@ extern long command( char *str );
 time_t now;
 time_t init_time;
 char counter;
+void IRAM_ATTR nunchuk_reset() {
+ // nunchuck_init(SDA_PIN, SCL_PIN);
+ bnunchuk=true;
+}
 void IRAM_ATTR onTimer_az() {
   uint32_t delay;
   stepcounter1++;
@@ -184,6 +188,12 @@ void setup()
   pinMode(ENABLE_ALT, OUTPUT);
   digitalWrite(ENABLE_AZ, DEN_DRIVER);
   digitalWrite(ENABLE_ALT, DEN_DRIVER);
+  ledcAttachPin(12, 1); // assign RGB led pins to channels
+  ledcAttachPin(13,2);
+  ledcSetup(1, 12000, 8); // 12 kHz PWM, 8-bit resolution
+  ledcSetup(2, 12000, 8);
+  ledcWrite(1, 127);
+  ledcWrite(2, 127);
 
 #ifdef OLED_DISPLAY
   oled_initscr();
@@ -275,7 +285,7 @@ void setup()
   }
 
   initwebserver();
-  focuser_tckr.attach_ms(5, do_step, &focus_motor);
+ // focuser_tckr.attach_ms(5, do_step, &focus_motor);
   if (telescope->mount_mode == EQ) {
     sdt_init(telescope->longitude, telescope->time_zone);
     speed_control_tckr.attach_ms(SPEED_CONTROL_TICKER, thread_motor, telescope);
@@ -340,6 +350,8 @@ void setup()
   // Start an alarm
   timerAlarmEnable(timer_az);
   timerAlarmEnable(timer_alt);
+  pinMode(0, INPUT_PULLUP);
+  attachInterrupt(0, nunchuk_reset, FALLING);
 }
 
 void loop()
@@ -357,6 +369,7 @@ void loop()
   ir_read();
 #endif
 #ifdef  NUNCHUCK_CONTROL
+if (bnunchuk) {nunchuck_init(SDA_PIN, SCL_PIN); bnunchuk=0;};
     if (counter % 10  == 3)
   nunchuck_read();
 #endif

@@ -28,6 +28,7 @@ typedef struct stepper
 stepper;
 void init_stepper(stepper *motor);
 void move_to(stepper *motor,long int  target);
+void move_to(stepper *motor, long int  target,int period);
 void do_step(stepper *motor);
 void step_out(uint8_t step);
 #endif

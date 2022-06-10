@@ -19,6 +19,8 @@ char tmessage[50];
 extern c_star st_now, st_target, st_current;
 extern char volatile sync_target;
 extern stepper focus_motor;
+extern int  focuspeed;
+extern int  focuspeed_low;
 struct _telescope_
 {   long dec_target,ra_target;
     long alt_target,az_target;
@@ -185,8 +187,10 @@ long command( char *str )
 		action set_gmt_offset{ telescope->time_zone=deg;}
 		action return_GMT_offset {lxprintGMT_offset(tmessage,telescope->time_zone );APPEND}
         action settime{set_time(deg,min,sec);}
-		action fmove_in {move_to(&focus_motor,0);}
-		action fmove_out {move_to(&focus_motor,focus_motor.max_steps);}
+		action fmove_in {move_to(&focus_motor,0,focuspeed);}
+		action fmove_out {move_to(&focus_motor,focus_motor.max_steps,focuspeed);}
+		action fmovel_in {move_to(&focus_motor,0,focuspeed);}
+		action fmovel_out {move_to(&focus_motor,focus_motor.max_steps,focuspeed);}
 		action fmove_rel {move_to(&focus_motor,focus_motor.position+(focus_counter*neg));}
 		action fmove_to {move_to(&focus_motor,focus_counter);}
 		action fstop {move_to(&focus_motor,focus_motor.position);}
@@ -225,8 +229,8 @@ long command( char *str )
         Sync = "CM"(''|'R')%sync;
         Stop ='Q' (''|[nsew])@storecmd %stop;
        	ACK = 0x06 @return_align;
-		f_in = '-'%fmove_in;
-		f_out = '+'%fmove_out;
+		f_in = ('-'%fmovel_in)|('--'%fmove_in);
+		f_out = ('+'%fmovel_out)| ('++'%fmove_out);
 		f_stop ='Q'%fstop;
 		f_rel='P'([\+]|[\-]@neg)digit{5}$getfocuscounter %fmove_rel;
 		f_sync='LS1'([\+]|[\-]@neg)digit{5}$getfocuscounter %fsync_to;

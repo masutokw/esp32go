@@ -11,6 +11,7 @@ extern int azcounter, altcounter;
 Ticker pulse_dec_tckr, pulse_ra_tckr;
 char sel_flag;
 char volatile sync_target = TRUE;//
+char volatile sync_stop=FALSE;
 mount_t* create_mount(void)
 
 {
@@ -211,7 +212,8 @@ int mount_stop(mount_t *mt, char direction)
         break;
     }
 
-    sync_target = TRUE;
+   // sync_target = TRUE;
+   sync_stop=TRUE;
     //track(mt);
   }
   else // mt->is_tracking = TRUE;
@@ -580,10 +582,12 @@ void track(mount_t *mt)
   st_current.p_mode = st_target.p_mode = get_pierside(mt);
   //compute ecuatorial current equatorial values to be send out from LX200 protocol interface
   to_equatorial(&st_current);
-  if ((sync_target ) && ((mt->azmotor->speed == 0.0) || mt->altmotor->speed == 0.0)) {
+  if ((sync_target ) ||(sync_stop && ((mt->azmotor->speed == 0.0) || mt->altmotor->speed == 0.0)))
+  {
     st_target.ra = mt->ra_target = st_current.ra;
     st_target.dec = mt->dec_target = st_current.dec;
     sync_target = FALSE;
+    sync_stop=FALSE;
     mt->is_tracking = TRUE;
   }
 

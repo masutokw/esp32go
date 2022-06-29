@@ -6,6 +6,8 @@ extern c_star  st_now, st_target, st_current, st_1, st_2;
 extern int  focuspeed;
 extern int  focuspeed_low;
 extern int focusmax;
+extern int8_t focusinv;
+extern int focusvolt;
 extern int azcounter, altcounter;
 #include <Ticker.h>
 Ticker pulse_dec_tckr, pulse_ra_tckr;
@@ -460,6 +462,12 @@ int readconfig(mount_t *mt)
   int tmpalt =s.toInt(); 
   init_motor( mt->azmotor, AZ_ID, maxcounter, 0, mt->prescaler, mt->maxspeed[0], tmp, back_az, tmpaz);
   init_motor( mt->altmotor,  ALT_ID, maxcounteralt, 0, mt->prescaler, mt->maxspeed[1], tmp2, back_alt,tmpalt);
+  s = f.readStringUntil('\n');
+  int tmpfocus=s.toInt(); 
+  focusinv=(tmpfocus>0)? 1:-1;
+  focusvolt=abs(tmpfocus);
+  ledcWrite(1, focusvolt);
+  ledcWrite(2, focusvolt);
   f.close();
   return 0;
 }

@@ -10,6 +10,8 @@ extern int  focuspeed;
 extern int  focuspeed_low;
 extern int focusmax;
 extern stepper focus_motor;
+extern int8_t focusinv;
+extern int focusvolt;
 #include "nunchuck.h"
 #define ADDRESS 0x52
 byte chuckbuffer[6];
@@ -73,7 +75,7 @@ if (Wire.available()) {
         case 2 :
           //  if (pressed==3) telescope->smode=2;
           if (pressed == 2) telescope->srate = 2 ;
-          else if (lastpress == 1) move_to(&focus_motor,0);
+          else if (lastpress == 1) move_to(&focus_motor,0,focuspeed_low);
           else if (pressed == 0) mount_move(telescope, 'w'); //Serial.println("Rigth");
           break;
         default:
@@ -103,7 +105,7 @@ if (Wire.available()) {
           break;
         case 2 :
           if (pressed == 2) telescope->srate = 1;
-          else if (lastpress == 1 )move_to(&focus_motor,0);
+          else if (lastpress == 1 )move_to(&focus_motor,0,focuspeed);
           else if (pressed == 0) mount_move(telescope, 'n'); //Serial.println("Up");
           break;
         default:

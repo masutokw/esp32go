@@ -21,6 +21,8 @@ extern stepper focus_motor;
 extern  int stepcounter1, stepcounter2;
 extern hw_timer_t * timer_az;
 extern hw_timer_t * timer_alt;
+extern int8_t focusinv;
+extern int focusvolt;
 String getContentType(String filename)
 {
   if (serverweb.hasArg("download")) return "application/octet-stream";
@@ -84,7 +86,8 @@ void handleConfig()
     msg += "\n" + serverweb.arg("TRACK") ;
     msg += "\n" + serverweb.arg("AUTOFLIP") ;
     msg += "\n" + String(serverweb.hasArg("INVAZ"));
-    msg += "\n" + String(serverweb.hasArg("INVALT")) + "\n" ;
+    msg += "\n" + String(serverweb.hasArg("INVALT"));
+    msg += "\n" + serverweb.arg("PWR_DIR") + "\n" ;
     String temp = serverweb.arg("SLEW");
     telescope->rate[3][0] = temp.toFloat();
     temp = serverweb.arg("SLEWA");
@@ -176,7 +179,8 @@ void handleConfig()
   content += "<table style='width:250px'>";
   content += "<tr><td>Focus Max:</td><td><input type='number'step='1' name='FOCUSMAX' class=\"text_red\" value='" + String(focusmax) + "'></td></tr>";
   content += "<tr><td>Low Speed:</td><td><input type='number'step='1' name='FOCUSPEEDLOW' class=\"text_red\" value='" + String(focuspeed_low) + "'></td></tr>";
-  content += "<tr><td>Speed</td><td><input type='number'step='1' name='FOCUSPEED' class=\"text_red\" value='" + String(focuspeed) + "'></td></tr></table></fieldset>";
+  content += "<tr><td>Speed</td><td><input type='number'step='1' name='FOCUSPEED' class=\"text_red\" value='" + String(focuspeed) + "'></td></tr>";
+  content += "<tr><td>Volt</td><td><input type='number'step='1' name='PWR_DIR' class=\"text_red\" value='" + String(focusvolt*focusinv) + "'></td></tr></table></fieldset>";
   content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Geodata</legend>";
   content += "<table style='width:250px'>";
   content += "<tr><td>Longitude:</td><td><input type='number' step='any' id=\"lon\" name='LONGITUDE' class=\"text_red\" value='" +
@@ -474,8 +478,9 @@ void handleIr(void)
 void handleFocus(void) {
   if (serverweb.hasArg("FOCUS")) {
     String net = serverweb.arg("FOCUS");
-    focus_motor.target = net.toInt();
-    move_to(&focus_motor, focus_motor.target);
+   // focus_motor.target = net.toInt();
+   // move_to(&focus_motor, focus_motor.target);
+   focus_motor.position=focus_motor.target=focus_motor.target = net.toInt();
   }
   String content =  "<html><head><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "</head><body  bgcolor=\"#000000\" text=\"#FF6000\"><h2>Focus</h2><br>";
   content += "Estado : " + String( focus_motor.position) + "<br>" + "<form action='/focus' method='POST'>";
@@ -489,8 +494,8 @@ void handleFocus(void) {
 
   content += "</body></html>";
   serverweb.send(200, "text/html", content);
-  timerAlarmDisable(timer_alt);
-  timerAlarmEnable(timer_alt);
+//  timerAlarmDisable(timer_alt);
+//  timerAlarmEnable(timer_alt);
 }
 
 void handleMeridian(void)

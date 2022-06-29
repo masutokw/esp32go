@@ -3,7 +3,8 @@
 int32_t max_steps;
 stepper focus_motor;
 extern Ticker  focuser_tckr;
-
+extern int8_t focusinv;
+extern int focusvolt;
 void init_stepper(stepper *motor)
 {
   motor->max_steps = 50000;
@@ -28,9 +29,11 @@ void move_to(stepper *motor, long int  target)
   motor->target = target;
   motor->state = slew;
   if ( motor->position == target) {
-    motor->state = stop;
+    focuser_tckr.detach();
+    motor->state = sync;
     motor->resolution = 0;
     motor->target = motor->position;
+    WA_O; WB_O
   }
   else if ((motor->target) < motor->position)
     motor->resolution = -1;
@@ -41,13 +44,16 @@ void move_to(stepper *motor, long int  target)
 }
 void move_to(stepper *motor, long int  target,int period)
 {
-  focuser_tckr.attach_ms(max(5,period), do_step, &focus_motor);
+  focuser_tckr.attach_ms(max(3,period), do_step, &focus_motor);
   motor->target = target;
   motor->state = slew;
   if ( motor->position == target) {
-    motor->state = stop;
+    focuser_tckr.detach();
+    motor->state = sync;
     motor->resolution = 0;
     motor->target = motor->position;
+    WA_O; WB_O
+      
   }
   else if ((motor->target) < motor->position)
     motor->resolution = -1;
@@ -82,7 +88,7 @@ void do_step(stepper *motor)
 }
 
 void step_out(uint8_t step)
-{
+{ if (focusinv<0)step=7-step;
   switch (step) {
     case 0: WA_P; WB_N; break;
     case 1: WA_P; WB_O; break;

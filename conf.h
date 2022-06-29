@@ -63,8 +63,8 @@
 #define PWM_B 12
 #define AIN_1 33
 #define AIN_2 32
-#define BIN_1 27
-#define BIN_2 14
+#define BIN_1 14
+#define BIN_2 27
 
 #define AZ_INV
 #ifdef AZ_INV

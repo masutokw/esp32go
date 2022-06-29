@@ -40,6 +40,8 @@ const char* ssid = "MyWIFI";
 const char* password = "Mypassword";
 extern volatile int state;
 extern stepper focus_motor;
+extern int8_t focusinv;
+extern int focusvolt;
 WiFiServer server(SERVER_PORT);
 WiFiClient serverClients[MAX_SRV_CLIENTS];
 
@@ -192,8 +194,8 @@ void setup()
   ledcAttachPin(13,2);
   ledcSetup(1, 12000, 8); // 12 kHz PWM, 8-bit resolution
   ledcSetup(2, 12000, 8);
-  ledcWrite(1, 127);
-  ledcWrite(2, 127);
+  ledcWrite(1, focusvolt);
+  ledcWrite(2, focusvolt);
 
 #ifdef OLED_DISPLAY
   oled_initscr();

@@ -1,8 +1,10 @@
 #include "focus.h"
 
-int  focuspeed=20;
-int  focuspeed_low=100;
+int  focuspeed=7;
+int  focuspeed_low=20;
 int focusmax=50000;
+int8_t focusinv=-1;
+int focusvolt=127;
 void setfocuserspeed(motor_t* mt,int speed)
 {
  // aux_set_period(mt->id, speed);

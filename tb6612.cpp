@@ -86,6 +86,11 @@ void do_step(stepper *motor)
   }
 
 }
+void move_to (int dir)
+{ if (dir <0){ WA_N} else 
+  if(dir==0) {WA_O} else
+ {WA_P;}
+}
 
 void step_out(uint8_t step)
 { if (focusinv<0)step=7-step;

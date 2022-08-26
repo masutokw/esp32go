@@ -180,7 +180,8 @@ void handleConfig()
   content += "<tr><td>Focus Max:</td><td><input type='number'step='1' name='FOCUSMAX' class=\"text_red\" value='" + String(focusmax) + "'></td></tr>";
   content += "<tr><td>Low Speed:</td><td><input type='number'step='1' name='FOCUSPEEDLOW' class=\"text_red\" value='" + String(focuspeed_low) + "'></td></tr>";
   content += "<tr><td>Speed</td><td><input type='number'step='1' name='FOCUSPEED' class=\"text_red\" value='" + String(focuspeed) + "'></td></tr>";
-  content += "<tr><td>Volt</td><td><input type='number'step='1' name='PWR_DIR' class=\"text_red\" value='" + String(focusvolt*focusinv) + "'></td></tr></table></fieldset>";
+  content += "<tr><td>Volt</td><td><input type='number'step='1' name='PWR_DIR' class=\"text_red\" value='" + String(focusvolt*focusinv) + "'></td></tr>";
+   content += "<tr><td><button onclick=\"location.href='/focus'\" class=\"button_red\" type=\"button\">Focuser set</button></td></tr></table></fieldset>";
   content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Geodata</legend>";
   content += "<table style='width:250px'>";
   content += "<tr><td>Longitude:</td><td><input type='number' step='any' id=\"lon\" name='LONGITUDE' class=\"text_red\" value='" +
@@ -269,7 +270,7 @@ void handleSync(void)
     }
 
   }
-  String content =  "<!DOCTYPE html><html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP-PGT++ Sync </h2><br>";
+  String content =  "<!DOCTYPE html><html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32Go Sync </h2><br>";
   content += "<p id=\"fecha\">" + msg + " " + String(ctime(&rtc)) + "</p>";
   content += "<p id=\"fecha\">" + String(rtc) + "</p>";
   content += "<button onclick=\"location.href='/'\"  type=\"button\">Back</button><br>";
@@ -281,7 +282,7 @@ void handleTime(void)
 {
   time_t now;
   now = time(nullptr);
-  String content =  "<!DOCTYPE html><html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP-PGT++ Time </h2><br>";
+  String content =  "<!DOCTYPE html><html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32Go++ Time </h2><br>";
   content += "<form id=\"frm1\" action=\"/sync\">";
   content += "<button onclick=\"myFunction()\">Synchronize now!</button>";
   content += "<input type=\"number\" name=\"GMT\" id=\"gmt\"  type=\"hidden\"><br><br>";
@@ -426,6 +427,7 @@ void handleRemote(void)
   if (serverweb.args() == 31)
   {
     File f = SPIFFS.open("/remote.config", "w");
+    
     for (uint8_t i = 0; i < serverweb.args(); i++)
     {
       //content += " " + serverweb.argName(i) + ": " + serverweb.arg(i) + "<br>";
@@ -478,9 +480,13 @@ void handleIr(void)
 void handleFocus(void) {
   if (serverweb.hasArg("FOCUS")) {
     String net = serverweb.arg("FOCUS");
-   // focus_motor.target = net.toInt();
-   // move_to(&focus_motor, focus_motor.target);
    focus_motor.position=focus_motor.target=focus_motor.target = net.toInt();
+  }
+    if (serverweb.hasArg("MOVE")) {
+    String net = serverweb.arg("MOVE");
+    focus_motor.target = net.toInt();
+    move_to(&focus_motor, focus_motor.target,focuspeed);
+   
   }
   String content =  "<html><head><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "</head><body  bgcolor=\"#000000\" text=\"#FF6000\"><h2>Focus</h2><br>";
   content += "Estado : " + String( focus_motor.position) + "<br>" + "<form action='/focus' method='POST'>";
@@ -488,8 +494,8 @@ void handleFocus(void) {
   content += "<td><input type='number' step='1' name='FOCUS' class=\"text_red\" value='" + String(focus_motor.target) + "'></td></tr>";
   content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Set'></form>"  "<br>";
   content += "<button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Home</button><br>";
-  content += "Timer1 " + String(stepcounter1) + "<br>";
-  content += "Timer2 " + String(stepcounter2) + "<br>";
+ // content += "Timer1 " + String(stepcounter1) + "<br>";
+  //content += "Timer2 " + String(stepcounter2) + "<br>";
 
 
   content += "</body></html>";

@@ -1,24 +1,39 @@
 #include "focus.h"
-
-int  focuspeed=7;
-int  focuspeed_low=20;
-int focusmax=50000;
-int8_t focusinv=-1;
-int focusvolt=127;
-void setfocuserspeed(motor_t* mt,int speed)
+#include "tb6612.h"
+int  focuspeed = 7;
+int  focuspeed_low = 20;
+int focusmax = 50000;
+int8_t focusinv = -1;
+int focusvolt = 127;
+extern stepper focus_motor;
+void setfocuserspeed(motor_t* mt, int speed)
 {
- // aux_set_period(mt->id, speed);
+  // aux_set_period(mt->id, speed);
 }
-void gotofocuser(motor_t* mt,int pos,int speed) {
-  int focusdest;
-  int count, fspeed;
-  if (pos < 1) pos = 0;
-  focusdest = pos;
-//  set_aux_target(mt->id, pos);
 
- // setfocuserspeed(mt,speed * sign(pos - mt->auxcounter));
+void gotofocuser(int pos) {
+#ifndef DC_FOCUS
+  move_to(&focus_motor, pos);
+#else
+  if (pos == focus_motor.max_steps) move_to(1); else if (pos == 0) move_to(-1); else move_to (0);
+#endif
 
 }
-void stopfocuser(motor_t* mt) {
- // setfocuserspeed(mt,0);
+void gotofocuser( int pos, int speed) {
+#ifndef DC_FOCUS
+  move_to(&focus_motor, pos, speed);
+#else
+ ledcWrite(1, speed);
+ ledcWrite(2, speed);
+  if (pos == focus_motor.max_steps) move_to(1); else if (pos == 0) move_to(-1); else move_to (0);
+#endif
+
+}
+void stopfocuser(void) {
+#ifndef DC_FOCUS
+  move_to(&focus_motor, focus_motor.position, focuspeed);
+#else
+  move_to (0);
+#endif
+
 }

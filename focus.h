@@ -3,6 +3,7 @@
 #include "misc.h"
 #include "motor.h"
 void setfocuserspeed(motor_t* mt,int speed);
-void gotofocuser(motor_t* mt,int pos,int speed);
-void stopfocuser(motor_t* mt);
+void gotofocuser(int pos,int speed);
+void gotofocuser(int pos);
+void stopfocuser(void);
 #endif

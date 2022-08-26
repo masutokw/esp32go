@@ -7,10 +7,12 @@
 #include "mount.h"
 #include "focus.h"
 #include "ir_control.h"
+#include "tb6612.h"
 extern mount_t *telescope;
 extern int  focuspeed;
 extern int  focuspeed_low;
 extern int focusmax;
+extern stepper focus_motor;
 const uint16_t kRecvPin = IR_PIN;
 byte cmd_map [31] = {91, 88, 94, 86, 90, 18, 2, 13, 75, 74, 79, 83, 11, 87, 78, 6, 15, 30, 68, 17, 95, 76, 77, 73, 64, 72, 69, 31, 92, 25, 89};
 int obj = 0;
@@ -109,12 +111,12 @@ void ir_read(void)
       case FOCUS_F:
         lastpresstime = millis();
         ir_state = 1;
-        gotofocuser(telescope->azmotor, 100000, focuspeed);
+        gotofocuser(focus_motor.max_steps, focuspeed);
         break;
       case FOCUS_B:
         lastpresstime = millis();
         ir_state = 1;
-        gotofocuser(telescope->azmotor, 0, focuspeed);
+        gotofocuser(0, focuspeed);
         break;
       case GUIDE:
         telescope->srate = 0;
@@ -219,7 +221,7 @@ void ir_read(void)
         break;
       case FOCUS_F:
       case FOCUS_B:
-        stopfocuser(telescope->azmotor);;
+        stopfocuser();;
         break;
       default:
         break;

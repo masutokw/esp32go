@@ -8,6 +8,7 @@
 #include "webserver.h"
 #include "taki.h"
 #include "tb6612.h"
+#include "focus.h"
 //Comment out undesired Feature
 //---------------------------
 //#define NUNCHUCK_CONTROL
@@ -292,6 +293,7 @@ void setup()
     sdt_init(telescope->longitude, telescope->time_zone);
     speed_control_tckr.attach_ms(SPEED_CONTROL_TICKER, thread_motor, telescope);
     // counters_poll_tkr.attach_ms(COUNTERS_POLL_TICKER, eq_track, telescope);
+    
   }
   else
   { tak_init(telescope);
@@ -354,6 +356,11 @@ void setup()
   timerAlarmEnable(timer_alt);
   pinMode(0, INPUT_PULLUP);
   attachInterrupt(0, nunchuk_reset, FALLING);
+ 
+  //move_to(&focus_motor,focus_motor.position);
+  stopfocuser();
+   WA_O; WB_O;
+  focuser_tckr.detach();
 }
 
 void loop()

@@ -13,6 +13,7 @@
 #include "misc.h"
 #include <math.h>
 #include "tb6612.h"
+#include "focus.h"
 
 char response [200];
 char tmessage[50];
@@ -187,13 +188,13 @@ long command( char *str )
 		action set_gmt_offset{ telescope->time_zone=deg;}
 		action return_GMT_offset {lxprintGMT_offset(tmessage,telescope->time_zone );APPEND}
         action settime{set_time(deg,min,sec);}
-		action fmove_in {move_to(&focus_motor,0,focuspeed);}
-		action fmove_out {move_to(&focus_motor,focus_motor.max_steps,focuspeed);}
-		action fmovel_in {move_to(&focus_motor,0,focuspeed);}
-		action fmovel_out {move_to(&focus_motor,focus_motor.max_steps,focuspeed);}
-		action fmove_rel {move_to(&focus_motor,focus_motor.position+(focus_counter*neg));}
-		action fmove_to {move_to(&focus_motor,focus_counter);}
-		action fstop {move_to(&focus_motor,focus_motor.position);}
+		action fmove_in {gotofocuser(0,focuspeed);}
+		action fmove_out {gotofocuser(focus_motor.max_steps,focuspeed);}
+		action fmovel_in {gotofocuser(0,focuspeed_low);}
+		action fmovel_out {gotofocuser(focus_motor.max_steps,focuspeed_low);}
+		action fmove_rel {gotofocuser(focus_motor.position+(focus_counter*neg));}
+		action fmove_to {gotofocuser(focus_counter);}
+		action fstop {stopfocuser();}
 		action fsync_to{focus_motor.position=focus_motor.target=focus_counter;}
 		action fquery{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
 		action home{mount_home_set(telescope);}

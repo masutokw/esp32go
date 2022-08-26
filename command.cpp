@@ -15,6 +15,7 @@
 #include "misc.h"
 #include <math.h>
 #include "tb6612.h"
+#include "focus.h"
 
 char response [200];
 char tmessage[50];
@@ -140,7 +141,7 @@ static const int command_error = 0;
 static const int command_en_main = 116;
 
 
-#line 135 "command.rl"
+#line 136 "command.rl"
 
 
 
@@ -159,7 +160,7 @@ static const int command_en_main = 116;
 	switch ( cs )
 	{
 tr11:
-#line 171 "command.rl"
+#line 172 "command.rl"
 	{if (telescope->mount_mode)
 						align_sync_all(telescope,mount.ra_target,mount.dec_target);
 						else
@@ -168,136 +169,136 @@ tr11:
 						}
 	goto st116;
 tr20:
-#line 193 "command.rl"
-	{move_to(&focus_motor,focus_motor.max_steps,focuspeed);}
+#line 194 "command.rl"
+	{gotofocuser(focus_motor.max_steps,focuspeed_low);}
 	goto st116;
 tr22:
-#line 191 "command.rl"
-	{move_to(&focus_motor,focus_motor.max_steps,focuspeed);}
+#line 192 "command.rl"
+	{gotofocuser(focus_motor.max_steps,focuspeed);}
 	goto st116;
 tr23:
-#line 192 "command.rl"
-	{move_to(&focus_motor,0,focuspeed);}
+#line 193 "command.rl"
+	{gotofocuser(0,focuspeed_low);}
 	goto st116;
 tr25:
-#line 190 "command.rl"
-	{move_to(&focus_motor,0,focuspeed);}
+#line 191 "command.rl"
+	{gotofocuser(0,focuspeed);}
 	goto st116;
 tr33:
-#line 195 "command.rl"
-	{move_to(&focus_motor,focus_counter);}
+#line 196 "command.rl"
+	{gotofocuser(focus_counter);}
 	goto st116;
 tr43:
-#line 197 "command.rl"
+#line 198 "command.rl"
 	{focus_motor.position=focus_motor.target=focus_counter;}
 	goto st116;
 tr51:
-#line 194 "command.rl"
-	{move_to(&focus_motor,focus_motor.position+(focus_counter*neg));}
+#line 195 "command.rl"
+	{gotofocuser(focus_motor.position+(focus_counter*neg));}
 	goto st116;
 tr52:
-#line 196 "command.rl"
-	{move_to(&focus_motor,focus_motor.position);}
+#line 197 "command.rl"
+	{stopfocuser();}
 	goto st116;
 tr53:
-#line 198 "command.rl"
+#line 199 "command.rl"
 	{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
 	goto st116;
 tr66:
-#line 161 "command.rl"
+#line 162 "command.rl"
 	{lxprintde1(tmessage, st_current.alt); APPEND;}
 	goto st116;
 tr67:
-#line 164 "command.rl"
+#line 165 "command.rl"
 	{lxprintdate1(tmessage);APPEND;}
 	goto st116;
 tr68:
-#line 158 "command.rl"
+#line 159 "command.rl"
 	{if (telescope->mount_mode) lxprintde1(tmessage, st_current.dec);
 							else mount_lxde_str(tmessage,telescope); APPEND;}
 	goto st116;
 tr69:
-#line 188 "command.rl"
+#line 189 "command.rl"
 	{lxprintGMT_offset(tmessage,telescope->time_zone );APPEND}
 	goto st116;
 tr70:
-#line 178 "command.rl"
+#line 179 "command.rl"
 	{ lxprinttime1(tmessage);APPEND;}
 	goto st116;
 tr71:
-#line 165 "command.rl"
+#line 166 "command.rl"
 	{ lxprintsite();}
 	goto st116;
 tr72:
-#line 156 "command.rl"
+#line 157 "command.rl"
 	{if (telescope->mount_mode) lxprintra1(tmessage, st_current.ra);
 							else mount_lxra_str(tmessage,telescope); APPEND;}
 	goto st116;
 tr73:
-#line 160 "command.rl"
+#line 161 "command.rl"
 	{ lxprintaz1(tmessage, st_current.az); APPEND;}
 	goto st116;
 tr74:
-#line 163 "command.rl"
+#line 164 "command.rl"
 	{lxprintde1(tmessage, st_target.dec); APPEND;}
 	goto st116;
 tr75:
-#line 167 "command.rl"
+#line 168 "command.rl"
 	{lxprintlong1(tmessage,telescope->longitude);APPEND;}
 	goto st116;
 tr76:
-#line 162 "command.rl"
+#line 163 "command.rl"
 	{ lxprintra1(tmessage, st_target.ra); APPEND;}
 	goto st116;
 tr77:
-#line 168 "command.rl"
+#line 169 "command.rl"
 	{lxprintlat1(tmessage,telescope->lat);APPEND;}
 	goto st116;
 tr81:
-#line 150 "command.rl"
+#line 151 "command.rl"
 	{if (telescope->mount_mode)
 					{goto_ra_dec(telescope,mount.ra_target*15.0*SEC_TO_RAD,mount.dec_target*SEC_TO_RAD);}
 					 else mount_slew(telescope);
 					 sprintf(tmessage,"0");APPEND;}
 	goto st116;
 tr82:
-#line 148 "command.rl"
+#line 149 "command.rl"
 	{mount_move(telescope,stcmd);}
 	goto st116;
 tr88:
-#line 149 "command.rl"
+#line 150 "command.rl"
 	{pulse_guide(telescope,stcmd,pulse);}
 	goto st116;
 tr89:
-#line 154 "command.rl"
+#line 155 "command.rl"
 	{mount_stop(telescope,stcmd);}
 	goto st116;
 tr92:
-#line 155 "command.rl"
+#line 156 "command.rl"
 	{select_rate(telescope,stcmd); }
 	goto st116;
 tr108:
-#line 185 "command.rl"
+#line 186 "command.rl"
 	{set_date(min,deg,sec);}
 	goto st116;
 tr113:
-#line 187 "command.rl"
+#line 188 "command.rl"
 	{ telescope->time_zone=deg;}
-#line 166 "command.rl"
+#line 167 "command.rl"
 	{sprintf(tmessage,"1");APPEND;deg=sec=min=0;}
 	goto st116;
 tr126:
-#line 189 "command.rl"
+#line 190 "command.rl"
 	{set_time(deg,min,sec);}
 	goto st116;
 tr136:
-#line 179 "command.rl"
+#line 180 "command.rl"
 	{set_cmd_exe(stcmd,(neg*(deg )));
                              sprintf(tmessage,"1");APPEND;deg=sec=min=0;
                             }
 	goto st116;
 tr153:
-#line 199 "command.rl"
+#line 200 "command.rl"
 	{mount_home_set(telescope);}
 	goto st116;
 st116:
@@ -315,7 +316,7 @@ st0:
 cs = 0;
 	goto _out;
 tr154:
-#line 186 "command.rl"
+#line 187 "command.rl"
 	{if (telescope->mount_mode==ALTAZ) sprintf(tmessage,"A");else sprintf(tmessage,"P") ; APPEND; }
 	goto st1;
 st1:
@@ -420,7 +421,7 @@ case 11:
 	}
 	goto st0;
 tr27:
-#line 147 "command.rl"
+#line 148 "command.rl"
 	{ neg=-1;}
 	goto st12;
 st12:
@@ -432,7 +433,7 @@ case 12:
 		goto tr28;
 	goto st0;
 tr28:
-#line 146 "command.rl"
+#line 147 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st13;
 st13:
@@ -444,7 +445,7 @@ case 13:
 		goto tr29;
 	goto st0;
 tr29:
-#line 146 "command.rl"
+#line 147 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st14;
 st14:
@@ -456,7 +457,7 @@ case 14:
 		goto tr30;
 	goto st0;
 tr30:
-#line 146 "command.rl"
+#line 147 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st15;
 st15:
@@ -468,7 +469,7 @@ case 15:
 		goto tr31;
 	goto st0;
 tr31:
-#line 146 "command.rl"
+#line 147 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st16;
 st16:
@@ -480,7 +481,7 @@ case 16:
 		goto tr32;
 	goto st0;
 tr32:
-#line 146 "command.rl"
+#line 147 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st17;
 st17:
@@ -515,7 +516,7 @@ case 20:
 	}
 	goto st0;
 tr37:
-#line 147 "command.rl"
+#line 148 "command.rl"
 	{ neg=-1;}
 	goto st21;
 st21:
@@ -527,7 +528,7 @@ case 21:
 		goto tr38;
 	goto st0;
 tr38:
-#line 146 "command.rl"
+#line 147 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st22;
 st22:
@@ -539,7 +540,7 @@ case 22:
 		goto tr39;
 	goto st0;
 tr39:
-#line 146 "command.rl"
+#line 147 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st23;
 st23:
@@ -551,7 +552,7 @@ case 23:
 		goto tr40;
 	goto st0;
 tr40:
-#line 146 "command.rl"
+#line 147 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st24;
 st24:
@@ -563,7 +564,7 @@ case 24:
 		goto tr41;
 	goto st0;
 tr41:
-#line 146 "command.rl"
+#line 147 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st25;
 st25:
@@ -575,7 +576,7 @@ case 25:
 		goto tr42;
 	goto st0;
 tr42:
-#line 146 "command.rl"
+#line 147 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st26;
 st26:
@@ -596,7 +597,7 @@ case 27:
 	}
 	goto st0;
 tr45:
-#line 147 "command.rl"
+#line 148 "command.rl"
 	{ neg=-1;}
 	goto st28;
 st28:
@@ -608,7 +609,7 @@ case 28:
 		goto tr46;
 	goto st0;
 tr46:
-#line 146 "command.rl"
+#line 147 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st29;
 st29:
@@ -620,7 +621,7 @@ case 29:
 		goto tr47;
 	goto st0;
 tr47:
-#line 146 "command.rl"
+#line 147 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st30;
 st30:
@@ -632,7 +633,7 @@ case 30:
 		goto tr48;
 	goto st0;
 tr48:
-#line 146 "command.rl"
+#line 147 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st31;
 st31:
@@ -644,7 +645,7 @@ case 31:
 		goto tr49;
 	goto st0;
 tr49:
-#line 146 "command.rl"
+#line 147 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st32;
 st32:
@@ -656,7 +657,7 @@ case 32:
 		goto tr50;
 	goto st0;
 tr50:
-#line 146 "command.rl"
+#line 147 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st33;
 st33:
@@ -806,7 +807,7 @@ case 50:
 		goto tr81;
 	goto st0;
 tr79:
-#line 184 "command.rl"
+#line 185 "command.rl"
 	{stcmd=(*p);}
 	goto st51;
 st51:
@@ -829,7 +830,7 @@ case 52:
 	}
 	goto st0;
 tr83:
-#line 184 "command.rl"
+#line 185 "command.rl"
 	{stcmd=(*p);}
 	goto st53;
 st53:
@@ -841,7 +842,7 @@ case 53:
 		goto tr84;
 	goto st0;
 tr84:
-#line 145 "command.rl"
+#line 146 "command.rl"
 	{ADD_DIGIT(pulse,(*p));}
 	goto st54;
 st54:
@@ -853,7 +854,7 @@ case 54:
 		goto tr85;
 	goto st0;
 tr85:
-#line 145 "command.rl"
+#line 146 "command.rl"
 	{ADD_DIGIT(pulse,(*p));}
 	goto st55;
 st55:
@@ -865,7 +866,7 @@ case 55:
 		goto tr86;
 	goto st0;
 tr86:
-#line 145 "command.rl"
+#line 146 "command.rl"
 	{ADD_DIGIT(pulse,(*p));}
 	goto st56;
 st56:
@@ -877,7 +878,7 @@ case 56:
 		goto tr87;
 	goto st0;
 tr87:
-#line 145 "command.rl"
+#line 146 "command.rl"
 	{ADD_DIGIT(pulse,(*p));}
 	goto st57;
 st57:
@@ -901,7 +902,7 @@ case 58:
 	}
 	goto st0;
 tr90:
-#line 184 "command.rl"
+#line 185 "command.rl"
 	{stcmd=(*p);}
 	goto st59;
 st59:
@@ -924,7 +925,7 @@ case 60:
 	}
 	goto st0;
 tr91:
-#line 184 "command.rl"
+#line 185 "command.rl"
 	{stcmd=(*p);}
 	goto st61;
 st61:
@@ -981,7 +982,7 @@ case 65:
 		goto tr100;
 	goto st0;
 tr100:
-#line 142 "command.rl"
+#line 143 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st66;
 st66:
@@ -993,7 +994,7 @@ case 66:
 		goto tr101;
 	goto st0;
 tr101:
-#line 142 "command.rl"
+#line 143 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st67;
 st67:
@@ -1012,7 +1013,7 @@ case 68:
 		goto tr103;
 	goto st0;
 tr103:
-#line 143 "command.rl"
+#line 144 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st69;
 st69:
@@ -1024,7 +1025,7 @@ case 69:
 		goto tr104;
 	goto st0;
 tr104:
-#line 143 "command.rl"
+#line 144 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st70;
 st70:
@@ -1043,7 +1044,7 @@ case 71:
 		goto tr106;
 	goto st0;
 tr106:
-#line 144 "command.rl"
+#line 145 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
 	goto st72;
 st72:
@@ -1055,7 +1056,7 @@ case 72:
 		goto tr107;
 	goto st0;
 tr107:
-#line 144 "command.rl"
+#line 145 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
 	goto st73;
 st73:
@@ -1088,7 +1089,7 @@ case 75:
 	}
 	goto st0;
 tr111:
-#line 147 "command.rl"
+#line 148 "command.rl"
 	{ neg=-1;}
 	goto st76;
 st76:
@@ -1100,7 +1101,7 @@ case 76:
 		goto tr112;
 	goto st0;
 tr112:
-#line 142 "command.rl"
+#line 143 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st77;
 st77:
@@ -1130,7 +1131,7 @@ case 79:
 		goto tr113;
 	goto st0;
 tr115:
-#line 142 "command.rl"
+#line 143 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st80;
 st80:
@@ -1163,7 +1164,7 @@ case 82:
 		goto tr118;
 	goto st0;
 tr118:
-#line 142 "command.rl"
+#line 143 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st83;
 st83:
@@ -1175,7 +1176,7 @@ case 83:
 		goto tr119;
 	goto st0;
 tr119:
-#line 142 "command.rl"
+#line 143 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st84;
 st84:
@@ -1194,7 +1195,7 @@ case 85:
 		goto tr121;
 	goto st0;
 tr121:
-#line 143 "command.rl"
+#line 144 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st86;
 st86:
@@ -1206,7 +1207,7 @@ case 86:
 		goto tr122;
 	goto st0;
 tr122:
-#line 143 "command.rl"
+#line 144 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st87;
 st87:
@@ -1225,7 +1226,7 @@ case 88:
 		goto tr124;
 	goto st0;
 tr124:
-#line 144 "command.rl"
+#line 145 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
 	goto st89;
 st89:
@@ -1237,7 +1238,7 @@ case 89:
 		goto tr125;
 	goto st0;
 tr125:
-#line 144 "command.rl"
+#line 145 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
 	goto st90;
 st90:
@@ -1249,7 +1250,7 @@ case 90:
 		goto tr126;
 	goto st0;
 tr97:
-#line 184 "command.rl"
+#line 185 "command.rl"
 	{stcmd=(*p);}
 	goto st91;
 st91:
@@ -1273,7 +1274,7 @@ case 92:
 		goto tr128;
 	goto st0;
 tr128:
-#line 142 "command.rl"
+#line 143 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st93;
 st93:
@@ -1285,7 +1286,7 @@ case 93:
 		goto tr129;
 	goto st0;
 tr129:
-#line 142 "command.rl"
+#line 143 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st94;
 st94:
@@ -1306,7 +1307,7 @@ case 95:
 		goto tr131;
 	goto st0;
 tr131:
-#line 143 "command.rl"
+#line 144 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st96;
 st96:
@@ -1318,9 +1319,9 @@ case 96:
 		goto tr132;
 	goto st0;
 tr132:
-#line 143 "command.rl"
+#line 144 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
-#line 182 "command.rl"
+#line 183 "command.rl"
 	{deg=deg*3600+min*60;}
 	goto st97;
 st97:
@@ -1342,7 +1343,7 @@ case 98:
 		goto tr135;
 	goto st0;
 tr135:
-#line 177 "command.rl"
+#line 178 "command.rl"
 	{deg+=((*p)-'0')*6;}
 	goto st99;
 st99:
@@ -1361,7 +1362,7 @@ case 100:
 		goto tr137;
 	goto st0;
 tr137:
-#line 144 "command.rl"
+#line 145 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
 	goto st101;
 st101:
@@ -1373,9 +1374,9 @@ case 101:
 		goto tr138;
 	goto st0;
 tr138:
-#line 144 "command.rl"
+#line 145 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
-#line 183 "command.rl"
+#line 184 "command.rl"
 	{deg+=sec;}
 	goto st102;
 st102:
@@ -1405,7 +1406,7 @@ case 104:
 		goto st99;
 	goto st0;
 tr98:
-#line 184 "command.rl"
+#line 185 "command.rl"
 	{stcmd=(*p);}
 	goto st105;
 st105:
@@ -1440,7 +1441,7 @@ case 106:
 		goto st107;
 	goto st0;
 tr144:
-#line 147 "command.rl"
+#line 148 "command.rl"
 	{ neg=-1;}
 	goto st107;
 st107:
@@ -1452,7 +1453,7 @@ case 107:
 		goto tr145;
 	goto st0;
 tr145:
-#line 142 "command.rl"
+#line 143 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st108;
 st108:
@@ -1464,7 +1465,7 @@ case 108:
 		goto tr146;
 	goto st0;
 tr146:
-#line 142 "command.rl"
+#line 143 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st109;
 st109:
@@ -1495,7 +1496,7 @@ case 110:
 		goto tr149;
 	goto st0;
 tr149:
-#line 143 "command.rl"
+#line 144 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st111;
 st111:
@@ -1507,9 +1508,9 @@ case 111:
 		goto tr150;
 	goto st0;
 tr150:
-#line 143 "command.rl"
+#line 144 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
-#line 182 "command.rl"
+#line 183 "command.rl"
 	{deg=deg*3600+min*60;}
 	goto st112;
 st112:
@@ -1521,7 +1522,7 @@ case 112:
 		goto tr151;
 	goto st100;
 tr151:
-#line 179 "command.rl"
+#line 180 "command.rl"
 	{set_cmd_exe(stcmd,(neg*(deg )));
                              sprintf(tmessage,"1");APPEND;deg=sec=min=0;
                             }
@@ -1540,7 +1541,7 @@ case 117:
 		goto tr137;
 	goto st0;
 tr148:
-#line 142 "command.rl"
+#line 143 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st113;
 st113:
@@ -1697,7 +1698,7 @@ case 115:
 	_out: {}
 	}
 
-#line 248 "command.rl"
+#line 249 "command.rl"
 
 
 //---------------------------------------------------------------------------------------------------------------------

@@ -58,6 +58,7 @@ int  destroy_mount(mount_t* m)
   free(m->azmotor);
   free(m->altmotor);
   free(m);
+  return 1;
 }
 
 void thread_motor(mount_t* m)
@@ -139,7 +140,7 @@ int goto_ra_dec(mount_t *mt, double ra, double dec)
 { mt->is_tracking = TRUE;
   st_target.ra = ra;
   st_target.dec = dec;
-
+return 1;
 }
 
 int sync_ra_dec(mount_t *mt)
@@ -159,6 +160,7 @@ int sync_ra_dec(mount_t *mt)
   else
     setpositionf(mt->altmotor, ( M_2PI + st_current.alt));
   mt->sync = FALSE;
+  return 1;
 }
 
 int sync_eq(mount_t *mt)
@@ -171,6 +173,7 @@ int sync_eq(mount_t *mt)
   setpositionf(mt->altmotor, mt->altmotor->target);
   setpositionf( mt->azmotor, calc_Ra(mt->azmotor->target, mt->longitude));
   mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
+  return 1;
 }
 
 int mount_stop(mount_t *mt, char direction)
@@ -239,6 +242,7 @@ int mount_stop(mount_t *mt, char direction)
         break;
     }
   }
+  return 1;
 }
 void mount_move(mount_t *mt, char dir)
 {
@@ -337,6 +341,7 @@ int mount_slew(mount_t *mt)
   else
     eq_to_enc(&(mt->azmotor->target), &(mt->altmotor->target), mt->ra_target, mt->dec_target, (get_pierside(mt)));
   mt->azmotor->slewing = mt->altmotor->slewing = true;
+  return 1;
 }
 
 

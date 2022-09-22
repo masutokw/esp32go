@@ -142,8 +142,11 @@ int net_task(void)
       }
     }
     //Only one client at time, so reject
-    WiFiClient serverClient = server.available();
-    serverClient.stop();
+   // WiFiClient serverClient = server.available();
+   // serverClient.stop();
+    if (i >= MAX_SRV_CLIENTS) {
+        //no free/disconnected spot so reject
+        server.available().stop();}
   }
   //check clients for data
   for (i = 0; i < MAX_SRV_CLIENTS; i++)
@@ -374,7 +377,7 @@ void loop()
   now = time(nullptr);
   serverweb.handleClient();
 #ifdef IR_CONTROL
-  //if (counter % 17 == 0)
+  if (counter % 17 == 0)
   ir_read();
 #endif
 #ifdef  NUNCHUCK_CONTROL

@@ -40,7 +40,7 @@
 #endif
 
 #define NUNCHUCK_CONTROL
-#define IR_CONTROL
+//#define IR_CONTROL
 //#define PAD
 //#define OLED_DISPLAY
 #define OTA
@@ -53,7 +53,7 @@
 #define WEB_PORT 80
 #define BAUDRATE 115200
 //#define BAUDRATE 57600
-#define MAX_SRV_CLIENTS 3
+#define MAX_SRV_CLIENTS 8
 #define SPEED_CONTROL_TICKER 20
 #define COUNTERS_POLL_TICKER 100
 #endif
@@ -92,7 +92,7 @@
 #define TIMER_AZ 3
 #define TIMER_ALT 2
 #endif
-#define DC_FOCUS
+//#define DC_FOCUS
 //On slow pulse detect stepper driver as DRV8825 comment out
-//#define AZ_P_DELAY 23
-//#define ALT_P_DELAY 23
+#define AZ_P_DELAY 23
+#define ALT_P_DELAY 23

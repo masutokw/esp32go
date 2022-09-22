@@ -43,6 +43,7 @@ String getContentType(String filename)
 void handleConfig()
 {
   String msg;
+//  msg.reserve(5500); 
   time_t now;
   now = time(nullptr);
   if (serverweb.hasArg("SSID") && serverweb.hasArg("PASSWORD"))
@@ -110,8 +111,9 @@ void handleConfig()
     }
     f.close ();
   }
-
-  String content = "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE);
+  String content;
+  content.reserve(5500);
+   content = "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE);
   content += "<body  bgcolor=\"#000000\" text=\"#5599ff\"><form action='/config' method='POST'>";
   content += "<h2>ESP32go";
 #ifdef IR_CONTROL
@@ -524,8 +526,8 @@ void handleMeridian(void)
 }
 void initwebserver(void)
 {
-  serverweb.on("/config", handleConfig);
-  serverweb.on("/", handleConfig);
+  
+
   serverweb.on("/park", handlePark);
   serverweb.on("/time", handleTime);
   serverweb.on("/sync", handleSync);
@@ -535,6 +537,8 @@ void initwebserver(void)
   serverweb.on("/network", handleNetwork);
   serverweb.on("/meridian", handleMeridian);
   serverweb.on("/focus", handleFocus);
+  serverweb.on("/config", handleConfig);
+  serverweb.on("/", handleConfig);
 #ifdef IR_CONTROL
   serverweb.on("/remote", handleRemote);
   serverweb.on("/IR", handleIr);

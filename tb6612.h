@@ -9,7 +9,7 @@
 #define WB_O  digitalWrite(BIN_1, 0); digitalWrite(BIN_2, 0); //set  V0 for B winding
 #define WA_O  digitalWrite(AIN_1, 0); digitalWrite(AIN_2, 0);//set  V+ for A winding
 enum motor_state
-{ slew, stop, sync };
+{ slew, stop, synced };
 typedef struct stepper
 {   long int max_steps;
     long int backslash;

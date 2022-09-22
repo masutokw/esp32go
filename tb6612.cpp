@@ -30,7 +30,7 @@ void move_to(stepper *motor, long int  target)
   motor->state = slew;
   if ( motor->position == target) {
     focuser_tckr.detach();
-    motor->state = sync;
+    motor->state = synced;
     motor->resolution = 0;
     motor->target = motor->position;
     WA_O; WB_O
@@ -49,7 +49,7 @@ void move_to(stepper *motor, long int  target,int period)
   motor->state = slew;
   if ( motor->position == target) {
     focuser_tckr.detach();
-    motor->state = sync;
+    motor->state = synced;
     motor->resolution = 0;
     motor->target = motor->position;
     WA_O; WB_O
@@ -67,12 +67,12 @@ void do_step(stepper *motor)
 {
   if ((motor->state == slew) && (motor->position == motor->target))
   {
-    motor->state = sync;
+    motor->state = synced;
     motor->resolution = 0;
     WA_O; WB_O
      focuser_tckr.detach();
   }
-  if (motor->state != sync) {
+  if (motor->state != synced) {
     if (( motor->backcounter <= 0) || ( motor->backcounter >= motor->backslash))
       motor->position += motor->resolution;
     else

@@ -39,7 +39,7 @@
 #define DEN_DRIVER 1
 #endif
 
-#define NUNCHUCK_CONTROL
+//#define NUNCHUCK_CONTROL
 //#define IR_CONTROL
 //#define PAD
 //#define OLED_DISPLAY

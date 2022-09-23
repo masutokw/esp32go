@@ -9,6 +9,7 @@
 #include "taki.h"
 #include "tb6612.h"
 #include "focus.h"
+#include "esp32-hal-ledc.h"
 //Comment out undesired Feature
 //---------------------------
 //#define NUNCHUCK_CONTROL
@@ -19,7 +20,7 @@
 #ifdef  NUNCHUCK_CONTROL
 #include "nunchuck.h"
 #endif
-volatile int stepcounter1,stepcounter2;
+volatile int stepcounter1, stepcounter2;
 uint64_t  volatile period_az, period_alt;
 int volatile azcounter, altcounter;
 int  volatile azdir, altdir;
@@ -49,9 +50,9 @@ WiFiClient serverClients[MAX_SRV_CLIENTS];
 BluetoothSerial SerialBT;
 WebServer serverweb(WEB_PORT);
 HTTPUpdateServer httpUpdater;
-bool bnunchuk=0;
+bool bnunchuk = 0;
 char buff[50] = "Waiting for connection..";
-const char *pin ="0000";
+const char *pin = "0000";
 extern char  response[200];
 byte napt = 0;
 mount_t  *telescope;
@@ -64,8 +65,8 @@ time_t now;
 time_t init_time;
 char counter;
 void IRAM_ATTR nunchuk_reset() {
- // nunchuck_init(SDA_PIN, SCL_PIN);
- bnunchuk=true;
+  // nunchuck_init(SDA_PIN, SCL_PIN);
+  bnunchuk = true;
 }
 void IRAM_ATTR onTimer_az() {
   uint32_t delay;
@@ -85,7 +86,7 @@ void IRAM_ATTR onTimer_az() {
   }
 }
 void IRAM_ATTR onTimer_alt() {
-   stepcounter2++;
+  stepcounter2++;
   if (altdir) {
     char pulse_w;
     digitalWrite(CLOCK_OUT_ALT, 0);
@@ -142,11 +143,12 @@ int net_task(void)
       }
     }
     //Only one client at time, so reject
-   // WiFiClient serverClient = server.available();
-   // serverClient.stop();
+    // WiFiClient serverClient = server.available();
+    // serverClient.stop();
     if (i >= MAX_SRV_CLIENTS) {
-        //no free/disconnected spot so reject
-        server.available().stop();}
+      //no free/disconnected spot so reject
+      server.available().stop();
+    }
   }
   //check clients for data
   for (i = 0; i < MAX_SRV_CLIENTS; i++)
@@ -162,8 +164,9 @@ int net_task(void)
           delay(1);
           size_t n = serverClients[i].available();
           serverClients[i].readBytes(buff, n);
-          command( buff);
-          buff[n] = 0;
+           buff[n+1] = 0;
+          command(buff);
+          buff[n+1] = 0;
           serverClients[i].write((char*)response, strlen(response));
 
           //checkfsm();
@@ -181,6 +184,7 @@ void serialtask(void) {
     while (Serial.available())  buff[n++] = (char) Serial.read() ;
     // SerialBT.write((const uint8_t* )buff, n);
     //  SerialBT.println(n);
+     buff[n] = 0;
     command(buff);
     buff[n] = 0;
     Serial.write((const uint8_t* )response, strlen(response));
@@ -189,15 +193,16 @@ void serialtask(void) {
 }
 
 void setup()
-{delay(300);
+{ delay(300);
   pinMode(ENABLE_AZ, OUTPUT);
   pinMode(ENABLE_ALT, OUTPUT);
   digitalWrite(ENABLE_AZ, DEN_DRIVER);
   digitalWrite(ENABLE_ALT, DEN_DRIVER);
+  Serial.begin(BAUDRATE);
   ledcAttachPin(12, 1); // assign RGB led pins to channels
-  ledcAttachPin(13,2);
-  ledcSetup(1, 12000, 8); // 12 kHz PWM, 8-bit resolution
-  ledcSetup(2, 12000, 8);
+  ledcAttachPin(13, 2);
+  ledcSetup(1, 10000, 8); // 12 kHz PWM, 8-bit resolution
+  ledcSetup(2, 10000, 8);
   ledcWrite(1, focusvolt);
   ledcWrite(2, focusvolt);
 
@@ -205,10 +210,9 @@ void setup()
   oled_initscr();
 #endif
 
-  SerialBT.setPin(pin);
+  //SerialBT.setPin(pin);
   SerialBT.begin(BT_NAME);
   SerialBT.setPin(pin);
-
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP("ESP32go", "boquerones");
   SPIFFS.begin();
@@ -267,7 +271,7 @@ void setup()
 #endif
 
   //start UART and the server
-  Serial.begin(BAUDRATE);
+
 #ifdef OLED_DISPLAY
   // Serial.swap();
 #endif
@@ -291,12 +295,12 @@ void setup()
   }
 
   initwebserver();
- // focuser_tckr.attach_ms(5, do_step, &focus_motor);
+  // focuser_tckr.attach_ms(5, do_step, &focus_motor);
   if (telescope->mount_mode == EQ) {
     sdt_init(telescope->longitude, telescope->time_zone);
     speed_control_tckr.attach_ms(SPEED_CONTROL_TICKER, thread_motor, telescope);
     // counters_poll_tkr.attach_ms(COUNTERS_POLL_TICKER, eq_track, telescope);
-    
+
   }
   else
   { tak_init(telescope);
@@ -308,7 +312,7 @@ void setup()
   pad_Init();
 #endif //PAD
 #ifdef NUNCHUCK_CONTROL
- pinMode(SDA_PIN, INPUT_PULLUP);
+  pinMode(SDA_PIN, INPUT_PULLUP);
   pinMode(SCL_PIN, INPUT_PULLUP);
   nunchuck_init( SDA_PIN, SCL_PIN);
 #endif
@@ -318,15 +322,15 @@ void setup()
 #ifdef IR_CONTROL
   ir_init();
 #endif
- 
+
   pinMode(CLOCK_OUT_AZ, OUTPUT);
   pinMode(CLOCK_OUT_ALT, OUTPUT);
   pinMode(DIR_OUT_AZ, OUTPUT);
   pinMode(DIR_OUT_ALT, OUTPUT);
   pinMode(AZ_RES, OUTPUT);
   pinMode(ALT_RES, OUTPUT);
-  pinMode(PWM_A, OUTPUT);
-  pinMode(PWM_B, OUTPUT);
+  //pinMode(PWM_A, OUTPUT);
+  //pinMode(PWM_B, OUTPUT);
   pinMode(AIN_1, OUTPUT);
   pinMode(AIN_2, OUTPUT);
   pinMode(BIN_1, OUTPUT);
@@ -344,12 +348,13 @@ void setup()
   // Use 1st timer of 4 (counted from zero).
   // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
   // info).
+
   timer_alt = timerBegin(TIMER_ALT, 80, true);
   timer_az = timerBegin(TIMER_AZ, 80, true);
 
   // Attach onTimer function to our timer.
-  timerAttachInterrupt(timer_az, &onTimer_az, true);
-  timerAttachInterrupt(timer_alt, &onTimer_alt, true);
+  timerAttachInterrupt(timer_az, &onTimer_az, false);
+  timerAttachInterrupt(timer_alt, &onTimer_alt, false);
 
   timerAlarmWrite(timer_az, 100000, true);
   timerAlarmWrite(timer_alt, 100000, true);
@@ -359,10 +364,10 @@ void setup()
   timerAlarmEnable(timer_alt);
   pinMode(0, INPUT_PULLUP);
   attachInterrupt(0, nunchuk_reset, FALLING);
- 
+
   //move_to(&focus_motor,focus_motor.position);
   stopfocuser();
-   WA_O; WB_O;
+  WA_O; WB_O;
   focuser_tckr.detach();
 }
 
@@ -378,12 +383,15 @@ void loop()
   serverweb.handleClient();
 #ifdef IR_CONTROL
   if (counter % 17 == 0)
-  ir_read();
+    ir_read();
 #endif
 #ifdef  NUNCHUCK_CONTROL
-if (bnunchuk) {nunchuck_init(SDA_PIN, SCL_PIN); bnunchuk=0;};
-    if (counter % 10  == 3)
-  nunchuck_read();
+  if (bnunchuk) {
+    nunchuck_init(SDA_PIN, SCL_PIN);
+    bnunchuk = 0;
+  };
+  if (counter % 10  == 3)
+    nunchuck_read();
 #endif
 
 #ifdef OLED_DISPLAY

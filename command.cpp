@@ -1706,4 +1706,5 @@ case 115:
         //	fprintf( stderr, "LX command:  error\n" );
 
         return  neg;
+        return 0;
 };

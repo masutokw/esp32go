@@ -520,9 +520,15 @@ void mount_home_set(mount_t *mt)
       setpositionf(mt->altmotor, M_PI) ;
       break;
     case EQ:
+#ifdef NCP_HOME
+      setpositionf(mt->azmotor, M_PI / 2);
+      delay(10);
+      setpositionf(mt->altmotor, (M_PI / 2) + 5e-6);
+#else
       setpositionf(mt->azmotor, M_PI / 2 );
       delay(10);
       setpositionf(mt->altmotor, M_PI );
+#endif
       break;
   }
   //   save_counters(ALT_ID);

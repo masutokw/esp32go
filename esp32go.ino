@@ -46,6 +46,7 @@ extern int8_t focusinv;
 extern int focusvolt;
 WiFiServer server(SERVER_PORT);
 WiFiClient serverClients[MAX_SRV_CLIENTS];
+int clients_connected = 0;
 
 BluetoothSerial SerialBT;
 WebServer serverweb(WEB_PORT);
@@ -151,10 +152,12 @@ int net_task(void)
     }
   }
   //check clients for data
+  clients_connected=0;
   for (i = 0; i < MAX_SRV_CLIENTS; i++)
   {
     if (serverClients[i] && serverClients[i].connected())
     {
+      clients_connected++;
       if (serverClients[i].available())
       {
         //get data from the  client and push it to LX200 FSM

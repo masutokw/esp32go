@@ -5,6 +5,7 @@
 #include <HTTPUpdateServer.h>
 #include <SPIFFS.h>
 #include "BluetoothSerial.h"
+#define ENCODER
 #define BT_NAME "ESP32go_BT"
 #define IR_PIN 15
 #define SDA_PIN 21
@@ -39,8 +40,8 @@
 #define DEN_DRIVER 1
 #endif
 
-//#define NUNCHUCK_CONTROL
-//#define IR_CONTROL
+#define NUNCHUCK_CONTROL
+#define IR_CONTROL
 //#define PAD
 //#define OLED_DISPLAY
 #define OTA
@@ -94,7 +95,7 @@
 #endif
 //#define DC_FOCUS
 //On slow pulse detect stepper driver as DRV8825 comment out
-#define AZ_P_DELAY 23
-#define ALT_P_DELAY 23
+//#define AZ_P_DELAY 23
+//#define ALT_P_DELAY 23
 // Use NCP as default position for EQ mount
-#define NCP_HOME
+//#define NCP_HOME

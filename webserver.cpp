@@ -43,7 +43,7 @@ String getContentType(String filename)
 void handleConfig()
 {
   String msg;
-//  msg.reserve(5500); 
+  //  msg.reserve(5500);
   time_t now;
   now = time(nullptr);
   if (serverweb.hasArg("SSID") && serverweb.hasArg("PASSWORD"))
@@ -113,7 +113,7 @@ void handleConfig()
   }
   String content;
   content.reserve(5500);
-   content = "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE);
+  content = "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE);
   content += "<body  bgcolor=\"#000000\" text=\"#5599ff\"><form action='/config' method='POST'>";
   content += "<h2>ESP32go";
 #ifdef IR_CONTROL
@@ -182,8 +182,8 @@ void handleConfig()
   content += "<tr><td>Focus Max:</td><td><input type='number'step='1' name='FOCUSMAX' class=\"text_red\" value='" + String(focusmax) + "'></td></tr>";
   content += "<tr><td>Low Speed:</td><td><input type='number'step='1' name='FOCUSPEEDLOW' class=\"text_red\" value='" + String(focuspeed_low) + "'></td></tr>";
   content += "<tr><td>Speed</td><td><input type='number'step='1' name='FOCUSPEED' class=\"text_red\" value='" + String(focuspeed) + "'></td></tr>";
-  content += "<tr><td>Volt</td><td><input type='number'step='1' name='PWR_DIR' class=\"text_red\" value='" + String(focusvolt*focusinv) + "'></td></tr>";
-   content += "<tr><td><button onclick=\"location.href='/focus'\" class=\"button_red\" type=\"button\">Focuser set</button></td></tr></table></fieldset>";
+  content += "<tr><td>Volt</td><td><input type='number'step='1' name='PWR_DIR' class=\"text_red\" value='" + String(focusvolt * focusinv) + "'></td></tr>";
+  content += "<tr><td><button onclick=\"location.href='/focus'\" class=\"button_red\" type=\"button\">Focuser set</button></td></tr></table></fieldset>";
   content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Geodata</legend>";
   content += "<table style='width:250px'>";
   content += "<tr><td>Longitude:</td><td><input type='number' step='any' id=\"lon\" name='LONGITUDE' class=\"text_red\" value='" +
@@ -200,7 +200,8 @@ void handleConfig()
   content += "<button onclick=\"location.href='/remote'\" class=\"button_red\" type=\"button\">IR Remote </button>";
 #endif
 #ifdef NUNCHUCK_CONTROL
-  content += "<button onclick=\"location.href='/nunchuk'\" class=\"button_red\" type=\"button\">Init Nunchuk </button>";
+  content += "<br><button onclick=\"location.href='/nunchuk?ENABLE=1'\" class=\"button_red\" type=\"button\">Init Nunchuk </button>";
+  content += "<button onclick=\"location.href='/nunchuk'\" class=\"button_red\" type=\"button\">Disable Nunchuk </button>";
 #endif
   content += "<br>Load Time :" + String(ctime(&now)) + "<br>";
   content += "<br>side :" + String(calc_lha(telescope->ra_target, telescope->longitude)) + "<br>";
@@ -314,18 +315,28 @@ void handleRestart(void)
   delay(1000);
   ESP.restart();
 }
+#ifdef NUNCHUCK_CONTROL
 void handleNunchuk(void)
-{
+{String action="disabled";
+  if (serverweb.hasArg("ENABLE"))
+  { nunchuck_init(SDA_PIN, SCL_PIN);
+    nunchuck_disable(FALSE);
+    action="restarted";
+  }
+  else
+    nunchuck_disable(TRUE);
 
-  String content =   "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP-PGT++ restarted</h2><br>";
+  String content =   "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32go Nunchuck "+action+"</h2><br>";
 
   content += "AZ Counter:" + String(telescope->azmotor->counter) + "<br>";
   content += "Alt Counter:" + String(telescope->altmotor->counter) + "<br>";
   content += "<button onclick=\"location.href='/'\"  type=\"button\">Home</button><br>";
   content += "</body></html>";
   serverweb.send(200, "text/html", content);
-  nunchuck_init(SDA_PIN, SCL_PIN);
+
 }
+#endif
+
 void handleStar( void)
 {
   String msg, txt;
@@ -429,7 +440,7 @@ void handleRemote(void)
   if (serverweb.args() == 31)
   {
     File f = SPIFFS.open("/remote.config", "w");
-    
+
     for (uint8_t i = 0; i < serverweb.args(); i++)
     {
       //content += " " + serverweb.argName(i) + ": " + serverweb.arg(i) + "<br>";
@@ -482,13 +493,13 @@ void handleIr(void)
 void handleFocus(void) {
   if (serverweb.hasArg("FOCUS")) {
     String net = serverweb.arg("FOCUS");
-   focus_motor.position=focus_motor.target=focus_motor.target = net.toInt();
+    focus_motor.position = focus_motor.target = focus_motor.target = net.toInt();
   }
-    if (serverweb.hasArg("MOVE")) {
+  if (serverweb.hasArg("MOVE")) {
     String net = serverweb.arg("MOVE");
     focus_motor.target = net.toInt();
-    move_to(&focus_motor, focus_motor.target,focuspeed);
-   
+    move_to(&focus_motor, focus_motor.target, focuspeed);
+
   }
   String content =  "<html><head><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "</head><body  bgcolor=\"#000000\" text=\"#FF6000\"><h2>Focus</h2><br>";
   content += "Estado : " + String( focus_motor.position) + "<br>" + "<form action='/focus' method='POST'>";
@@ -496,14 +507,14 @@ void handleFocus(void) {
   content += "<td><input type='number' step='1' name='FOCUS' class=\"text_red\" value='" + String(focus_motor.target) + "'></td></tr>";
   content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Set'></form>"  "<br>";
   content += "<button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Home</button><br>";
- // content += "Timer1 " + String(stepcounter1) + "<br>";
+  // content += "Timer1 " + String(stepcounter1) + "<br>";
   //content += "Timer2 " + String(stepcounter2) + "<br>";
 
 
   content += "</body></html>";
   serverweb.send(200, "text/html", content);
-//  timerAlarmDisable(timer_alt);
-//  timerAlarmEnable(timer_alt);
+  //  timerAlarmDisable(timer_alt);
+  //  timerAlarmEnable(timer_alt);
 }
 
 void handleMeridian(void)
@@ -526,7 +537,7 @@ void handleMeridian(void)
 }
 void initwebserver(void)
 {
-  
+
 
   serverweb.on("/park", handlePark);
   serverweb.on("/time", handleTime);
@@ -545,7 +556,7 @@ void initwebserver(void)
 #endif
 #ifdef NUNCHUCK_CONTROL
   serverweb.on("/nunchuk", handleNunchuk);
-#endif
+ #endif
   serverweb.onNotFound([]()
   {
     if (!handleFileRead(serverweb.uri()))

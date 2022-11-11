@@ -152,7 +152,7 @@ int net_task(void)
     }
   }
   //check clients for data
-  clients_connected=0;
+  clients_connected = 0;
   for (i = 0; i < MAX_SRV_CLIENTS; i++)
   {
     if (serverClients[i] && serverClients[i].connected())
@@ -167,9 +167,9 @@ int net_task(void)
           delay(1);
           size_t n = serverClients[i].available();
           serverClients[i].readBytes(buff, n);
-           buff[n+1] = 0;
+          buff[n + 1] = 0;
           command(buff);
-          buff[n+1] = 0;
+          buff[n + 1] = 0;
           serverClients[i].write((char*)response, strlen(response));
 
           //checkfsm();
@@ -187,7 +187,7 @@ void serialtask(void) {
     while (Serial.available())  buff[n++] = (char) Serial.read() ;
     // SerialBT.write((const uint8_t* )buff, n);
     //  SerialBT.println(n);
-     buff[n] = 0;
+    buff[n] = 0;
     command(buff);
     buff[n] = 0;
     Serial.write((const uint8_t* )response, strlen(response));
@@ -318,6 +318,7 @@ void setup()
   pinMode(SDA_PIN, INPUT_PULLUP);
   pinMode(SCL_PIN, INPUT_PULLUP);
   nunchuck_init( SDA_PIN, SCL_PIN);
+  nunchuck_disable(nunchuck_read()==0);
 #endif
 #ifdef OTA
   InitOTA();
@@ -391,6 +392,7 @@ void loop()
 #ifdef  NUNCHUCK_CONTROL
   if (bnunchuk) {
     nunchuck_init(SDA_PIN, SCL_PIN);
+    nunchuck_disable(nunchuck_read()==0);
     bnunchuk = 0;
   };
   if (counter % 10  == 3)

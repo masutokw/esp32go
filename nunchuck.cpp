@@ -15,6 +15,7 @@ extern int focusvolt;
 #include "nunchuck.h"
 #define ADDRESS 0x52
 byte chuckbuffer[6];
+bool n_disable=0;
 int lastx, lasty, lastpress;
 void nunchuck_init(int sda, int scl)
 {
@@ -33,15 +34,20 @@ void nunchuck_init(int sda, int scl)
   delay(1);
   lastx = lasty = 1;
 }
-void nunchuck_read(void)
-{ char cls;
+void nunchuck_disable(byte n){
+  n_disable=n;
+}
+
+uint8_t nunchuck_read(void)
+{ uint8_t cls;
   int count = 0;
   int pressed;
+if (n_disable)  return 255;  
 if (Wire.available()) {
     while (Wire.available())
       cls = Wire.read();
   }
-  Wire.requestFrom(ADDRESS, 6);
+ cls=Wire.requestFrom(ADDRESS, 6);
   while (Wire.available())
   {
     chuckbuffer[count] = Wire.read();
@@ -125,6 +131,6 @@ if (Wire.available()) {
   Wire.write(0x00);
   Wire.write(0x00);
   Wire.endTransmission();
-
+return cls;
 }
 #endif

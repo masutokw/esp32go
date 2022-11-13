@@ -188,6 +188,8 @@ long command( char *str )
 		action set_gmt_offset{ telescope->time_zone=deg;}
 		action return_GMT_offset {lxprintGMT_offset(tmessage,telescope->time_zone );APPEND}
         action settime{set_time(deg,min,sec);}
+		action return_formatTime{sprintf(tmessage,"24#");APPEND;}
+		action return_tRate{sprintf(tmessage,"50.0#");APPEND;}
 		action fmove_in {gotofocuser(0,focuspeed);}
 		action fmove_out {gotofocuser(focus_motor.max_steps,focuspeed);}
 		action fmovel_in {gotofocuser(0,focuspeed_low);}
@@ -198,6 +200,10 @@ long command( char *str )
 		action fsync_to{focus_motor.position=focus_motor.target=focus_counter;}
 		action fquery{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
 		action home{mount_home_set(telescope);}
+		action set_land {telescope->track=0;}
+		action set_polar {telescope->track=1;}
+		action set_altaz {;}
+		action return_dst{sprintf(tmessage,"#");APPEND;}
 # LX200  auxiliary terms syntax definitions
         sexmin =  ([0-5][0-9])$getmin@addmin ;
         sex= ([0-5][0-9] )$getsec@addsec (('.'digit{1,2}){,1});
@@ -218,15 +224,17 @@ long command( char *str )
                    'C'%return_date|
                    'M'%return_site|
                    'g'%return_longitude|
-                   't'%return_lat);
-
+                   't'%return_lat|
+				   'T'%return_tRate|
+				   'c'%return_formatTime);
         Move = 'M' (([nswe]@storecmd %dir) | ('S'%Goto)|('g'[nsew]@storecmd digit{4}$getpulse %pulse_dir));
         Rate = 'R' [CGMS]@storecmd (''|[0-4]) %rate;
 		Timezone='G'(''|space)([\+] | [\-]@neg)((digit @getgrads){1,2}) ('.' digit)? %set_gmt_offset%ok;
         date ='C' (''|space)  (digit@getgrads){2} '/' (digit @getmin){2} '/' (digit @getsec){2}%setdate;
         time ='L' (''|space) (digit @getgrads){2}':'(digit@getmin){2} ':'(digit @getsec){2}%settime;
         Set='S'((([dazgt]@storecmd (''|space) deg ) |([rS]@storecmd (''|space) RA))%set_cmd_exec| Timezone |date | time) ;
-
+		Align='A'('L'%set_land)|('P'%set_polar)|('A'%set_altaz);
+		Distance='D'%return_dst;
         Sync = "CM"(''|'R')%sync;
         Stop ='Q' (''|[nsew])@storecmd %stop;
        	ACK = 0x06 @return_align;
@@ -242,7 +250,7 @@ long command( char *str )
 		Private = 'pH'%home;
 #focuser
 		Focuser='F'(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel);  
-		main :=   ((ACK|''|'#')':' (Set | Move | Stop|Rate | Sync | Poll|Focuser|Private) '#')* ;
+		main :=   ((ACK|''|'#')':' (Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Private| Distance) '#')* ;
 # Initialize and execute.
         write init;
         write exec;

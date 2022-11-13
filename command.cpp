@@ -178,7 +178,7 @@ tr17:
 	goto st122;
 tr19:
 #line 206 "command.rl"
-	{sprintf(tmessage,"#");APPEND;}
+	{if (telescope->azmotor->slewing ||(telescope->altmotor->slewing)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
 	goto st122;
 tr27:
 #line 196 "command.rl"

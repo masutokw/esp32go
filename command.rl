@@ -203,7 +203,7 @@ long command( char *str )
 		action set_land {telescope->track=0;}
 		action set_polar {telescope->track=1;}
 		action set_altaz {;}
-		action return_dst{sprintf(tmessage,"#");APPEND;}
+		action return_dst{if (telescope->azmotor->slewing ||(telescope->altmotor->slewing)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
 # LX200  auxiliary terms syntax definitions
         sexmin =  ([0-5][0-9])$getmin@addmin ;
         sex= ([0-5][0-9] )$getsec@addsec (('.'digit{1,2}){,1});

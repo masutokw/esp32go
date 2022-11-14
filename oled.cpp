@@ -5,8 +5,15 @@ extern mount_t *telescope;
 SSD1306 display(0x3c, SDA_PIN, SCL_PIN);
 extern time_t now;
 extern int clients_connected;
+static const unsigned long REFRESH_INTERVAL = 1000; // (ms) refresh oled every second
+static unsigned long lastRefreshTime = 0;
+
 void oledDisplay()
 {
+  if(millis() - lastRefreshTime < REFRESH_INTERVAL)
+    return;
+	lastRefreshTime = millis();
+
   char ra[20] = "";
   char de[20] = "";
   //write some information for debuging purpose to OLED display.
@@ -14,7 +21,9 @@ void oledDisplay()
   // display.drawString (0, 0, "ESP-8266 PicGoto++ 0.1");
   // display.drawString(0, 13, String(buff) + "  " + String(response));
   lxprintra(ra, sidereal_timeGMT_alt(telescope->longitude) * 15.0 * DEG_TO_RAD);
-  display.drawString(0, 9, "LST " + String(ra));
+  //display.drawString(0, 9, "LST " + String(ra));
+  display.drawString(0, 9, "Lon: "+String(int(telescope->longitude)) + "." + String(getDecimal(telescope->longitude))+"  Lat: "+String(int(telescope->lat)) + "." + String(getDecimal(telescope->lat)) );
+
    lxprintra(ra, calc_Ra(telescope->azmotor->position, telescope->longitude));
    lxprintde(de, telescope->altmotor->position);
 
@@ -28,7 +37,8 @@ void oledDisplay()
   //display.drawString(0, 32,String(pw)+ " "+ String(n));
   display.drawString(0, 0, ctime(&now));
 //---------
-  display.drawString(0, 36, "IP Clients: "+String(clients_connected));
+  display.drawString(0, 28, "T["+String(telescope->is_tracking ? "1":"0")+"]  S["+String((telescope->azmotor->slewing || telescope->altmotor->slewing) ? "1":"0")+"]  P.Side["+String(get_pierside(telescope) ? "W":"E")+"]  Flip["+String(telescope->autoflip ? "1":"0")+"]");
+  display.drawString(0, 38, "IP Clients: "+String(clients_connected));
 //---------  
   display.display();
 }

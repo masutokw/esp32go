@@ -39,7 +39,7 @@ mount_t* create_mount(void)
   m->longitude = LOCAL_LONGITUDE;
   m->lat = LOCAL_LATITUDE;
   m->time_zone = TIME_ZONE;
-  m->prescaler = 0.4;
+  m->prescaler = 1.0;
   //  init_motor( m->azmotor, AZ_ID, maxcounter, SID_RATE * SEC_TO_RAD, m->prescaler, m->maxspeed[0]);
   //  init_motor( m->altmotor,  ALT_ID, maxcounteralt, 0, m->prescaler, m->maxspeed[1]);
   m->is_tracking = TRUE;

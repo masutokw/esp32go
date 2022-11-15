@@ -99,3 +99,5 @@
 //#define ALT_P_DELAY 23
 // Use NCP as default position for EQ mount
 //#define NCP_HOME
+//Trace WIFI lx200 protocol using output serial interface
+//#define LX200TRACE

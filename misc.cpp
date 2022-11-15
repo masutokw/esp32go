@@ -212,8 +212,29 @@ void setclock (int year, int month, int day, int hour, int min, int sec, int gmt
   tv.tv_usec = 0;
   settimeofday(&tv, nullptr);
 
+}/*
+void config_NTP(int zone, int dls)
+{
+#define NUEVO
+#ifdef NUEVO
+    char tx[10];
+    int x = zone;
+    char c = '-';
+// configTime(TZ_Europe_Madrid, "pool.ntp.org");
+    if (x < 0)
+    {
+        x = -x;
+        c = '+';
+    }
+    sprintf(tx, "GMT%c%x", c, x);
+    configTime(tx, "pool.ntp.org");
+    setenv ("TZ", tx, 1);
+    tzset ();
+#else
+    configTime(zone * 3600, dls * 3600,  "pool.ntp.org");
+#endif
 }
-
+*/
 void config_NTP(int zone, int dls)
 {
   configTime(zone * 3600, dls * 3600,  "pool.ntp.org");													 

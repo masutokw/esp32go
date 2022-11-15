@@ -167,11 +167,16 @@ int net_task(void)
           delay(1);
           size_t n = serverClients[i].available();
           serverClients[i].readBytes(buff, n);
-          buff[n + 1] = 0;
+          buff[n ] = 0;
           command(buff);
-          buff[n + 1] = 0;
+#ifdef LX200TRACE
+          Serial.write((const uint8_t* )buff, strlen(buff)); Serial.print("   ");
+#endif
+          buff[n] = 0;
           serverClients[i].write((char*)response, strlen(response));
-
+#ifdef LX200TRACE
+          Serial.write((const uint8_t* )response, strlen(response));Serial.println();
+#endif
           //checkfsm();
         }
 
@@ -318,7 +323,7 @@ void setup()
   pinMode(SDA_PIN, INPUT_PULLUP);
   pinMode(SCL_PIN, INPUT_PULLUP);
   nunchuck_init( SDA_PIN, SCL_PIN);
-  nunchuck_disable(nunchuck_read()==0);
+  nunchuck_disable(nunchuck_read() == 0);
 #endif
 #ifdef OTA
   InitOTA();
@@ -381,7 +386,9 @@ void loop()
 
   net_task();
   bttask();
+#ifndef LX200TRACE
   serialtask();
+#endif
 
   now = time(nullptr);
   serverweb.handleClient();
@@ -392,7 +399,7 @@ void loop()
 #ifdef  NUNCHUCK_CONTROL
   if (bnunchuk) {
     nunchuck_init(SDA_PIN, SCL_PIN);
-    nunchuck_disable(nunchuck_read()==0);
+    nunchuck_disable(nunchuck_read() == 0);
     bnunchuk = 0;
   };
   if (counter % 10  == 3)

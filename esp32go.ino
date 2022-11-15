@@ -307,7 +307,7 @@ void setup()
   if (telescope->mount_mode == EQ) {
     sdt_init(telescope->longitude, telescope->time_zone);
     speed_control_tckr.attach_ms(SPEED_CONTROL_TICKER, thread_motor, telescope);
-    // counters_poll_tkr.attach_ms(COUNTERS_POLL_TICKER, eq_track, telescope);
+     // counters_poll_tkr.attach_ms(COUNTERS_POLL_TICKER, eq_track, telescope);
 
   }
   else
@@ -378,6 +378,7 @@ void setup()
   stopfocuser();
   WA_O; WB_O;
   focuser_tckr.detach();
+    if (telescope->mount_mode == EQ) telescope->azmotor->targetspeed =  telescope->track_speed ;
 }
 
 void loop()

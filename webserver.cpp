@@ -174,8 +174,9 @@ void handleConfig()
   content += "<button onclick=\"location.href='/meridian?SIDE=0'\" class=\"button_red\"  type=\"button\">Meridian Flip EAST</button>";
   content += "<button onclick=\"location.href='/meridian?SIDE=1'\" class=\"button_red\"  type=\"button\">Meridian Flip WEST</button><br>";
   content += "<button onclick=\"location.href='/park'\" class=\"button_red\" type=\"button\">Park telescope</button>";
-  content += "<button onclick=\"location.href='/home'\" class=\"button_red\" type=\"button\">Reset home</button>";
-  content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">2 stars align</button><br>";
+  content += "<button onclick=\"location.href='/home?HOME=0'\" class=\"button_red\" type=\"button\">Reset home</button>";
+  content += "<button onclick=\"location.href='/home?HOME=1'\" class=\"button_red\" type=\"button\">GO home</button>";
+  content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">2 stars align</button>";
   content += "<input type='submit' name='SUBMIT' class=\"button_red\" value='Save'></fieldset>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Focuser</legend>";
   content += "<table style='width:250px'>";
@@ -217,7 +218,7 @@ void handlePark(void)
   time_t now;
   now = time(nullptr);
   mount_park(telescope);
-  String content =  "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP-PGT++ PARKED</h2><br>";
+  String content =  "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32go PARKED</h2><br>";
   content += "Mount parked  ,position saved on EEPROM.<br>";
   content += "AZ Counter:" + String(telescope->azmotor->counter) + "<br>";
   content += "Alt Counter:" + String(telescope->altmotor->counter) + "<br>";
@@ -233,8 +234,15 @@ void handleHome(void)
 {
   time_t now;
   now = time(nullptr);
-  mount_home_set(telescope);
-  String content =  "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP-PGT++ PARKED</h2><br>";
+  if (serverweb.hasArg("HOME")) {
+    String net = serverweb.arg("HOME");
+    char cmd = net.toInt();
+    switch (cmd) {
+      case 0:  mount_home_set(telescope); break;
+      case 1:  mount_goto_home(telescope); break;
+    }
+  }
+  String content =  "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32go++ PARKED</h2><br>";
   content += "Mount parked  ,position saved on EEPROM.<br>";
   content += "AZ Counter:" + String(telescope->azmotor->counter) + "<br>";
   content += "Alt Counter:" + String(telescope->altmotor->counter) + "<br>";
@@ -317,16 +325,16 @@ void handleRestart(void)
 }
 #ifdef NUNCHUCK_CONTROL
 void handleNunchuk(void)
-{String action="disabled";
+{ String action = "disabled";
   if (serverweb.hasArg("ENABLE"))
   { nunchuck_init(SDA_PIN, SCL_PIN);
     nunchuck_disable(FALSE);
-    action="restarted";
+    action = "restarted";
   }
   else
     nunchuck_disable(TRUE);
 
-  String content =   "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32go Nunchuck "+action+"</h2><br>";
+  String content =   "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32go Nunchuck " + action + "</h2><br>";
 
   content += "AZ Counter:" + String(telescope->azmotor->counter) + "<br>";
   content += "Alt Counter:" + String(telescope->altmotor->counter) + "<br>";
@@ -545,6 +553,7 @@ void initwebserver(void)
   serverweb.on("/restart", handleRestart);
   serverweb.on("/Align", handleStar);
   serverweb.on("/home", handleHome);
+  serverweb.on("/gohome", handleHome);
   serverweb.on("/network", handleNetwork);
   serverweb.on("/meridian", handleMeridian);
   serverweb.on("/focus", handleFocus);
@@ -556,7 +565,7 @@ void initwebserver(void)
 #endif
 #ifdef NUNCHUCK_CONTROL
   serverweb.on("/nunchuk", handleNunchuk);
- #endif
+#endif
   serverweb.onNotFound([]()
   {
     if (!handleFileRead(serverweb.uri()))

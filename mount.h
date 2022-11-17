@@ -45,6 +45,7 @@ typedef struct
     double track_speed;
     int autoflip;
     int hmf;
+    double fix_ra_target;
 } mount_t;
 
 mount_t* create_mount(void);
@@ -75,4 +76,5 @@ void pulse_guide(mount_t *mt, char dir, int interval);
 void  meridianflip(mount_t *mt, int side);
 void set_track_speed(mount_t *mt,int index);
 void load_saved_pos(void);
+void mount_goto_home(mount_t *mt);
 #endif

@@ -6,7 +6,7 @@
 #define APPEND strcat(response,tmessage);
 #define SYNC_MESSAGE "sync#"
 //#define SYNC_MESSAGE "Coordinates     matched.        #"
-
+#define UPDATEPLA "1Updating    Planetary Data. #                #"
 #include <string.h>
 #include <stdio.h>
 #include "mount.h"
@@ -61,9 +61,11 @@ void set_cmd_exe(char cmd,long date)
         break;
     case 'a':
         mount.alt_target=date;
+		telescope->alt_target=date*SEC_TO_RAD;
         break;
     case 'z':
         mount.az_target=date ;
+		telescope->az_target=date*SEC_TO_RAD;
         break;
     case 't':
         mount.lat=date ;
@@ -106,7 +108,8 @@ void set_date( int day,int month,int year)
     telescope->azmotor->targetspeed=0.0;
     telescope->altmotor->targetspeed=0.0;
   }
-	sprintf(tmessage,"%cUpdating Planetary Data#     #",'1');APPEND;
+	//sprintf(tmessage,"%cUpdating Planetary Data#     #",'1');APPEND;
+	sprintf(tmessage,"%cUpdating    Planetary Data. #                #",'1');APPEND;
 }
 void set_time( int hour,int min,int sec)
 {
@@ -184,7 +187,7 @@ long command( char *str )
         action addsec {deg+=sec;}
         action storecmd {stcmd=fc;}
         action setdate {set_date(min,deg,sec);}
-        action return_align{if (telescope->mount_mode==ALTAZ) sprintf(tmessage,"A");else sprintf(tmessage,"P") ; APPEND; }
+        action return_align{if (telescope->mount_mode==ALTAZ) sprintf(tmessage,"A");else if (telescope->track) sprintf(tmessage,"P"); else sprintf(tmessage,"L"); APPEND; }
 		action set_gmt_offset{ telescope->time_zone=deg;}
 		action return_GMT_offset {lxprintGMT_offset(tmessage,telescope->time_zone );APPEND}
         action settime{set_time(deg,min,sec);}
@@ -199,15 +202,16 @@ long command( char *str )
 		action fstop {stopfocuser();}
 		action fsync_to{focus_motor.position=focus_motor.target=focus_counter;}
 		action fquery{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
+		action goto_home{mount_goto_home(telescope);}
 		action home{mount_home_set(telescope);}
-		action set_land {telescope->track=0;}
+		action set_land {telescope->track=0;telescope->azmotor->targetspeed=0.0;}
 		action set_polar {telescope->track=1;}
 		action set_altaz {;}
-		action return_dst{if (telescope->azmotor->slewing ||(telescope->altmotor->slewing)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
+		action return_dst{if (telescope->azmotor->slewing ||(telescope->altmotor->slewing)) sprintf(tmessage,"#");else sprintf(tmessage,"#") ;APPEND;}
 # LX200  auxiliary terms syntax definitions
         sexmin =  ([0-5][0-9])$getmin@addmin ;
         sex= ([0-5][0-9] )$getsec@addsec (('.'digit{1,2}){,1});
-		grad=([\+] |''|space | [\-]@neg) ((digit @getgrads){2,3});
+		grad=([\+] |''|space | [\-]@neg) ((digit @getgrads){1,3});
         deg = grad punct sexmin (any  sex)? ;
         RA = ([0-2] digit) $getgrads   (':'|'/') sexmin ('.'digit@rafrac | (':'|'/') sex) ;
 
@@ -247,10 +251,11 @@ long command( char *str )
 		f_go='A'([\+]|[\-]@neg)digit{5}$getfocuscounter %fmove_to;
 		
 # custom
-		Private = 'pH'%home;
+		Park = ('pH'%home)|('hP'%goto_home);
+		
 #focuser
 		Focuser='F'(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel);  
-		main :=   ((ACK|''|'#')':' (Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Private| Distance) '#')* ;
+		main :=   ((ACK|''|'#')':' (Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance) '#')* ;
 # Initialize and execute.
         write init;
         write exec;

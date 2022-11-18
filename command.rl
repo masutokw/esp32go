@@ -207,7 +207,13 @@ long command( char *str )
 		action set_land {telescope->track=0;telescope->azmotor->targetspeed=0.0;}
 		action set_polar {telescope->track=1;}
 		action set_altaz {;}
-		action return_dst{if (telescope->azmotor->slewing ||(telescope->altmotor->slewing)) sprintf(tmessage,"#");else sprintf(tmessage,"#") ;APPEND;}
+		action return_dst{if ((telescope->azmotor->slewing ||(telescope->altmotor->slewing))&&!(telescope->parked)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
+		action a_date {sprintf(tmessage,"012 24 2000#") ;APPEND;}
+		action a_number {sprintf(tmessage,"01.0#") ;APPEND;}
+		action a_product{ sprintf(tmessage,"esp32go#") ;APPEND;}
+		action a_time {sprintf(tmessage,"00:00:00#") ;APPEND;}
+		action a_firm {sprintf(tmessage,"43Eg#") ;APPEND;}
+
 # LX200  auxiliary terms syntax definitions
         sexmin =  ([0-5][0-9])$getmin@addmin ;
         sex= ([0-5][0-9] )$getsec@addsec (('.'digit{1,2}){,1});
@@ -242,6 +248,8 @@ long command( char *str )
         Sync = "CM"(''|'R')%sync;
         Stop ='Q' (''|[nsew])@storecmd %stop;
        	ACK = 0x06 @return_align;
+
+#focuser
 		f_in = ('-'%fmovel_in)|('--'%fmove_in);
 		f_out = ('+'%fmovel_out)| ('++'%fmove_out);
 		f_stop ='Q'%fstop;
@@ -249,13 +257,13 @@ long command( char *str )
 		f_sync='LS1'([\+]|[\-]@neg)digit{5}$getfocuscounter %fsync_to;
 		f_query='p'%fquery;
 		f_go='A'([\+]|[\-]@neg)digit{5}$getfocuscounter %fmove_to;
-		
+		Focuser='F'(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel);
 # custom
 		Park = ('pH'%home)|('hP'%goto_home);
-		
-#focuser
-		Focuser='F'(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel);  
-		main :=   ((ACK|''|'#')':' (Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance) '#')* ;
+#autostar
+        Autostar='GV'('D'%a_date | 'N'%a_number | 'P'%a_product | 'T'%a_time | 'F'%a_firm) ;
+#main
+		main :=   ((ACK|''|'#')':' (Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar)  '#')* ;
 # Initialize and execute.
         write init;
         write exec;

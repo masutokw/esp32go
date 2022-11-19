@@ -207,7 +207,8 @@ long command( char *str )
 		action set_land {telescope->track=0;telescope->azmotor->targetspeed=0.0;}
 		action set_polar {telescope->track=1;}
 		action set_altaz {;}
-		action return_dst{if ((telescope->azmotor->slewing ||(telescope->altmotor->slewing))&&!(telescope->parked)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
+#       action return_dst{if ((telescope->azmotor->slewing ||(telescope->altmotor->slewing))&&!(telescope->parked)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
+		action return_dst{if (telescope->azmotor->slewing || telescope->altmotor->slewing) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
 		action a_date {sprintf(tmessage,"012 24 2000#") ;APPEND;}
 		action a_number {sprintf(tmessage,"01.0#") ;APPEND;}
 		action a_product{ sprintf(tmessage,"esp32go#") ;APPEND;}
@@ -237,13 +238,25 @@ long command( char *str )
                    't'%return_lat|
 				   'T'%return_tRate|
 				   'c'%return_formatTime);
-        Move = 'M' (([nswe]@storecmd %dir) | ('S'%Goto)|('g'[nsew]@storecmd digit{4}$getpulse %pulse_dir));
+
+        Move = 'M' (([nswe]@storecmd %dir)|
+                    ('S'%Goto)|
+                    ('g'[nsew]@storecmd digit{4}$getpulse %pulse_dir));
+
         Rate = 'R' [CGMS]@storecmd (''|[0-4]) %rate;
 		Timezone='G'(''|space)([\+] | [\-]@neg)((digit @getgrads){1,2}) ('.' digit)? %set_gmt_offset%ok;
         date ='C' (''|space)  (digit@getgrads){2} '/' (digit @getmin){2} '/' (digit @getsec){2}%setdate;
         time ='L' (''|space) (digit @getgrads){2}':'(digit@getmin){2} ':'(digit @getsec){2}%settime;
-        Set='S'((([dazgt]@storecmd (''|space) deg ) |([rS]@storecmd (''|space) RA))%set_cmd_exec| Timezone |date | time) ;
-		Align='A'('L'%set_land)|('P'%set_polar)|('A'%set_altaz);
+
+        Set='S'(([dazgt]@storecmd (''|space) deg ) |([rS]@storecmd (''|space) RA))%set_cmd_exec|
+                 Timezone |
+                 date |
+                 time;
+
+		Align='A'('L'%set_land)|
+                 ('P'%set_polar)|
+                 ('A'%set_altaz);
+
 		Distance='D'%return_dst;
         Sync = "CM"(''|'R')%sync;
         Stop ='Q' (''|[nsew])@storecmd %stop;

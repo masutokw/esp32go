@@ -1,5 +1,6 @@
 #include "mount.h"
 #include "misc.h"
+#include <Ticker.h>
 
 extern long sdt_millis;
 extern c_star  st_now, st_target, st_current, st_1, st_2;
@@ -9,13 +10,12 @@ extern int focusmax;
 extern int8_t focusinv;
 extern int focusvolt;
 extern int azcounter, altcounter;
-#include <Ticker.h>
 Ticker pulse_dec_tckr, pulse_ra_tckr;
 char sel_flag;
-char volatile sync_target = TRUE;//
+char volatile sync_target = TRUE;
 char volatile sync_stop = FALSE;
-mount_t* create_mount(void)
 
+mount_t* create_mount(void)
 {
     int maxcounter = AZ_RED;
     int maxcounteralt = ALT_RED;
@@ -88,8 +88,6 @@ void eq_track(mount_t* mt1)
     double sgndelta;
     double speed;
 
-
-
     readcounter(mt1->altmotor);
     //goto -------------------------------------------------------------------------
     if ( mt1->altmotor->slewing)
@@ -97,13 +95,13 @@ void eq_track(mount_t* mt1)
         sgndelta = (sign(delta = mt1->altmotor->delta));
         if (fabs(delta) > (M_PI)) sgndelta = -sgndelta;
 
-        if (  sgndelta && mt1->autoflip && (get_pierside(mt1) != get_pierside_target(mt1)))
+        if (sgndelta && mt1->autoflip && (get_pierside(mt1) != get_pierside_target(mt1)))
             sgndelta = (get_pierside(mt1)) ? mt1->hmf : - mt1->hmf;
 
 
 
 
-        if ( fabs(delta / (SEC_TO_RAD)) >= 1.0)
+        if (fabs(delta / (SEC_TO_RAD)) >= 1.0)
         {
             speed = fmin(mt1->maxspeed[1], fabs(delta)) * sgndelta;
             mt1->altmotor->targetspeed = -speed;
@@ -123,10 +121,10 @@ void eq_track(mount_t* mt1)
     else
         sgndelta = sign (delta =  (mt1->azmotor->delta = mt1->azmotor->position - calc_Ra(mt1->azmotor->target, mt1->longitude)));
 
-    if ( mt1->azmotor->slewing)
+    if (mt1->azmotor->slewing)
     {
         if (fabs(delta) > (M_PI)) sgndelta = -sgndelta;
-        if ( fabs(delta / (SEC_TO_RAD)) > ARC_SEC_LMT)
+        if (fabs(delta / (SEC_TO_RAD)) > ARC_SEC_LMT)
         {
             speed = fmin(mt1->maxspeed[0], fabs(delta)) * sgndelta;
             mt1->azmotor->targetspeed = -(speed) + ( SID_RATE_RAD);
@@ -144,6 +142,7 @@ void eq_track(mount_t* mt1)
 
 int goto_ra_dec(mount_t *mt, double ra, double dec)
 {
+    mt->parked=0;
     mt->is_tracking = TRUE;
     st_target.ra = ra;
     st_target.dec = dec;
@@ -152,16 +151,11 @@ int goto_ra_dec(mount_t *mt, double ra, double dec)
 
 int sync_ra_dec(mount_t *mt)
 {
-    // one=FALSE;
-
-
     st_current.timer_count = ((millis() - sdt_millis) / 1000.0); //chrono_read(&ti);
     st_current.dec = st_target.dec = mt->dec_target;
     st_current.ra = st_target.ra = mt->ra_target;
     to_alt_az(&st_current);
-
     setpositionf(mt->azmotor, st_current.az );
-
     if (st_current.alt >= 0.0)
         setpositionf(mt->altmotor, st_current.alt );
     else
@@ -171,8 +165,7 @@ int sync_ra_dec(mount_t *mt)
 }
 
 int sync_eq(mount_t *mt)
-{
-    mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
+{   mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
 
     eq_to_enc(&(mt->azmotor->target), &(mt->altmotor->target),
               mt->ra_target, mt->dec_target, get_pierside(mt));
@@ -190,6 +183,7 @@ int mount_stop(mount_t *mt, char direction)
     mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
     if (mt->mount_mode != EQ)
     {
+        if (mt->parked) mt->parked=0;
         switch (direction)
         {
         case 'n':
@@ -516,14 +510,12 @@ void mount_goto_home(mount_t *mt)
     switch  (mt->mount_mode)
     {
     case ALTAZ:
-        // setpositionf(mt->azmotor, M_PI );
-        // delay(10);
-        //  setpositionf(mt->altmotor, M_PI / 4 );
+        mt->parked=1;
+        set_star(&st_target,  90.0, 0.0, 00.0, abs(mt->lat) , 0);
         break;
     case ALIGN:
-        // setpositionf(mt->azmotor, (3.0 * M_PI / 2.0) );
-        // delay(10);
-        //  setpositionf(mt->altmotor, M_PI) ;
+        set_star(&st_target,  90.0, 0.0, 00.0, 90*sign(mt->lat), 0);
+        mt->parked=1;
         break;
     case EQ:
 #ifdef NCP_HOME
@@ -634,7 +626,8 @@ void track(mount_t *mt)
     double d_az_r, d_alt_r;
     readcounter_n(mt->altmotor);
     readcounter(mt->azmotor);
-    st_target.timer_count = st_current.timer_count = ((millis() - sdt_millis) / 1000.0);
+    st_current.timer_count = ((millis() - sdt_millis) / 1000.0);
+    if (!mt->parked) st_target.timer_count = st_current.timer_count;
     st_current.az = mt->azmotor->position;
     st_current.alt = mt->altmotor->position;
     st_current.p_mode = st_target.p_mode = get_pierside(mt);
@@ -652,11 +645,13 @@ void track(mount_t *mt)
     if (mt->is_tracking)
     {
         //compute next alt/az mount values  for target next lap second
-        st_target.timer_count += 1.0;
-        to_alt_az(&st_target);
+        if (!mt->parked)
+        {
+            st_target.timer_count += 1.0;
+            to_alt_az(&st_target);
+        }
         //compute delta values :next values from actual values for desired target coordinates
         d_az_r = (st_target.az) - st_current.az;
-        // if (fabs(d_az_r) > (M_PI)) d_az_r -= M_2PI;
         if (fabs(d_az_r) > (M_PI)) d_az_r -= (M_2PI * sign( d_az_r));
         d_alt_r = (st_target.alt) - st_current.alt;;
         if (fabs(d_alt_r) > (M_PI)) d_alt_r -= M_2PI;

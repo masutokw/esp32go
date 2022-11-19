@@ -39,7 +39,6 @@ void stopfocuser(void) {
 void setfocuser(int pos)
 {
 #ifndef DC_FOCUS
-focus_motor.position=pos;
+focus_motor.position=focus_motor.target=pos;
 #endif
- 
-}
+ }

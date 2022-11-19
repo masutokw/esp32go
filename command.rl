@@ -248,14 +248,14 @@ long command( char *str )
         date ='C' (''|space)  (digit@getgrads){2} '/' (digit @getmin){2} '/' (digit @getsec){2}%setdate;
         time ='L' (''|space) (digit @getgrads){2}':'(digit@getmin){2} ':'(digit @getsec){2}%settime;
 
-        Set='S'(([dazgt]@storecmd (''|space) deg ) |([rS]@storecmd (''|space) RA))%set_cmd_exec|
+        Set='S'((([dazgt]@storecmd (''|space) deg ) |([rS]@storecmd (''|space) RA))%set_cmd_exec|
                  Timezone |
                  date |
-                 time;
+                 time);
 
-		Align='A'('L'%set_land)|
+		Align='A'(('L'%set_land)|
                  ('P'%set_polar)|
-                 ('A'%set_altaz);
+                 ('A'%set_altaz));
 
 		Distance='D'%return_dst;
         Sync = "CM"(''|'R')%sync;

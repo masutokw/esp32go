@@ -7,14 +7,12 @@
 #include <sys/reent.h>
 #include <math.h>
 #include <stdio.h>
-//#include <Arduino.h>
 #ifndef FALSE
 #define FALSE 0
 #endif
 #ifndef TRUE
 #define TRUE  1
 #endif
-//#define RAD_TO_DEG 180.0/M_PI
 #define K_SID 1.00273790935
 #define SEC_TO_RAD (M_PI/(3600.0*180.0))
 #define JD2000          2451545.0

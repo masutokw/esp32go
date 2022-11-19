@@ -343,6 +343,9 @@ void setup()
     pinMode(SDA_PIN, INPUT_PULLUP);
     pinMode(SCL_PIN, INPUT_PULLUP);
     nunchuck_init( SDA_PIN, SCL_PIN);
+  #ifdef OLED_DISPLAY
+    nunchuck_init( SDA_PIN, SCL_PIN); // si no se inicializa otra vez, no se detecta bien el nunchuck al inicio cuando esta el OLED activado
+  #endif
     nunchuck_disable(nunchuck_read() == 0);
 #endif
 #ifdef OTA

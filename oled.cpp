@@ -2,7 +2,11 @@
 #ifdef OLED_DISPLAY
 #include "oled.h"
 extern mount_t *telescope;
-SSD1306 display(0x3c, SDA_PIN, SCL_PIN);
+#ifdef OLED_13
+  SH1106 display(0x3c, SDA_PIN, SCL_PIN);
+#else
+  SSD1306 display(0x3c, SDA_PIN, SCL_PIN);
+#endif
 extern time_t now;
 extern int clients_connected;
 static const unsigned long REFRESH_INTERVAL = 1000; // (ms) refresh oled every second

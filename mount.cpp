@@ -1,7 +1,7 @@
 #include "mount.h"
 #include "misc.h"
 #include <Ticker.h>
-
+#include "tb6612.h"
 extern long sdt_millis;
 extern c_star  st_now, st_target, st_current, st_1, st_2;
 extern int  focuspeed;
@@ -14,7 +14,7 @@ Ticker pulse_dec_tckr, pulse_ra_tckr;
 char sel_flag;
 char volatile sync_target = TRUE;
 char volatile sync_stop = FALSE;
-
+extern stepper focus_motor;
 mount_t* create_mount(void)
 {
     int maxcounter = AZ_RED;
@@ -502,6 +502,7 @@ void mount_park(mount_t *mt)
     File f = SPIFFS.open("/savedpos", "w");
     f.println(azcounter);
     f.println(altcounter);
+    f.println(focus_motor.position);
     f.close ();
 
 }
@@ -733,8 +734,8 @@ void load_saved_pos(void)
         azcounter = s.toInt();
         s = f.readStringUntil('\n');
         altcounter = s.toInt();
-      //   s = f.readStringUntil('\n');
-      //  focuscounter = s.toInt();
+        s = f.readStringUntil('\n');
+        focus_motor.position =focus_motor.target= s.toInt();
         
     }
     f.close();

@@ -11,7 +11,7 @@ void init_stepper(stepper *motor)
   motor->backslash = 0;
   motor->step_size = 0.1;
   motor->speed = 10;
-  motor->position = 0;
+ // motor->position = 800;
   motor->target = 0;
   motor->backcounter = 0;
   motor->resolution = 0;

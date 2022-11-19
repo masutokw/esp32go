@@ -346,7 +346,8 @@ void setup()
   #ifdef OLED_DISPLAY
     nunchuck_init( SDA_PIN, SCL_PIN); // si no se inicializa otra vez, no se detecta bien el nunchuck al inicio cuando esta el OLED activado
   #endif
-    nunchuck_disable(nunchuck_read() == 0);
+   
+
 #endif
 #ifdef OTA
     InitOTA();
@@ -403,6 +404,9 @@ void setup()
     WB_O;
     focuser_tckr.detach();
     if (telescope->mount_mode == EQ) telescope->azmotor->targetspeed =  telescope->track_speed ;
+#ifdef NUNCHUCK_CONTROL
+    nunchuck_disable(nunchuck_read() == 0);
+#endif
 }
 
 void loop()

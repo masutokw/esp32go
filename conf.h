@@ -40,8 +40,8 @@
 #define DEN_DRIVER 1
 #endif
 
-//#define NUNCHUCK_CONTROL
-#define IR_CONTROL
+#define NUNCHUCK_CONTROL
+//#define IR_CONTROL
 //#define PAD
 //#define OLED_DISPLAY
 //#define OLED_13 // use 1.3 SSH1106 (OLED_DISPLAY is needed also)
@@ -99,6 +99,6 @@
 //#define AZ_P_DELAY 23
 //#define ALT_P_DELAY 23
 // Use NCP as default position for EQ mount
-//#define NCP_HOME
+#define NCP_HOME
 //Trace WIFI lx200 protocol using output serial interface
 //#define LX200TRACE

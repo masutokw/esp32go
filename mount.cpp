@@ -733,6 +733,9 @@ void load_saved_pos(void)
         azcounter = s.toInt();
         s = f.readStringUntil('\n');
         altcounter = s.toInt();
+      //   s = f.readStringUntil('\n');
+      //  focuscounter = s.toInt();
+        
     }
     f.close();
 }

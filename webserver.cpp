@@ -23,6 +23,7 @@ extern hw_timer_t * timer_az;
 extern hw_timer_t * timer_alt;
 extern int8_t focusinv;
 extern int focusvolt;
+//extern bool n_disable;
 String getContentType(String filename)
 {
     if (serverweb.hasArg("download")) return "application/octet-stream";
@@ -206,7 +207,7 @@ void handleConfig()
 #endif
     content += "<br>Load Time :" + String(ctime(&now)) + "<br>";
     content += "<br>side :" + String(calc_lha(telescope->ra_target, telescope->longitude)) + "<br>";
-    content += "<br>" + msg + String(telescope->azmotor->slewing) + " </body></html>";
+    content += "<br>" + msg + String(telescope->azmotor->slewing)+ " </body></html>";
     serverweb.send(200, "text/html", content);
 
 

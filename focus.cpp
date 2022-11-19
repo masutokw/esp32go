@@ -35,5 +35,8 @@ void stopfocuser(void) {
 #else
   move_to (0);
 #endif
-
+}
+void setfocuser(int pos)
+{
+ 
 }

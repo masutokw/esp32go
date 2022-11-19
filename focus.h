@@ -6,4 +6,5 @@ void setfocuserspeed(motor_t* mt,int speed);
 void gotofocuser(int pos,int speed);
 void gotofocuser(int pos);
 void stopfocuser(void);
+void setfocuser(int pos);
 #endif

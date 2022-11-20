@@ -202,6 +202,7 @@ long command( char *str )
 		action fstop {stopfocuser();}
 		action fsync_to{focus_motor.position=focus_motor.target=focus_counter;}
 		action fquery{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
+		action f_moving {sprintf(tmessage,"%d#",focus_motor.state);APPEND;}
 		action goto_home{mount_goto_home(telescope);}
 		action home{mount_home_set(telescope);}
 		action set_land {telescope->track=0;telescope->azmotor->targetspeed=0.0;}
@@ -270,7 +271,8 @@ long command( char *str )
 		f_sync='LS1'([\+]|[\-]@neg)digit{5}$getfocuscounter %fsync_to;
 		f_query='p'%fquery;
 		f_go='A'([\+]|[\-]@neg)digit{5}$getfocuscounter %fmove_to;
-		Focuser='F'(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel);
+		f_moving='M'%f_moving;
+		Focuser='F'(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel|f_moving);
 # custom
 		Park = ('pH'%home)|('hP'%goto_home);
 #autostar

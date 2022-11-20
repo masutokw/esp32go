@@ -451,7 +451,7 @@ int readconfig(mount_t *mt)
     //f.close();
 
     s = f.readStringUntil('\n');
-    focusmax = s.toInt();
+    focusmax = focus_motor.max_steps = s.toInt();
     s = f.readStringUntil('\n');
     focuspeed_low = s.toInt();
     s = f.readStringUntil('\n');

@@ -1290,6 +1290,7 @@ case 91:
 #line 1025 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr140;
+		case 44: goto st92;
 		case 46: goto st92;
 	}
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -1317,9 +1318,10 @@ st94:
 	if ( ++p == pe )
 		goto _test_eof94;
 case 94:
-#line 1053 "command.cpp"
+#line 1054 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr140;
+		case 44: goto st92;
 		case 46: goto st92;
 	}
 	goto st0;
@@ -1350,7 +1352,7 @@ st97:
 	if ( ++p == pe )
 		goto _test_eof97;
 case 97:
-#line 1084 "command.cpp"
+#line 1086 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr146;
 	goto st0;
@@ -1362,7 +1364,7 @@ st98:
 	if ( ++p == pe )
 		goto _test_eof98;
 case 98:
-#line 1094 "command.cpp"
+#line 1096 "command.cpp"
 	if ( (*p) == 58 )
 		goto st99;
 	goto st0;
@@ -1381,7 +1383,7 @@ st100:
 	if ( ++p == pe )
 		goto _test_eof100;
 case 100:
-#line 1111 "command.cpp"
+#line 1113 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr149;
 	goto st0;
@@ -1393,7 +1395,7 @@ st101:
 	if ( ++p == pe )
 		goto _test_eof101;
 case 101:
-#line 1121 "command.cpp"
+#line 1123 "command.cpp"
 	if ( (*p) == 58 )
 		goto st102;
 	goto st0;
@@ -1412,7 +1414,7 @@ st103:
 	if ( ++p == pe )
 		goto _test_eof103;
 case 103:
-#line 1138 "command.cpp"
+#line 1140 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr152;
 	goto st0;
@@ -1424,7 +1426,7 @@ st104:
 	if ( ++p == pe )
 		goto _test_eof104;
 case 104:
-#line 1148 "command.cpp"
+#line 1150 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr153;
 	goto st0;
@@ -1436,7 +1438,7 @@ st105:
 	if ( ++p == pe )
 		goto _test_eof105;
 case 105:
-#line 1158 "command.cpp"
+#line 1160 "command.cpp"
 	if ( (*p) == 32 )
 		goto st106;
 	if ( (*p) > 13 ) {
@@ -1460,7 +1462,7 @@ st107:
 	if ( ++p == pe )
 		goto _test_eof107;
 case 107:
-#line 1180 "command.cpp"
+#line 1182 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr156;
 	goto st0;
@@ -1472,7 +1474,7 @@ st108:
 	if ( ++p == pe )
 		goto _test_eof108;
 case 108:
-#line 1190 "command.cpp"
+#line 1192 "command.cpp"
 	switch( (*p) ) {
 		case 47: goto st109;
 		case 58: goto st109;
@@ -1493,7 +1495,7 @@ st110:
 	if ( ++p == pe )
 		goto _test_eof110;
 case 110:
-#line 1209 "command.cpp"
+#line 1211 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr159;
 	goto st0;
@@ -1507,7 +1509,7 @@ st111:
 	if ( ++p == pe )
 		goto _test_eof111;
 case 111:
-#line 1220 "command.cpp"
+#line 1222 "command.cpp"
 	switch( (*p) ) {
 		case 46: goto st112;
 		case 47: goto st114;
@@ -1529,7 +1531,7 @@ st113:
 	if ( ++p == pe )
 		goto _test_eof113;
 case 113:
-#line 1240 "command.cpp"
+#line 1242 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr163;
 	goto st0;
@@ -1548,7 +1550,7 @@ st115:
 	if ( ++p == pe )
 		goto _test_eof115;
 case 115:
-#line 1257 "command.cpp"
+#line 1259 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr165;
 	goto st0;
@@ -1562,7 +1564,7 @@ st116:
 	if ( ++p == pe )
 		goto _test_eof116;
 case 116:
-#line 1268 "command.cpp"
+#line 1270 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr163;
 		case 44: goto st117;
@@ -1605,7 +1607,7 @@ st120:
 	if ( ++p == pe )
 		goto _test_eof120;
 case 120:
-#line 1309 "command.cpp"
+#line 1311 "command.cpp"
 	switch( (*p) ) {
 		case 32: goto st121;
 		case 43: goto st122;
@@ -1640,7 +1642,7 @@ st122:
 	if ( ++p == pe )
 		goto _test_eof122;
 case 122:
-#line 1342 "command.cpp"
+#line 1344 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr173;
 	goto st0;
@@ -1652,7 +1654,7 @@ st123:
 	if ( ++p == pe )
 		goto _test_eof123;
 case 123:
-#line 1352 "command.cpp"
+#line 1354 "command.cpp"
 	if ( (*p) < 58 ) {
 		if ( (*p) > 47 ) {
 			if ( 48 <= (*p) && (*p) <= 57 )
@@ -1683,7 +1685,7 @@ st125:
 	if ( ++p == pe )
 		goto _test_eof125;
 case 125:
-#line 1381 "command.cpp"
+#line 1383 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr177;
 	goto st0;
@@ -1697,7 +1699,7 @@ st126:
 	if ( ++p == pe )
 		goto _test_eof126;
 case 126:
-#line 1392 "command.cpp"
+#line 1394 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr178;
 	goto st114;
@@ -1711,7 +1713,7 @@ st136:
 	if ( ++p == pe )
 		goto _test_eof136;
 case 136:
-#line 1404 "command.cpp"
+#line 1406 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto st1;
 		case 58: goto st2;
@@ -1727,7 +1729,7 @@ st127:
 	if ( ++p == pe )
 		goto _test_eof127;
 case 127:
-#line 1418 "command.cpp"
+#line 1420 "command.cpp"
 	if ( (*p) < 58 ) {
 		if ( (*p) > 47 ) {
 			if ( 48 <= (*p) && (*p) <= 57 )
@@ -1751,7 +1753,7 @@ st128:
 	if ( ++p == pe )
 		goto _test_eof128;
 case 128:
-#line 1440 "command.cpp"
+#line 1442 "command.cpp"
 	if ( (*p) < 58 ) {
 		if ( 33 <= (*p) && (*p) <= 47 )
 			goto st124;

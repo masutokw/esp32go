@@ -245,7 +245,7 @@ long command( char *str )
                     ('g'[nsew]@storecmd digit{4}$getpulse %pulse_dir));
 
         Rate = 'R' [CGMS]@storecmd (''|[0-4]) %rate;
-		Timezone='G'(''|space)([\+] | [\-]@neg)((digit @getgrads){1,2}) ('.' digit)? %set_gmt_offset%ok;
+		Timezone='G'(''|space)([\+] | [\-]@neg)((digit @getgrads){1,2}) (('.'|',') digit)? %set_gmt_offset%ok;
         date ='C' (''|space)  (digit@getgrads){2} '/' (digit @getmin){2} '/' (digit @getsec){2}%setdate;
         time ='L' (''|space) (digit @getgrads){2}':'(digit@getmin){2} ':'(digit @getsec){2}%settime;
 
@@ -279,7 +279,8 @@ long command( char *str )
         Autostar='GV'('D'%a_date | 'N'%a_number | 'P'%a_product | 'T'%a_time | 'F'%a_firm) ;
 #main
 		#main :=   ((ACK|''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar)  '#')* ;
-		main :=   ACK | ((''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar)'#')* ;
+		main :=   ACK | (( ACK | ''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar)'#')* ;
+		
 # Initialize and execute.
         write init;
         write exec;

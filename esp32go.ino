@@ -198,15 +198,18 @@ void serialtask(void)
         char n = 0;
         delay(2);
         while (Serial.available())  buff[n++] = (char) Serial.read() ;
-        //SerialBT.write((const uint8_t* )buff, n);
-        //SerialBT.println(n);
+#ifdef BT_TRACE_USB 
+        SerialBT.write((const uint8_t* )buff, n);
+        SerialBT.println(n);
+#endif
         buff[n] = 0;
         command(buff);
         buff[n] = 0;
         Serial.write((const uint8_t* )response, strlen(response));
-        //SerialBT.write((const uint8_t* )response, strlen(response));
-       // SerialBT.println();
-
+#ifdef BT_TRACE_USB         
+        SerialBT.write((const uint8_t* )response, strlen(response));
+        SerialBT.println();
+#endif 
     }
 }
 
@@ -415,9 +418,10 @@ void setup()
 void loop()
 {
     delay(10);
-
     net_task();
-  //  bttask();
+#ifndef BT_TRACE_USB    
+    bttask();
+#endif
 #ifndef LX200TRACE
     serialtask();
 #endif

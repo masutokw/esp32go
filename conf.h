@@ -102,3 +102,4 @@
 #define NCP_HOME
 //Trace WIFI lx200 protocol using output serial interface
 //#define LX200TRACE
+//#define  BT_TRACE_USB

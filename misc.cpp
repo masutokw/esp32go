@@ -238,6 +238,15 @@ void config_NTP(int zone, int dls)
 void config_NTP(int zone, int dls)
 {
     configTime(zone * 3600, dls * 3600,  "pool.ntp.org");
+#ifdef RETRY_NTP
+    struct tm time;
+    int n=0;
+    if(n <2 && !getLocalTime(&time))
+    {
+      n++;
+      configTime(zone * 3600, dls * 3600,  "pool.ntp.org");
+    }
+#endif
 }
 
 void enc_to_eq(double x, double y, double *a, double  *b, char *pier)

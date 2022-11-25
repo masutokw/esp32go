@@ -202,14 +202,14 @@ long command( char *str )
 		action fstop {stopfocuser();}
 		action fsync_to{focus_motor.position=focus_motor.target=focus_counter;}
 		action fquery{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
-		action f_moving {sprintf(tmessage,"%d#",focus_motor.state);APPEND;}
+		action f_moving {sprintf(tmessage,"%d#",focus_motor.state<stop);APPEND;}
 		action goto_home{mount_goto_home(telescope);}
 		action home{mount_home_set(telescope);}
 		action set_land {telescope->track=0;telescope->azmotor->targetspeed=0.0;}
 		action set_polar {telescope->track=1;}
 		action set_altaz {;}
-#       action return_dst{if ((telescope->azmotor->slewing ||(telescope->altmotor->slewing))&&!(telescope->parked)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
-		action return_dst{if (telescope->azmotor->slewing || telescope->altmotor->slewing) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
+		action return_dst{if ((telescope->azmotor->slewing ||(telescope->altmotor->slewing))&&!(telescope->parked)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
+		#action return_dst{if (telescope->azmotor->slewing || telescope->altmotor->slewing) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
 		action a_date {sprintf(tmessage,"012 24 2000#") ;APPEND;}
 		action a_number {sprintf(tmessage,"01.0#") ;APPEND;}
 		action a_product{ sprintf(tmessage,"esp32go#") ;APPEND;}
@@ -218,7 +218,7 @@ long command( char *str )
 
 # LX200  auxiliary terms syntax definitions
         sexmin =  ([0-5][0-9])$getmin@addmin ;
-        sex= ([0-5][0-9] )$getsec@addsec (('.'digit{1,2}){,1});
+        sex= ([0-5][0-9] )$getsec@addsec ((('.'|',')digit{1,2}){,1})':'{0,1};
 		grad=([\+] |''|space | [\-]@neg) ((digit @getgrads){1,3});
         deg = grad punct sexmin (any  sex)? ;
         RA = ([0-2] digit) $getgrads   (':'|'/') sexmin ('.'digit@rafrac | (':'|'/') sex) ;
@@ -271,14 +271,15 @@ long command( char *str )
 		f_sync='LS1'([\+]|[\-]@neg)digit{5}$getfocuscounter %fsync_to;
 		f_query='p'%fquery;
 		f_go='A'([\+]|[\-]@neg)digit{5}$getfocuscounter %fmove_to;
-		f_moving='M'%f_moving;
+		f_moving='B'%f_moving;
 		Focuser='F'(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel|f_moving);
 # custom
 		Park = ('pH'%home)|('hP'%goto_home);
 #autostar
         Autostar='GV'('D'%a_date | 'N'%a_number | 'P'%a_product | 'T'%a_time | 'F'%a_firm) ;
 #main
-		main :=   ((ACK|''|'#')':' (Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar)  '#')* ;
+		#main :=   ((ACK|''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar)  '#')* ;
+		main :=   ACK | ((''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar)'#')* ;
 # Initialize and execute.
         write init;
         write exec;

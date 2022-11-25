@@ -118,11 +118,12 @@ void bttask(void)
         char n = 0;
         while (SerialBT.available())  buff[n++] = (char) SerialBT.read() ;
         buff[n] = 0;
+
         //  Serial.write((const uint8_t* )buff, n);
         command(buff);
         buff[n] = 0;
         SerialBT.write((const uint8_t* )response, strlen(response));
-
+  
     }
 }
 
@@ -197,12 +198,14 @@ void serialtask(void)
         char n = 0;
         delay(2);
         while (Serial.available())  buff[n++] = (char) Serial.read() ;
-        // SerialBT.write((const uint8_t* )buff, n);
-        //  SerialBT.println(n);
+        //SerialBT.write((const uint8_t* )buff, n);
+        //SerialBT.println(n);
         buff[n] = 0;
         command(buff);
         buff[n] = 0;
         Serial.write((const uint8_t* )response, strlen(response));
+        //SerialBT.write((const uint8_t* )response, strlen(response));
+       // SerialBT.println();
 
     }
 }
@@ -414,7 +417,7 @@ void loop()
     delay(10);
 
     net_task();
-    bttask();
+  //  bttask();
 #ifndef LX200TRACE
     serialtask();
 #endif

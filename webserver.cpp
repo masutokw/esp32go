@@ -207,8 +207,6 @@ void handleConfig()
 #endif
     content += "<br>Load Time :" + String(ctime(&now)) + "<br>";
     content += "<br>side :" + String(calc_lha(telescope->ra_target, telescope->longitude)) + "<br>";
-    content += "<br>AZ Counter:" + String(telescope->azmotor->counter) + "<br>";
-    content += "Alt Counter:" + String(telescope->altmotor->counter) + "<br>";
     content += "<br>" + msg + String(telescope->azmotor->slewing)+ " </body></html>";
     serverweb.send(200, "text/html", content);
 

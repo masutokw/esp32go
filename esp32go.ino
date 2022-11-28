@@ -121,9 +121,16 @@ void bttask(void)
 
         //  Serial.write((const uint8_t* )buff, n);
         command(buff);
+#ifdef LX200TRACE
+                    Serial.write((const uint8_t* )buff, strlen(buff));
+                    Serial.print("   ");
+#endif
         buff[n] = 0;
         SerialBT.write((const uint8_t* )response, strlen(response));
-  
+#ifdef LX200TRACE
+                    Serial.write((const uint8_t* )response, strlen(response));
+                    Serial.println();
+#endif
     }
 }
 

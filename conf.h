@@ -40,7 +40,7 @@
 #define DEN_DRIVER 1
 #endif
 
-#define NUNCHUCK_CONTROL
+//#define NUNCHUCK_CONTROL
 //#define IR_CONTROL
 //#define PAD
 //#define OLED_DISPLAY
@@ -101,5 +101,5 @@
 // Use NCP as default position for EQ mount
 #define NCP_HOME
 //Trace WIFI lx200 protocol using output serial interface
-//#define LX200TRACE
+#define LX200TRACE
 //#define  BT_TRACE_USB

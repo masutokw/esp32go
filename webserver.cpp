@@ -205,6 +205,7 @@ void handleConfig()
     content += "<br><button onclick=\"location.href='/nunchuk?ENABLE=1'\" class=\"button_red\" type=\"button\">Init Nunchuk </button>";
     content += "<button onclick=\"location.href='/nunchuk'\" class=\"button_red\" type=\"button\">Disable Nunchuk </button>";
 #endif
+    content += "<br><button onclick=\"location.href='/monitor'\" class=\"button_red\" type=\"button\">Monitor Counters</button>";
     content += "<br>Load Time :" + String(ctime(&now)) + "<br>";
     content += "<br>side :" + String(calc_lha(telescope->ra_target, telescope->longitude)) + "<br>";
     content += "<br>" + msg + String(telescope->azmotor->slewing)+ " </body></html>";
@@ -557,6 +558,22 @@ void handleMeridian(void)
     content += "</body></html>";
     serverweb.send(200, "text/html", content);
 }
+
+void handleMonitor(void)
+{
+
+    String content =  "<html><head> <meta http-equiv='refresh' content='3'><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + " </head><body  bgcolor=\"#000000\" text=\"#FF6000\"><h2>info</h2><br>";
+    content += "AZ Counter: " + String(telescope->azmotor->counter) + "<br>";
+    content += "Alt Counter: " + String(telescope->altmotor->counter) + "<br>";
+    content += "Focus Counter: " + String(focus_motor.position) + "<br>";
+    content += "Is slewing: " + String((telescope->azmotor->slewing || telescope->altmotor->slewing) ? "1":"0") + "<br>";
+    content += "Is tracking: " + String(telescope->is_tracking ? "1":"0") + "<br>";
+    content += "<br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>";
+    content += "</body></html>";
+
+    serverweb.send(200, "text/html", content);
+}
+
 void initwebserver(void)
 {
 
@@ -580,6 +597,7 @@ void initwebserver(void)
 #ifdef NUNCHUCK_CONTROL
     serverweb.on("/nunchuk", handleNunchuk);
 #endif
+    serverweb.on("/monitor", handleMonitor);
     serverweb.onNotFound([]()
     {
         if (!handleFileRead(serverweb.uri()))

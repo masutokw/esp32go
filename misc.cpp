@@ -2,6 +2,7 @@
 #include "time.h"
 double sdt;
 long sdt_millis;
+extern WiFiClass Wifi;
 void sdt_init(double longitude, int tz)
 {
     sdt_millis = millis();
@@ -238,7 +239,20 @@ void config_NTP(int zone, int dls)
 */
 void config_NTP(int zone, int dls)
 {
-    configTime(zone * 3600, dls * 3600,  "p0ool.ntp.org");
+    configTime(zone * 3600, dls * 3600,  "poool.ntp.org");
+#ifdef RETRY_NTP
+    // check DNS first to avoid timeouts
+    IPAddress ip;
+    if(Wifi.hostByName("pool.ntp.org",ip) != 1 )
+      return;
+    struct tm time;
+    int n=0;
+    if(n <2 && !getLocalTime(&time))
+    {
+      n++;
+      configTime(zone * 3600, dls * 3600,  "pool.ntp.org");
+    }
+#endif
 }
 
 void enc_to_eq(double x, double y, double *a, double  *b, char *pier)

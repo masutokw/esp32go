@@ -210,6 +210,7 @@ long command( char *str )
 		action set_altaz {;}
 		action return_dst{if ((telescope->azmotor->slewing ||(telescope->altmotor->slewing))&&!(telescope->parked)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
 		#action return_dst{if (telescope->azmotor->slewing || telescope->altmotor->slewing) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
+		action return_track{sprintf(tmessage, telescope->is_tracking ? "1":"0");APPEND;}
 		action a_date {sprintf(tmessage,"012 24 2000#") ;APPEND;}
 		action a_number {sprintf(tmessage,"01.0#") ;APPEND;}
 		action a_product{ sprintf(tmessage,"esp32go#") ;APPEND;}
@@ -238,9 +239,9 @@ long command( char *str )
                    'g'%return_longitude|
                    't'%return_lat|
 				   'T'%return_tRate|
-				   'c'%return_formatTime);
-
-        Move = 'M' (([nswe]@storecmd %dir)|
+				   'c'%return_formatTime|
+				   'k'%return_track);
+        Move = 'M' (([nsweh]@storecmd %dir)|
                     ('S'%Goto)|
                     ('g'[nsew]@storecmd digit{4}$getpulse %pulse_dir));
 
@@ -275,11 +276,12 @@ long command( char *str )
 		Focuser='F'(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel|f_moving);
 # custom
 		Park = ('pH'%home)|('hP'%goto_home);
+		
 #autostar
         Autostar='GV'('D'%a_date | 'N'%a_number | 'P'%a_product | 'T'%a_time | 'F'%a_firm) ;
 #main
-		#main :=   ((ACK|''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar)  '#')* ;
-		main :=   ACK | (( ACK | ''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar)'#')* ;
+		main :=   ((ACK|''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar)  '#')* ;
+		#main :=   ACK | (( ACK | ''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar)'#')* ;
 		
 # Initialize and execute.
         write init;

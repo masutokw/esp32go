@@ -241,6 +241,7 @@ int mount_stop(mount_t *mt, char direction)
         case 'w':
         case 'e':
             mt->azmotor->targetspeed = mt->track_speed ;//* mt->track;
+            mt->is_tracking = TRUE;
             break;
         default:
             mt->altmotor->targetspeed = 0.0;
@@ -272,6 +273,7 @@ void mount_move(mount_t *mt, char dir)
     case 'e':
         mt->azmotor->targetspeed = - SID_RATE_RAD * (mt->rate[srate][0] - sid);
         break;
+    case 'h':  mount_track_off(mt);    
     };
 }
 void pulse_stop_dec(mount_t *mt)

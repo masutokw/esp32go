@@ -8,3 +8,4 @@
 void oledDisplay();
 void oled_initscr(void);
 void oled_waitscr(void);
+void oled_check(void);

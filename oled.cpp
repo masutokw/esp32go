@@ -11,9 +11,30 @@ extern time_t now;
 extern int clients_connected;
 static const unsigned long REFRESH_INTERVAL = 1000; // (ms) refresh oled every second
 static unsigned long lastRefreshTime = 0;
+bool oled_disabled=false;
+
+void oled_check()
+{
+  byte error;
+  byte address = 0x3c;
+  Wire.begin();
+  Wire.beginTransmission(address);
+  error = Wire.endTransmission();
+  if (error == 0)
+  {
+//Serial.println("OLED found!");
+    return;
+  }
+  oled_disabled=true;
+}
 
 void oledDisplay()
 {
+  if(oled_disabled)
+  {
+//Serial.println("oled IS disabled");
+    return;
+  }
   if(millis() - lastRefreshTime < REFRESH_INTERVAL)
     return;
 	lastRefreshTime = millis();
@@ -46,9 +67,12 @@ void oledDisplay()
 //---------  
   display.display();
 }
-void oled_initscr(void)
 
+void oled_initscr(void)
 {
+  oled_check();
+  if(oled_disabled)
+    return;
   display.init();
 //    display.flipScreenVertically();
   display.setFont(ArialMT_Plain_10);
@@ -60,6 +84,8 @@ void oled_initscr(void)
 
 void oled_waitscr(void)
 {
+  if(oled_disabled)
+    return;
   display.clear();
 //  display.drawString(0, 0, "Connecting to " + String(ssid));
   IPAddress ip = WiFi.localIP();

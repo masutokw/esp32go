@@ -71,7 +71,12 @@ if (Wire.available()) {
           else if (pressed == 0)  mount_move(telescope, 'e'); //Serial.println("Left");
           break;
         case 1 :
-          if (lastpress == 1) stopfocuser();
+          if (lastpress == 1)
+          {
+            stopfocuser();
+            mount_stop(telescope, 'w');
+            mount_stop(telescope, 's');
+          }
           else
           {
             if (pressed == 0)  mount_stop(telescope, 'w');
@@ -102,7 +107,12 @@ if (Wire.available()) {
           else if (pressed == 0) mount_move(telescope, 's'); //Serial.println("Down");
           break;
         case 1 :
-          if (lastpress == 1)  stopfocuser();
+          if (lastpress == 1)
+          {
+            stopfocuser();
+            mount_stop(telescope, 'w');
+            mount_stop(telescope, 's');
+          }
           else
           {
             if (pressed == 0) mount_stop(telescope, 's');

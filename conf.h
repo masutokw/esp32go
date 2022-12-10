@@ -43,6 +43,12 @@
 //#define NUNCHUCK_CONTROL
 //#define IR_CONTROL
 //#define PAD
+// IMPORTANT: All pad pins (PAD_X and PIN_MODE) need an external 10K pull-up
+//#define PAD_N 36
+//#define PAD_S 39
+//#define PAD_W 34
+//#define PAD_E 35
+//#define PIN_MODE 25
 //#define OLED_DISPLAY
 //#define OLED_13 // use 1.3 SSH1106 (OLED_DISPLAY is needed also)
 #define OTA

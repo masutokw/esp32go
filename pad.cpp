@@ -2,16 +2,15 @@
 #ifdef PAD
 #include "pad.h"
 #include "mount.h"
-#define PIN_MODE  13//16
+//#define PIN_MODE  13//16 // moved to conf.h
 extern mount_t *telescope;
 volatile int state[4]= {1,1,1,1};
 volatile int event[4]= {3,3,3,3};
 volatile long lastDebounceTime[4] = {0,0,0,0};
 const int debounceDelay = 50;
-int bpin[4]= {2,0,4,5};
+int bpin[4]= {PAD_N,PAD_S,PAD_W,PAD_E}; // defined in conf.h
 
-
-void  ICACHE_RAM_ATTR onChange(int b)
+void  IRAM_ATTR onChange(int b)
 {
     int reading = digitalRead(bpin[b]);
     if(reading == state[b]) return;
@@ -24,27 +23,26 @@ void  ICACHE_RAM_ATTR onChange(int b)
     if(debounce) return;
     state[b] = reading;
     event[b] =state[b];
-
 }
-void  ICACHE_RAM_ATTR onChange_North(void)
+void  IRAM_ATTR onChange_North(void)
 {
     onChange(0);
 }
-void  ICACHE_RAM_ATTR onChange_South(void)
+void  IRAM_ATTR onChange_South(void)
 {
     onChange(1);
 }
-void  ICACHE_RAM_ATTR onChange_West(void)
+void  IRAM_ATTR onChange_West(void)
 {
     onChange(2);
 }
-void  ICACHE_RAM_ATTR onChange_East(void)
+void  IRAM_ATTR onChange_East(void)
 {
     onChange(3);
 }
 void doEvent(void)
 {
-    int n;
+    //int n;
 
     switch (event[0])
     {
@@ -98,11 +96,11 @@ void doEvent(void)
 
 void pad_Init(void)
 {
-    pinMode(bpin[0], INPUT_PULLUP);
-    pinMode(bpin[1], INPUT_PULLUP);
-    pinMode(bpin[2], INPUT_PULLUP);
-    pinMode(bpin[3], INPUT_PULLUP);
-    pinMode(PIN_MODE,INPUT_PULLUP);
+    pinMode(bpin[0], INPUT);
+    pinMode(bpin[1], INPUT);
+    pinMode(bpin[2], INPUT);
+    pinMode(bpin[3], INPUT);
+    pinMode(PIN_MODE,INPUT);
     attachInterrupt(bpin[0], onChange_North, CHANGE);
     attachInterrupt(bpin[1], onChange_South, CHANGE);
     attachInterrupt(bpin[2], onChange_West, CHANGE);

@@ -180,6 +180,7 @@ long command( char *str )
 						}
         action rafrac {deg+=(fc-'0')*6;}
         action return_local_time { lxprinttime1(tmessage);APPEND;}
+		action return_sideral_time { lxprintra(tmessage, sidereal_timeGMT(telescope->longitude,telescope->time_zone) * 15.0 * DEG_TO_RAD);APPEND;strcat(response,"#");}
         action set_cmd_exec {set_cmd_exe(stcmd,(neg*(deg )));
                              sprintf(tmessage,"1");APPEND;deg=sec=min=0;
                             }
@@ -233,7 +234,7 @@ long command( char *str )
                    'A'%return_alt |
                    'G'%return_GMT_offset |
                    'L'%return_local_time |
-                   'S'%return_local_time|
+                   'S'%return_sideral_time|
                    'C'%return_date|
                    'M'%return_site|
                    'g'%return_longitude|

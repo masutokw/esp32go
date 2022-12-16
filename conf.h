@@ -43,12 +43,14 @@
 //#define NUNCHUCK_CONTROL
 //#define IR_CONTROL
 //#define PAD
+#ifdef PAD
 // IMPORTANT: All pad pins (PAD_X and PIN_MODE) need an external 10K pull-up
-//#define PAD_N 36
-//#define PAD_S 39
-//#define PAD_W 34
-//#define PAD_E 35
-//#define PIN_MODE 25
+#define PAD_N 36
+#define PAD_S 39
+#define PAD_W 34
+#define PAD_E 35
+#define PIN_MODE 25
+#endif
 //#define OLED_DISPLAY
 //#define OLED_13 // use 1.3 SSH1106 (OLED_DISPLAY is needed also)
 #define OTA
@@ -107,7 +109,7 @@
 // Use NCP as default position for EQ mount
 #define NCP_HOME
 // Retry NTP connection up to 3 trimes to get network time before mount init
-#define RETRY_NTP
+//#define RETRY_NTP
 //Trace WIFI lx200 protocol using output serial interface
 #define LX200TRACE
 //#define  BT_TRACE_USB

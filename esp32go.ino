@@ -238,8 +238,7 @@ void setup()
 #ifdef OLED_DISPLAY
     oled_initscr();
 #endif
-
-    //SerialBT.setPin(pin);
+    SerialBT.enableSSP();
     SerialBT.begin(BT_NAME);
     SerialBT.setPin(pin);
     WiFi.mode(WIFI_AP_STA);

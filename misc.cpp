@@ -179,6 +179,7 @@ void lxprinttime1(char *message)
     sprintf(message, "%02d:%02d:%02d#", mtime->tm_hour, mtime->tm_min, mtime->tm_sec);
 
 }
+
 void lxprintdate1(char *message)
 {
     time_t now;
@@ -239,7 +240,7 @@ void config_NTP(int zone, int dls)
 */
 void config_NTP(int zone, int dls)
 {
-    configTime(zone * 3600, dls * 3600,  "poool.ntp.org");
+    configTime(zone * 3600, dls * 3600,  "pool.ntp.org");
 #ifdef RETRY_NTP
     // check DNS first to avoid timeouts
     IPAddress ip;

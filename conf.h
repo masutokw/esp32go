@@ -12,19 +12,19 @@
 #define SCL_PIN 22
 //#define PROTO
 #ifdef PROTO
-#define  CLOCK_OUT_AZ 4
+#define CLOCK_OUT_AZ 4
 #define DIR_OUT_AZ 2
-#define  CLOCK_OUT_ALT 5
-#define  DIR_OUT_ALT 18
+#define CLOCK_OUT_ALT 5
+#define DIR_OUT_ALT 18
 #define ENABLE_AZ 16
 #define ENABLE_ALT 23
 #define AZ_RES 17
 #define ALT_RES 19
 #else
-#define  CLOCK_OUT_AZ 4
+#define CLOCK_OUT_AZ 4
 #define DIR_OUT_AZ 2
-#define  CLOCK_OUT_ALT 18
-#define  DIR_OUT_ALT 5
+#define CLOCK_OUT_ALT 18
+#define DIR_OUT_ALT 5
 #define ENABLE_AZ 17
 #define ENABLE_ALT 23
 #define AZ_RES 16
@@ -40,7 +40,7 @@
 #define DEN_DRIVER 1
 #endif
 
-//#define NUNCHUCK_CONTROL
+#define NUNCHUCK_CONTROL
 //#define IR_CONTROL
 //#define PAD
 #ifdef PAD
@@ -111,5 +111,5 @@
 // Retry NTP connection up to 3 trimes to get network time before mount init
 //#define RETRY_NTP
 //Trace WIFI lx200 protocol using output serial interface
-#define LX200TRACE
+//#define LX200TRACE
 //#define  BT_TRACE_USB

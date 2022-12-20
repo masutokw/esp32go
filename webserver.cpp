@@ -10,6 +10,7 @@ const String codes[31] = {"EAST", "WEST", "NORTH", "SOUTH", "OK", "FOCUS_F", "FO
                           "S_WEST", "TRACK", "UNTRACK", "B_1", "B_2", "B_3", "B_4", "B_5", "B_6", "B_7", "B_8", "B_9", "B_0", "GO_TO", "CLEAR", "FLIP_W", "FLIP_E"
                          };
 #endif
+extern uint64_t  period_alt;
 extern char sync_target;
 extern int  focuspeed;
 extern int  focuspeed_low;
@@ -23,6 +24,7 @@ extern hw_timer_t * timer_az;
 extern hw_timer_t * timer_alt;
 extern int8_t focusinv;
 extern int focusvolt;
+extern int azbackcounter, altbackcounter;
 //extern bool n_disable;
 String getContentType(String filename)
 {
@@ -565,6 +567,10 @@ void handleMonitor(void)
     String content =  "<html><head> <meta http-equiv='refresh' content='3'><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + " </head><body  bgcolor=\"#000000\" text=\"#FF6000\"><h2>info</h2><br>";
     content += "AZ Counter: " + String(telescope->azmotor->counter) + "<br>";
     content += "Alt Counter: " + String(telescope->altmotor->counter) + "<br>";
+    content += "AZ Back Counter: " + String(azbackcounter) + "<br>";
+    content += "Alt Back Counter: " + String(altbackcounter) + "<br>";
+    content += "Alt period: " + String(period_alt) + "<br>";
+   
     content += "Focus Counter: " + String(focus_motor.position) + "<br>";
     content += "Is slewing: " + String((telescope->azmotor->slewing || telescope->altmotor->slewing) ? "1":"0") + "<br>";
     content += "Is tracking: " + String(telescope->is_tracking ? "1":"0") + "<br>";

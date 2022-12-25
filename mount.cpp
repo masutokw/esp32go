@@ -442,7 +442,7 @@ int readconfig(mount_t *mt)
   mt->maxspeed[1] = (mt->rate[3][1] *  SID_RATE_RAD);
   s = f.readStringUntil('\n');
   mt->prescaler = s.toFloat();
-  if ((mt->prescaler < 0.3) || (mt->prescaler > 2.0)) mt->prescaler = 0.4;
+  if ((mt->prescaler < 0.5) || (mt->prescaler > 2.0)) mt->prescaler = 1.0;
   s = f.readStringUntil('\n');
   mt->longitude = s.toFloat();
   s = f.readStringUntil('\n');
@@ -464,9 +464,9 @@ int readconfig(mount_t *mt)
   s = f.readStringUntil('\n');
   tmp2 = s.toFloat();
   s = f.readStringUntil('\n');
-  back_az = s.toInt(); azbackcounter = 0;
+  back_az = s.toInt(); if (azbackcounter > back_az) azbackcounter=back_az;
   s = f.readStringUntil('\n');
-  back_alt = s.toInt(); altbackcounter = 0;
+  back_alt = s.toInt(); if (altbackcounter > back_alt) altbackcounter=back_alt;
   s = f.readStringUntil('\n');
   mt->mount_mode = (mount_mode_t)s.toInt();
   s = f.readStringUntil('\n');

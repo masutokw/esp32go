@@ -10,6 +10,7 @@ const String codes[31] = {"EAST", "WEST", "NORTH", "SOUTH", "OK", "FOCUS_F", "FO
                           "S_WEST", "TRACK", "UNTRACK", "B_1", "B_2", "B_3", "B_4", "B_5", "B_6", "B_7", "B_8", "B_9", "B_0", "GO_TO", "CLEAR", "FLIP_W", "FLIP_E"
                          };
 #endif
+extern int clients_connected;
 extern uint64_t  period_alt;
 extern char sync_target;
 extern int  focuspeed;
@@ -46,7 +47,7 @@ String getContentType(String filename)
 void handleConfig()
 {
     String msg;
-    //  msg.reserve(5500);
+      msg.reserve(250);
     time_t now;
     now = time(nullptr);
     if (serverweb.hasArg("SSID") && serverweb.hasArg("PASSWORD"))
@@ -117,7 +118,7 @@ void handleConfig()
         f.close ();
     }
     String content;
-    content.reserve(5500);
+    content.reserve(6000);
     content = "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE);
     content += "<body  bgcolor=\"#000000\" text=\"#5599ff\"><form action='/config' method='POST'>";
     content += "<h2>ESP32go";
@@ -572,7 +573,7 @@ void handleMonitor(void)
     content += "AZ Back Counter: " + String(azbackcounter) + "<br>";
     content += "Alt Back Counter: " + String(altbackcounter) + "<br>";
     content += "Alt period: " + String(period_alt) + "<br>";
-   
+    content += "Clients: " + String(clients_connected) + "<br>";
     content += "Focus Counter: " + String(focus_motor.position) + "<br>";
     content += "Is slewing: " + String((telescope->azmotor->slewing || telescope->altmotor->slewing) ? "1":"0") + "<br>";
     content += "Is tracking: " + String(telescope->is_tracking ? "1":"0") + "<br>";

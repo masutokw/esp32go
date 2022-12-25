@@ -74,9 +74,10 @@ void IRAM_ATTR onTimer_az()
   stepcounter1++;
 
   if (azdir)
-  { int backlash = telescope->azmotor->backlash;
+  { digitalWrite(CLOCK_OUT_AZ, 0);
+    int backlash = telescope->azmotor->backlash;
     char active = telescope->azmotor->active;
-    digitalWrite(CLOCK_OUT_AZ, 0);
+
     if ((azdir == 1) && (azbackcounter == 0) || (azdir == -1) && (azbackcounter == backlash))
     { azcounter += azdir;
       if ((active) && (timerAlarmRead(timer_az)) != period_az) timerAlarmWrite(timer_az, period_az , true);
@@ -101,9 +102,10 @@ void IRAM_ATTR onTimer_alt()
 {
   stepcounter2++;
   if (altdir)
-  { int backlash = telescope->altmotor->backlash;
+  { digitalWrite(CLOCK_OUT_ALT, 0);
+    int backlash = telescope->altmotor->backlash;
     char active = telescope->altmotor->active;
-    digitalWrite(CLOCK_OUT_ALT, 0);
+
 
     if ((altdir == 1) && (altbackcounter == 0) || (altdir == -1) && (altbackcounter == backlash))
     { altcounter += altdir;

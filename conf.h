@@ -113,3 +113,5 @@
 //Trace WIFI lx200 protocol using output serial interface
 //#define LX200TRACE
 //#define  BT_TRACE_USB
+ #define AZBACKSPD 226
+ #define ALTBACKSPD 226

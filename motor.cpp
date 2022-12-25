@@ -32,17 +32,15 @@ void init_motor(motor_t* mt, char ref, int maxcounter, double spd, double tick, 
   mt->slewing = 0;
   mt->maxspeed = maxspd;
   // set_motor_max_counter(ref, maxcounter);
-  mt->backslash = back;
-  setbackslash(mt, back);
+  mt->backlash = back;
+  setbacklash(mt, back);
   mt->cw=invert;
 }
 
 inline void setspeed(motor_t* mt , double tspeed)
 {
-  uint64_t base;//ispeed
-  // mt->current_speed=tspeed;
-  //    base=0;    //timer2 preload
-  //    postscaler=0;  //PIC timer2 iterations
+  uint64_t base;
+  
   if (tspeed != 0.0)
   {
     base = fabs((mt->resolution) / ( tspeed * (mt->timertick)));
@@ -167,7 +165,7 @@ void settargetspeed(motor_t* mt, double tspeed)
   else mt->targetspeed = mt->maxspeed * sign (tspeed);
 }
 
-void setbackslash(motor_t* mt, int back)
+void setbacklash(motor_t* mt, int back)
 {
   //setmotorbackslash(mt->id,abs(back));
   //set_motor_back_slash_mode(mt->id,(back>0)? 1:0);

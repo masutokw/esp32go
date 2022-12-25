@@ -91,7 +91,9 @@ void handleConfig()
         msg += "\n" + serverweb.arg("AUTOFLIP") ;
         msg += "\n" + String(serverweb.hasArg("INVAZ"));
         msg += "\n" + String(serverweb.hasArg("INVALT"));
-        msg += "\n" + serverweb.arg("PWR_DIR") + "\n" ;
+        msg += "\n" + serverweb.arg("PWR_DIR") ;
+        msg += "\n" + String(serverweb.hasArg("ACT_AZ"));
+        msg += "\n" + String(serverweb.hasArg("ACT_ALT")) + "\n";
         String temp = serverweb.arg("SLEW");
         telescope->rate[3][0] = temp.toFloat();
         temp = serverweb.arg("SLEWA");
@@ -150,8 +152,8 @@ void handleConfig()
     content += "<tr><td>Ramp</td><td><input type='number' step='0.01' name='RAMP' class=\"text_red\" value='" + String(telescope->azmotor->acceleration / SEC_TO_RAD) + "'></td>";
     content += "<td><input type='number' step='0.01' name='RAMPA' class=\"text_red\" value='" + String(telescope->altmotor->acceleration / SEC_TO_RAD) + "'></td></tr>";
 
-    content += "<tr><td>BackSlash</td><td><input type='number' step='1' name='BACK_AZ' class=\"text_red\" value='" + String(telescope->azmotor->backslash) + "'></td>";
-    content += "<td><input type='number' step='1' name='BACK_ALT' class=\"text_red\" value='" + String(telescope->altmotor->backslash) + "'></td></tr>";
+    content += "<tr><td>BackSlash</td><td><input type='number' step='1' name='BACK_AZ' class=\"text_red\" value='" + String(telescope->azmotor->backlash) + "'></td>";
+    content += "<td><input type='number' step='1' name='BACK_ALT' class=\"text_red\" value='" + String(telescope->altmotor->backlash) + "'></td></tr>";
     content += "<tr><td>Prescaler</td><td><input type='number' step='0.0001' name='PRESCALER' class=\"text_red\" value='" + String(telescope->prescaler) + "' uSec</td></tr>";
     content += "<tr><td>EQ Track</td><td><input type='number' min='0' max='4' title='0.No track 1-Sideral 2-Solar 3-Lunar 4-King.' step='1' name='TRACK'  class=\"text_red\" value ='" + String(telescope->track) + "' </td></tr>";
     String checked = "";
@@ -167,10 +169,10 @@ void handleConfig()
 
     content += "<tr><td>FLIP<input type='checkbox' name='AUTOFLIP' value='1' " + (telescope->autoflip ? String( "checked") : String("")) + "></td>" ;
     content += "<td>Invert Az<input type='checkbox' name='INVAZ' value='1' " + (telescope->azmotor->cw ? String("checked") : String(" ")) + "></td>";
-    content += "<td>Invert Alt<input type='checkbox' name='INVALT' value='1' " + (telescope->altmotor->cw ? String("checked") : String(" ")) + "></td></tr></table>";
-
-    // content += "<tr><td>AutoFLIP:</td><td><input type='number' step='1' name='AUTOFLIP' class=\"text_red\" value='" + String(telescope->autoflip) + "'></td></tr></table>";
-
+    content += "<td>Invert Alt<input type='checkbox' name='INVALT' value='1' " + (telescope->altmotor->cw ? String("checked") : String(" ")) + "></td></tr>";
+    content += "<tr><td>Act AZ<input type='checkbox' name='ACT_AZ' value='1' " + (telescope->azmotor->active ? String("checked") : String(" ")) + "></td>";
+    content += "<td>Act ALT<input type='checkbox' name='ACT_ALT' value='1' " + (telescope->altmotor->active ? String("checked") : String(" ")) + "></td></tr></table>";
+  
 
     checked = (get_pierside(telescope) ? "West" : "East");
     content += "Meridian side " + checked + "<br>";

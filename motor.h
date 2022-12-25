@@ -10,8 +10,9 @@ typedef struct
          targetspeed, speed, current_speed,
          acceleration,
          timertick, maxspeed;
-  int counter, maxcounter, slewing, auxcounter,backslash;
-  char id,locked,cw;
+  int counter, maxcounter, slewing, auxcounter,backlash;
+  char id,locked,cw,active;
+ 
 } motor_t;
 
 int sign(double t);
@@ -31,5 +32,5 @@ void  speed_up_down(motor_t* mt);
 void  setcounter(motor_t* mt, int count);
 void  loadconf(motor_t* mt, char* name);
 void  savemotorcounter(motor_t* mt);
-void setbackslash(motor_t* mt,int back);
+void setbacklash(motor_t* mt,int back);
 #endif

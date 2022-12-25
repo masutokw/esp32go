@@ -18,8 +18,8 @@
 volatile int stepcounter1, stepcounter2;
 uint64_t  volatile period_az, period_alt;
 int volatile azcounter, altcounter, azbackcounter, altbackcounter;
-int azbackslash = 10;
-int altbackslash = 0;
+boolean volatile az_active = true;
+boolean volatile  alt_active = true;
 int  volatile azdir, altdir;
 String a;
 hw_timer_t * timer_az = NULL;
@@ -72,17 +72,20 @@ void IRAM_ATTR onTimer_az()
 {
   uint32_t delay;
   stepcounter1++;
+
   if (azdir)
-  { digitalWrite(CLOCK_OUT_AZ, 0);
-    if (azdir == 1) {
-      if (azbackcounter == 0)
-        azcounter += azdir;
-      else
-        azbackcounter += -azdir;
-    } else if (azbackcounter == azbackslash)
-      azcounter += azdir;
+  { int backlash = telescope->azmotor->backlash;
+    char active = telescope->azmotor->active;
+    digitalWrite(CLOCK_OUT_AZ, 0);
+    if ((azdir == 1) && (azbackcounter == 0) || (azdir == -1) && (azbackcounter == backlash))
+    { azcounter += azdir;
+      if ((active) && (timerAlarmRead(timer_az)) != period_az) timerAlarmWrite(timer_az, period_az , true);
+    }
     else
-      azbackcounter += -azdir;
+    { azbackcounter += -azdir;
+      if ((active) && (period_az > AZBACKSPD)) timerAlarmWrite(timer_az, AZBACKSPD , true);
+    }
+
 
     if (azcounter < 0) azcounter = telescope->azmotor->maxcounter;
     if (azcounter > telescope->azmotor->maxcounter)  azcounter = 0;
@@ -94,29 +97,23 @@ void IRAM_ATTR onTimer_az()
   digitalWrite(CLOCK_OUT_AZ, 1);
 
 }
-
-
 void IRAM_ATTR onTimer_alt()
 {
   stepcounter2++;
   if (altdir)
-  { digitalWrite(CLOCK_OUT_ALT, 0);
-    if (altdir == 1) {
-      if (altbackcounter == 0)
-        altcounter += altdir;
-      else
-      {
-        altbackcounter += -altdir;
-      //  timerAlarmWrite(timer_alt, 226, true);
-      }
-    } else if (altbackcounter == altbackslash)
-      altcounter += altdir;
+  { int backlash = telescope->altmotor->backlash;
+    char active = telescope->altmotor->active;
+    digitalWrite(CLOCK_OUT_ALT, 0);
+
+    if ((altdir == 1) && (altbackcounter == 0) || (altdir == -1) && (altbackcounter == backlash))
+    { altcounter += altdir;
+      if   ((active) && (timerAlarmRead(timer_alt)) != period_alt) timerAlarmWrite(timer_alt, period_alt , true);
+    }
     else
     {
       altbackcounter += -altdir;
-     // timerAlarmWrite(timer_alt, 226, true);
+      if   ((active) && (period_az > ALTBACKSPD)) timerAlarmWrite(timer_alt, ALTBACKSPD, true);
     }
-
 
     if (altcounter < 0) altcounter = telescope->altmotor->maxcounter;
     if (altcounter > telescope->altmotor->maxcounter)  altcounter = 0;

@@ -44,15 +44,14 @@ extern int focusvolt;
 WiFiServer server(SERVER_PORT);
 WiFiClient serverClients[MAX_SRV_CLIENTS];
 int clients_connected = 0;
-
 BluetoothSerial SerialBT;
 WebServer serverweb(WEB_PORT);
 HTTPUpdateServer httpUpdater;
 bool bnunchuk = 0;
-char buff[50] = "Waiting for connection..";
+char buff[70] = "Waiting for connection..";
 const char *pin = "0000";
 extern char  response[200];
-byte napt = 0;
+byte otab = 0;
 mount_t  *telescope;
 c_star volatile st_now, st_target, st_current, st_1, st_2;
 String ssi;
@@ -98,13 +97,14 @@ void IRAM_ATTR onTimer_az()
   digitalWrite(CLOCK_OUT_AZ, 1);
 
 }
+
 void IRAM_ATTR onTimer_alt()
 {
   stepcounter2++;
   if (altdir)
   { digitalWrite(CLOCK_OUT_ALT, 0);
     int backlash = telescope->altmotor->backlash;
-    char active = telescope->altmotor->active;
+    char active= telescope->altmotor->active;
 
 
     if ((altdir == 1) && (altbackcounter == 0) || (altdir == -1) && (altbackcounter == backlash))
@@ -266,7 +266,7 @@ void setup()
 #ifdef OLED_DISPLAY
   oled_initscr();
 #endif
-  SerialBT.enableSSP();
+ // SerialBT.enableSSP();
   SerialBT.begin(BT_NAME);
   SerialBT.setPin(pin);
   WiFi.mode(WIFI_AP_STA);
@@ -297,7 +297,7 @@ void setup()
     if (ip.fromString(f.readStringUntil('\n')) && subnet.fromString(f.readStringUntil('\n')) && gateway.fromString(f.readStringUntil('\n')) + dns.fromString(f.readStringUntil('\n')))
     {
       WiFi.config(ip, gateway, subnet, dns);
-      napt = f.readStringUntil('\n').toInt();
+      otab = f.readStringUntil('\n').toInt();
     }
 
     f.close();
@@ -314,21 +314,7 @@ void setup()
   uint8_t i = 0;
   while (WiFi.status() != WL_CONNECTED && i++ < 20) delay(500);
   if  (WiFi.status() != WL_CONNECTED) WiFi.disconnect(true);
-#ifdef NAPT
-  else
-  {
-    if (napt)
-    {
-      dhcps_set_dns(1, WiFi.gatewayIP());
-      dhcps_set_dns(0, WiFi.dnsIP(0));
-      err_t ret = ip_napt_init(NAPT, NAPT_PORT);
-      if (ret == ERR_OK)
-      {
-        ret = ip_napt_enable_no(SOFTAP_IF, napt);
-      }
-    }
-  }
-#endif
+
 #ifdef OLED_DISPLAY
   oled_waitscr();
 #endif
@@ -390,7 +376,7 @@ void setup()
 
 #endif
 #ifdef OTA
-  InitOTA();
+ if (otab) InitOTA();
 #endif
 #ifdef IR_CONTROL
   ir_init();
@@ -485,7 +471,7 @@ void loop()
 #endif
 
 #ifdef OTA
-  if (counter++ % 10 == 0)
+  if ((counter++ % 10 == 0)&& (otab))
     ArduinoOTA.handle();
 
 #endif

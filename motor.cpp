@@ -35,6 +35,7 @@ void init_motor(motor_t* mt, char ref, int maxcounter, double spd, double tick, 
   mt->backlash = back;
   setbacklash(mt, back);
   mt->cw=invert;
+  mt->active=0;
 }
 
 inline void setspeed(motor_t* mt , double tspeed)

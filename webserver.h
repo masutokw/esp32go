@@ -18,7 +18,7 @@ extern WebServer serverweb;
 extern mount_t *telescope;
 extern String ssi;
 extern String pwd;
-extern byte napt;
+extern byte otab;
 void initwebserver(void);
 
 #endif // WEBSERVER_H_INCLUDED

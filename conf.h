@@ -5,7 +5,7 @@
 #include <HTTPUpdateServer.h>
 #include <SPIFFS.h>
 #include "BluetoothSerial.h"
-#define ENCODER
+//#define ENCODER
 #define BT_NAME "ESP32go_BT"
 #define IR_PIN 15
 #define SDA_PIN 21
@@ -58,7 +58,7 @@
 
 
 //mandatory
-#define EPOCH_1_1_2019 1546300800
+#define EPOCH_1_1_2023 1673275134
 #define SERVER_PORT 10001
 #define WEB_PORT 80
 #define BAUDRATE 115200

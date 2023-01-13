@@ -26,6 +26,8 @@ extern hw_timer_t * timer_alt;
 extern int8_t focusinv;
 extern int focusvolt;
 extern int azbackcounter, altbackcounter;
+char  buffer[30];
+extern c_star st_current;
 //extern bool n_disable;
 
 
@@ -46,136 +48,99 @@ String getContentType(String filename)
   else if (filename.endsWith(".gz")) return "application/x-gzip";
   return "text/plain";
 }
-void handleConfig()
-{ String content;
-  content.reserve(5000);
-  String msg;
-  msg.reserve(500);
+void handleConfig(void)
+{
+  char temp [4500];
+  char msg[43];
+  // msg.reserve(500);
   time_t now;
   now = time(nullptr);
   if (serverweb.hasArg("MAXCOUNTER") && serverweb.hasArg("MAXCOUNTER_ALT"))
   {
+    snprintf(temp, 300, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+             serverweb.arg("MAXCOUNTER"), serverweb.arg("MAXCOUNTER_ALT"),
+             serverweb.arg("GUIDE"), serverweb.arg("CENTER"), serverweb.arg("FIND"), serverweb.arg("SLEW"),
+             serverweb.arg("GUIDEA"), serverweb.arg("CENTERA"), serverweb.arg("FINDA"), serverweb.arg("SLEWA"),
+             serverweb.arg("PRESCALER"),
+             serverweb.arg("LONGITUDE"), serverweb.arg("LATITUDE"), serverweb.arg("TIMEZONE"),
+             serverweb.arg("FOCUSMAX"), serverweb.arg("FOCUSPEEDLOW"), serverweb.arg("FOCUSPEED"),
+             serverweb.arg("RAMP"), serverweb.arg("RAMPA"), serverweb.arg("BACK_AZ"), serverweb.arg("BACK_ALT"),
+             serverweb.arg("MOUNT"), serverweb.arg("TRACK"), serverweb.arg("AUTOFLIP"), String(serverweb.hasArg("INVAZ")),
+             String(serverweb.hasArg("INVALT")), serverweb.arg("PWR_DIR"), String(serverweb.hasArg("ACTAZ")), String(serverweb.hasArg("ACTALT")));
 
-
-    msg = serverweb.arg("MAXCOUNTER");
-    msg += "\n" + serverweb.arg("MAXCOUNTER_ALT");
-    msg += "\n" + serverweb.arg("GUIDE");
-    msg += "\n" + serverweb.arg("CENTER");
-    msg += "\n" + serverweb.arg("FIND");
-    msg += "\n" + serverweb.arg("SLEW");
-    msg += "\n" + serverweb.arg("GUIDEA");
-    msg += "\n" + serverweb.arg("CENTERA");
-    msg += "\n" + serverweb.arg("FINDA");
-    msg += "\n" + serverweb.arg("SLEWA");
-    msg += "\n" + serverweb.arg("PRESCALER");
-    msg += "\n" + serverweb.arg("LONGITUDE");
-    msg += "\n" + serverweb.arg("LATITUDE");
-    msg += "\n" + serverweb.arg("TIMEZONE");
-    msg += "\n" + serverweb.arg("FOCUSMAX");
-    msg += "\n" + serverweb.arg("FOCUSPEEDLOW");
-    msg += "\n" + serverweb.arg("FOCUSPEED");
-    msg += "\n" + serverweb.arg("RAMP");
-    msg += "\n" + serverweb.arg("RAMPA");
-    msg += "\n" + serverweb.arg("BACK_AZ");
-    msg += "\n" + serverweb.arg("BACK_ALT");
-    msg += "\n" + serverweb.arg("MOUNT") ;
-    msg += "\n" + serverweb.arg("TRACK") ;
-    msg += "\n" + serverweb.arg("AUTOFLIP") ;
-    msg += "\n" + String(serverweb.hasArg("INVAZ"));
-    msg += "\n" + String(serverweb.hasArg("INVALT"));
-    msg += "\n" + serverweb.arg("PWR_DIR") ;
-    msg += "\n" + String(serverweb.hasArg("ACTAZ"));
-    msg += "\n" + String(serverweb.hasArg("ACTALT")) + "\n";
-    String temp = serverweb.arg("SLEW");
-    telescope->rate[3][0] = temp.toFloat();
-    temp = serverweb.arg("SLEWA");
-    telescope->rate[3][1] = temp.toFloat();
+    /*  String temp = serverweb.arg("SLEW");
+      telescope->rate[3][0] = temp.toFloat();
+      temp = serverweb.arg("SLEWA");
+      telescope->rate[3][1] = temp.toFloat();*/
     File f = SPIFFS.open("/mount.config", "w");
     if (!f)
     {
-      msg = ("file open failed");
+
+      snprintf(msg, 42, "File open failed");
     }
     else
     {
-      f.println(msg);
+      f.println(temp);
       f.close ();
       readconfig(telescope);
       now = time(nullptr);
-      msg = " Config Saved at " + String(ctime(&now));
+      snprintf(msg, 42, "Config Saved at %s ", ctime(&now));
 
     }
 
   }
+  snprintf(temp, 4500,
 
-  content = "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE);
-  content += "<body  bgcolor=\"#000000\" text=\"#5599ff\"><form action='/config' method='POST'>";
-  content += "<h2>ESP32go";
-#ifdef IR_CONTROL
-  content += " IR Control</h2>";
-#else
-  content += " NUNCHUK</h2>";
-#endif
-
-  content += "<fieldset style=\"width:15%; border-radius:15px\"> <legend>Mount parameters:</legend>";
-  content += "<table style='width:250px'><tr><th><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Main</button></th><th>Azimuth</th><th>Altitude</th></tr>";
-  content += "<tr><td>Counter</td><td> <input type='number' name='MAXCOUNTER' class=\"text_red\" value='" + String(telescope->azmotor->maxcounter) + "'></td>";
-  content += "<td> <input type='number' name='MAXCOUNTER_ALT'  class=\"text_red\" value='" + String(telescope->altmotor->maxcounter) + "'></td></tr></table><br>";
-  content += "<table style='width:250px'><tr><th>Rate X</th><th>RA/AZ</th><th>Dec/Alt</th></tr>";
-  content += "<tr><td>Guide</td><td><input type='number' step='0.01' name='GUIDE' class=\"text_red\" value='" + String(telescope->rate[0][0]) + "'></td>";
-  content += "<td><input type='number' step='0.01' name='GUIDEA' class=\"text_red\" value='" + String(telescope->rate[0][1]) + "'></td></tr>";
-
-  content += "<tr><td>Center</td><td><input type='number' step='0.01' name='CENTER' class=\"text_red\" value='" + String(telescope->rate[1][0]) + "'></td>";
-  content += "<td><input type='number' step='0.01' name='CENTERA'  class=\"text_red\" value='" + String(telescope->rate[1][1]) + "'></td></tr>";
-
-  content += "<tr><td>Find</td><td><input type='number' step='0.01' name='FIND' class=\"text_red\" value='" + String(telescope->rate[2][0]) + "'></td>";
-  content += "<td><input type='number' step='0.01' name='FINDA' class=\"text_red\" value='" + String(telescope->rate[2][1]) + "'></td></tr>";
-
-  content += "<tr><td>Slew</td><td><input type='number' step='0.01' name='SLEW' class=\"text_red\" value='" + String(telescope->rate[3][0]) + "'></td>";
-  content += "<td><input type='number' step='0.01' name='SLEWA' class=\"text_red\" value='" + String(telescope->rate[3][1]) + "'></td></tr>";
-
-  content += "<tr><td>Ramp</td><td><input type='number' step='0.01' name='RAMP' class=\"text_red\" value='" + String(telescope->azmotor->acceleration / SEC_TO_RAD) + "'></td>";
-  content += "<td><input type='number' step='0.01' name='RAMPA' class=\"text_red\" value='" + String(telescope->altmotor->acceleration / SEC_TO_RAD) + "'></td></tr>";
-
-  content += "<tr><td>BackSlash</td><td><input type='number' step='1' name='BACK_AZ' class=\"text_red\" value='" + String(telescope->azmotor->backlash) + "'></td>";
-  content += "<td><input type='number' step='1' name='BACK_ALT' class=\"text_red\" value='" + String(telescope->altmotor->backlash) + "'></td></tr>";
-  content += "<tr><td>Prescaler</td><td><input type='number' step='0.0001' name='PRESCALER' class=\"text_red\" value='" + String(telescope->prescaler) + "' uSec</td></tr>";
-  content += "<tr><td>EQ Track</td><td><input type='number' min='0' max='4' title='0.No track 1-Sideral 2-Solar 3-Lunar 4-King.' step='1' name='TRACK'  class=\"text_red\" value ='" + String(telescope->track) + "' </td></tr>";
-  String checked = "";
-  if (telescope->mount_mode == EQ) checked = " checked " ;
-  else checked = ""  ;
-  content += "<tr><td>EQ<input type='radio' name='MOUNT' value='0'  class=\"button_red\"'" + checked + "></td>";
-  if (telescope->mount_mode == ALTAZ) checked = " checked " ;
-  else checked = ""  ;
-  content += "<td>ALT-AZ<input type='radio' name='MOUNT' value='1'  class=\"button_red\"'" + checked + "></td>";
-  if (telescope->mount_mode == ALIGN) checked = " checked " ;
-  else checked = ""  ;
-  content += "<td>EQ2-stars<input type='radio' name='MOUNT' value='2'  class=\"button_red\"'" + checked + "></td></tr>";
-
-  content += "<tr><td>FLIP<input type='checkbox' name='AUTOFLIP' value='1' " + (telescope->autoflip ? String( "checked") : String("")) + "></td>" ;
-  content += "<td>Invert Az<input type='checkbox' name='INVAZ' value='1' " + (telescope->azmotor->cw ? String("checked") : String("")) + "></td>";
-  content += "<td>Invert Alt<input type='checkbox' name='INVALT' value='1' " + (telescope->altmotor->cw ? String("checked") : String("")) + "></td></tr>";
-  content += "<tr><td>AZ<input type='checkbox' name='ACTAZ' value='1' " + (telescope->azmotor->active ? String("checked") : String("")) + "></td>";
-  content += "<td>ALT<input type='checkbox' name='ACTALT' value='1' " + (telescope->altmotor->active ? String("checked") : String("")) + "></td></tr>";
-  content += "</table>";
-  content += "<input type='submit' name='SUBMIT' class=\"button_red\" value='Save'></fieldset>";
-  content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Focuser</legend>";
-  content += "<table style='width:250px'>";
-  content += "<tr><td>Focus Max:</td><td><input type='number'step='1' name='FOCUSMAX' class=\"text_red\" value='" + String(focusmax) + "'></td></tr>";
-  content += "<tr><td>Low Speed:</td><td><input type='number'step='1' name='FOCUSPEEDLOW' class=\"text_red\" value='" + String(focuspeed_low) + "'></td></tr>";
-  content += "<tr><td>Speed</td><td><input type='number'step='1' name='FOCUSPEED' class=\"text_red\" value='" + String(focuspeed) + "'></td></tr>";
-  content += "<tr><td>Volt</td><td><input type='number'step='1' name='PWR_DIR' class=\"text_red\" value='" + String(focusvolt * focusinv) + "'></td></tr>";
-  content += "<tr><td><button onclick=\"location.href='/focus'\" class=\"button_red\" type=\"button\">Focuser set</button></td></tr></table></fieldset>";
-  content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Geodata</legend>";
-  content += "<table style='width:250px'>";
-  content += "<tr><td>Longitude:</td><td><input type='number' step='any' id=\"lon\" name='LONGITUDE' class=\"text_red\" value='" +
-             String(int(telescope->longitude)) + "." + String(getDecimal(telescope->longitude)) + "'></td></tr>";
-  content += "<tr><td>Latitude:</td><td><input type='number'step='any' id=\"lat\" name='LATITUDE' class=\"text_red\" value='" + // String(telescope->lat) +"'><br>";
-             String(int(telescope->lat)) + "." + String(getDecimal(telescope->lat)) + "'></td></tr>";
-  content += "<tr><td>GMT offset:</td><td><input type='number'step='1' name='TIMEZONE' class=\"text_red\" value='" + String(telescope->time_zone) + "'></td></tr></table></fieldset>";
-  content += "</form>";
-  content += "<br>Load Time :" + String(ctime(&now)) + " </body></html>";
-  serverweb.send(200, "text/html", content);
+           "<html><style> %s </style>\
+<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\
+<body  bgcolor=\"#000000\" text=\"%s\"><form action='/config' method='POST'><h2>ESP32go NUNCHUK</h2>\
+<fieldset style=\"width:15%; border-radius:15px\"> <legend>Mount parameters:</legend><table style='width:250px'>\
+<tr><th><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Main</button></th><th>Azimuth</th><th>Altitude</th></tr>\
+<tr><td>Counter</td><td> <input type='number' name='MAXCOUNTER' class=\"text_red\" value='%d'></td><td> <input type='number' name='MAXCOUNTER_ALT'  class=\"text_red\" value='%d'></td></tr>\
+</table><br>\
+\
+<table style='width:250px'><tr><th>Rate X</th><th>RA/AZ</th><th>Dec/Alt</th></tr>\
+<tr><td>Guide</td><td><input type='number' step='0.01' name='GUIDE' class=\"text_red\" value='%.2f'></td><td><input type='number' step='0.01' name='GUIDEA' class=\"text_red\" value='%.2f'></td></tr>\
+<tr><td>Center</td><td><input type='number' step='0.01' name='CENTER' class=\"text_red\" value='%.2f'></td><td><input type='number' step='0.01' name='CENTERA'  class=\"text_red\" value='%.2f'></td></tr>\
+<tr><td>Find</td><td><input type='number' step='0.01' name='FIND' class=\"text_red\" value='%.2f'></td><td><input type='number' step='0.01' name='FINDA' class=\"text_red\" value='%.2f'></td></tr>\
+<tr><td>Slew</td><td><input type='number' step='0.01' name='SLEW' class=\"text_red\" value='%.2f'></td><td><input type='number' step='0.01' name='SLEWA' class=\"text_red\" value='%.2f'></td></tr>\
+<tr><td>Ramp</td><td><input type='number' step='0.01' name='RAMP' class=\"text_red\" value='%.2f'></td><td><input type='number' step='0.01' name='RAMPA' class=\"text_red\" value='%.2f'></td></tr>\
+<tr><td>BackSlash</td><td><input type='number' step='1' name='BACK_AZ' class=\"text_red\" value='%d'></td><td><input type='number' step='1' name='BACK_ALT' class=\"text_red\" value='%d'></td></tr>\
+<tr><td>Prescaler</td><td><input type='number' step='0.0001' name='PRESCALER' class=\"text_red\" value='%.5f' uSec</td></tr>\
+<tr><td>EQ Track</td><td><input type='number' min='0' max='4' title='0.No track 1-Sideral 2-Solar 3-Lunar 4-King.' step='1' name='TRACK'  class=\"text_red\" value ='%d' </td></tr>\
+<tr><td>EQ<input type='radio' name='MOUNT' value='0'   %s ></td><td>ALT-AZ<input type='radio' name='MOUNT' value='1' %s ></td><td>EQ2-stars<input type='radio' name='MOUNT' value='2' %s ></td></tr>\
+<tr><td>FLIP<input type='checkbox' name='AUTOFLIP' value='1'  %s ></td><td>Invert Az<input type='checkbox' name='INVAZ' value='1' %s ></td><td>Invert Alt<input type='checkbox' name='INVALT' value='1' %s ></td></tr>\
+<tr><td>AZ<input type='checkbox' name='ACTAZ' value='1' %s></td><td>ALT<input type='checkbox' name='ACTALT' value='1' %s  ></td></tr>\
+\
+</table><input type='submit' name='SUBMIT' class=\"button_red\" value='Save'></fieldset>\
+<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Focuser</legend>\
+<table style='width:250px'><tr><td>Focus Max:</td><td><input type='number'step='1' name='FOCUSMAX' class=\"text_red\" value='%d'></td></tr>\
+<tr><td>Low Speed:</td><td><input type='number'step='1' name='FOCUSPEEDLOW' class=\"text_red\" value='%d'></td></tr>\
+<tr><td>Speed</td><td><input type='number'step='1' name='FOCUSPEED' class=\"text_red\" value='%d'></td></tr><tr>\
+<td>Volt</td><td><input type='number'step='1' name='PWR_DIR' class=\"text_red\" value='%d'></td></tr>\
+<tr><td><button onclick=\"location.href='/focus'\" class=\"button_red\" type=\"button\">Focuser set</button></td></tr></table>\
+</fieldset>\
+<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Geodata</legend>\
+<table style='width:250px'><tr><td>Longitude:</td><td><input type='number' step='any' name='LONGITUDE' class=\"text_red\" value='%.4f'></td></tr>\
+<tr><td>Latitude:</td><td><input type='number'step='any'  name='LATITUDE' class=\"text_red\"  value='%.4f'></td></tr>\
+<tr><td>GMT offset:</td><td><input type='number'step='1' name='TIMEZONE' class=\"text_red\" value='%d'></td></tr></table>\
+</fieldset></form><br>\
+<br>Load Time : %s \
+<br>%s \
+</body></html>",
+           BUTTTEXTT, TEXT_COLOR,
+           telescope->azmotor->maxcounter, telescope->altmotor->maxcounter,
+           telescope->rate[0][0], telescope->rate[0][1], telescope->rate[1][0], telescope->rate[1][1],
+           telescope->rate[2][0], telescope->rate[2][1], telescope->rate[3][0], telescope->rate[3][1],
+           telescope->azmotor->acceleration / SEC_TO_RAD, telescope->altmotor->acceleration / SEC_TO_RAD,
+           telescope->azmotor->backlash, telescope->altmotor->backlash, telescope->prescaler, telescope->track,
+           telescope->mount_mode == EQ ?  "checked" : "", telescope->mount_mode == ALTAZ ?  "checked" : "", telescope->mount_mode == ALIGN ?  "checked" : "",
+           telescope->autoflip ? "checked" : "", telescope->azmotor->cw ?  "checked" : "", telescope->altmotor->cw ?  "checked" : "", telescope->azmotor->active ?  "checked" : "", telescope->altmotor->active ?  "checked" : "",
+           focusmax, focuspeed_low, focuspeed, focusvolt * focusinv,
+           telescope->longitude, telescope->lat, telescope->time_zone, ctime(&now), &msg);
+  serverweb.send(200, "text/html", temp);
 }
+
 
 void handlePark(void)
 {
@@ -340,7 +305,7 @@ void handleStar( void)
       break;
   }
 
-  String content =   "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FF4500\"><h2>Sync mode</h2><br>";
+  String content =   "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"" + String(TEXT_COLOR) + "\"><h2>Sync mode</h2><br>";
   content += "Last selected star " + String(align_star_index) + "<br>";
   content += "Sync mode set to:" + txt + "<br><br>";
   content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Data</legend>";
@@ -392,7 +357,7 @@ void handleNetwork( void)
     msg += "\n" + serverweb.arg("DNS") ;
     msg += "\n" + serverweb.arg("OTAB") + "\n";
   }
-  String content = "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FF6000\"><form action='/network' method='POST'><h2>Network Config</h2>";
+  String content = "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"" + String(TEXT_COLOR) + "\"><form action='/network' method='POST'><h2>Network Config</h2>";
   content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Login  information:</legend>";
   content += "<table style='width:250px'>";
   content += "<tr><td>SSID</td><td><input type='text' name='SSID' class=\"text_red\" value='" + ssi + "'></td></tr> ";
@@ -541,40 +506,63 @@ void handleMeridian(void)
 }
 
 void handleMonitor(void)
-{
+{ char page[900];
+  char buffra[12];
+  char buffdec[12];
+  if (telescope->mount_mode) lxprintra(buffra, st_current.ra);
+  else mount_lxra_str(buffra, telescope);
+  if (telescope->mount_mode) lxprintde(buffdec, st_current.dec);
+  else mount_lxde_str(buffdec, telescope);
+  buffdec[3] = ':';
+  snprintf(page, 900,
+           "<html>\
+<head> <meta http-equiv='refresh' content='3'><style>%s</style> %s </head>\
+<body  bgcolor=\"#000000\" text=\"#5599ff\"><h2>Monitor</h2> \
+<br>AZ Counter: %ld <br>Alt Counter: %ld \
+<br>AZ Back Counter: %d<br>Alt Back Counter: %d \
+<br>Clients: %d<br>Focus Counter: %d \
+<br>Is slewing: %d <br>Is tracking: %d \
+<br>RA: %s<br>De: %s  \
+<br><br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>\
+</body></html>",
+           BUTTTEXTT, AUTO_SIZE, telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
+           altbackcounter, clients_connected, focus_motor.position,
+           (telescope->azmotor->slewing || telescope->altmotor->slewing) ? 1 : 0,
+           telescope->is_tracking , &buffra, &buffdec);
 
-  String content =  "<html><head> <meta http-equiv='refresh' content='3'><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + " </head><body  bgcolor=\"#000000\" text=\"#5599ff\"><h2>info</h2><br>";
-  content += "AZ Counter: " + String(telescope->azmotor->counter) + "<br>";
-  content += "Alt Counter: " + String(telescope->altmotor->counter) + "<br>";
-  content += "AZ Back Counter: " + String(azbackcounter) + "<br>";
-  content += "Alt Back Counter: " + String(altbackcounter) + "<br>";
-  content += "Alt period: " + String(period_alt) + "<br>";
-  content += "Clients: " + String(clients_connected) + "<br>";
-  content += "Focus Counter: " + String(focus_motor.position) + "<br>";
-  content += "Is slewing: " + String((telescope->azmotor->slewing || telescope->altmotor->slewing) ? "1" : "0") + "<br>";
-  content += "Is tracking: " + String(telescope->is_tracking ? "1" : "0") + "<br>";
-  content += "<br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>";
-  content += "</body></html>";
 
-  serverweb.send(200, "text/html", content);
+
+  serverweb.send(200, "text/html", page);
 }
 void handleMain(void)
 { time_t now;
   now = time(nullptr);
   String checked = (get_pierside(telescope) ? "West" : "East");
-  String content = "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#5599ff\"><h2>ESP32go</h2><br>";
+  String content = "<html><style>" + String(BUTTTEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"" + String(TEXT_COLOR) + "\"><h2>ESP32go";
+#ifdef IR_CONTROL
+  content += " IR Control</h2>";
+#else
+  content += " NUNCHUK</h2>";
+#endif
+  String mount_mode;
+  switch (telescope->mount_mode) {
+    case EQ : mount_mode = "EQUATORIAL"; break;
+    case ALTAZ: mount_mode = "ALT-A.Z"; break;
+    case ALIGN: mount_mode = "EQ. 2-Stars Aligned"; break;
+  }
+  content +=  "Mount mode:" + mount_mode + "<br>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Config</legend>";
   content += "<table style='width:250px'>";
-  content += "<button onclick=\"location.href='/config'\" class=\"button_red\"   type=\"button\">Mount</button> ";
+  content += "<button onclick=\"location.href='/config'\" class=\"button_red\"   type=\"button\">Mount</button>&ensp; ";
   content += "<button onclick=\"location.href='/network'\" class=\"button_red\"   type=\"button\">WLAN&Network</button><br>";
-  content += "<button onclick=\"location.href='/update'\" class=\"button_red\" type=\"button\">Firmware</button>";
+  content += "<button onclick=\"location.href='/update'\" class=\"button_red\" type=\"button\">Firmware</button>&ensp;";
   content += "<button onclick=\"location.href='/restart'\"class=\"button_red\"  type=\"button\">ReStart ESP32go</button></table></fieldset>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Commands</legend>" ;
   content += "<table style='width:250px'>";
-  content += "<button onclick=\"location.href='/meridian?SIDE=0'\" class=\"button_red\"  type=\"button\">Set EAST</button>";
-  content += "<button onclick=\"location.href='/meridian?SIDE=1'\" class=\"button_red\"  type=\"button\">Set WEST</button>" + checked + "<br>";
-  content += "<button onclick=\"location.href='/park'\" class=\"button_red\" type=\"button\">Park</button>";
-  content += "<button onclick=\"location.href='/home?HOME=0'\" class=\"button_red\" type=\"button\">Reset  home</button>";
+  content += "<button onclick=\"location.href='/meridian?SIDE=0'\" class=\"button_red\"  type=\"button\">Set EAST</button>&ensp;";
+  content += "<button onclick=\"location.href='/meridian?SIDE=1'\" class=\"button_red\"  type=\"button\">Set WEST</button>&ensp;" + checked + "<br>";
+  content += "<button onclick=\"location.href='/park'\" class=\"button_red\" type=\"button\">Park</button>&ensp;";
+  content += "<button onclick=\"location.href='/home?HOME=0'\" class=\"button_red\" type=\"button\">Reset  home</button>&ensp;";
   content += "<button onclick=\"location.href='/home?HOME=1'\" class=\"button_red\" type=\"button\">GO&Park home</button><br>";
   content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">2 stars align</button></table></fieldset>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Control set</legend>";
@@ -586,13 +574,14 @@ void handleMain(void)
   content += "<button onclick=\"location.href='/nunchuk?ENABLE=1'\" class=\"button_red\" type=\"button\">Init Nunchuk </button>";
   content += "<button onclick=\"location.href='/nunchuk'\" class=\"button_red\" type=\"button\">Disable Nunchuk </button>";
 #endif
-  content += "</table></fieldset> <fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Config</legend>";
+  content += "</table></fieldset> <fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Info</legend>";
   content += "<table style='width:250px'>";
   content += "<button onclick=\"location.href='/time'\" class=\"button_red\" type=\"button\">Sync Date/Time</button><button onclick=\"location.href='/monitor'\" class=\"button_red\" type=\"button\">Monitor Counters</button></table></fieldset>";
 
-  content += "<br>Load Time :" + String(ctime(&now)) + "<br></body></html>";
+  content += "<br>Loaded at Time :" + String(ctime(&now)) + "<br></body></html>";
   serverweb.send(200, "text/html", content);
 }
+
 
 void initwebserver(void)
 {
@@ -610,7 +599,7 @@ void initwebserver(void)
   serverweb.on("/focus", handleFocus);
   serverweb.on("/config", handleConfig);
   serverweb.on("/", handleMain);
-  serverweb.on("/main", handleMain);
+  serverweb.on("/main", handleMain );
 #ifdef IR_CONTROL
   serverweb.on("/remote", handleRemote);
   serverweb.on("/IR", handleIr);

@@ -13,6 +13,6 @@ int init_encoder(void)
  }
 int  read_raw_encoder(void)
 {
- return as5600.rawAngle() * AS5600_RAW_TO_DEGREES;
+ return as5600.rawAngle() ;//* AS5600_RAW_TO_DEGREES;
 }
 #endif

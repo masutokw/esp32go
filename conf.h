@@ -40,7 +40,7 @@
 #define DEN_DRIVER 1
 #endif
 
-#define NUNCHUCK_CONTROL
+//#define NUNCHUCK_CONTROL
 //#define IR_CONTROL
 //#define PAD
 #ifdef PAD
@@ -115,3 +115,4 @@
 //#define  BT_TRACE_USB
  #define AZBACKSPD 226
  #define ALTBACKSPD 226
+ #define WIFIPAD_IP_R 35

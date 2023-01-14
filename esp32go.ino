@@ -104,7 +104,7 @@ void IRAM_ATTR onTimer_alt()
   if (altdir)
   { digitalWrite(CLOCK_OUT_ALT, 0);
     int backlash = telescope->altmotor->backlash;
-    char active= telescope->altmotor->active;
+    char active = telescope->altmotor->active;
 
 
     if ((altdir == 1) && (altbackcounter == 0) || (altdir == -1) && (altbackcounter == backlash))
@@ -167,7 +167,7 @@ int net_task(void)
 {
   int lag = millis();
   size_t n;
-  uint8_t i;
+  uint8_t i, j;
   //Sky Safari does not make a persistent connection, so each commnad query is managed as a single independent client.
   if (server.hasClient())
   {
@@ -178,6 +178,11 @@ int net_task(void)
       {
         if (serverClients[i]) serverClients[i].stop();
         serverClients[i] = server.available();
+        if (serverClients[i].remoteIP()[3] == WIFIPAD_IP_R)
+        { for (j = 0; j < MAX_SRV_CLIENTS; j++) {
+            if ((serverClients[j].remoteIP()[3] == WIFIPAD_IP_R ) && ( j != i))serverClients[j].stop();
+          }
+        }
         continue;
       }
     }
@@ -223,6 +228,9 @@ int net_task(void)
 
       }
     }
+    else if (serverClients[i]) {
+      serverClients[i].stop();
+    }
   }
   return millis() - lag;
 }
@@ -266,7 +274,7 @@ void setup()
 #ifdef OLED_DISPLAY
   oled_initscr();
 #endif
- // SerialBT.enableSSP();
+  // SerialBT.enableSSP();
   SerialBT.begin(BT_NAME);
   SerialBT.setPin(pin);
   WiFi.mode(WIFI_AP_STA);
@@ -376,7 +384,7 @@ void setup()
 
 #endif
 #ifdef OTA
- if (otab) InitOTA();
+  if (otab) InitOTA();
 #endif
 #ifdef IR_CONTROL
   ir_init();
@@ -471,7 +479,7 @@ void loop()
 #endif
 
 #ifdef OTA
-  if ((counter++ % 10 == 0)&& (otab))
+  if ((counter++ % 10 == 0) && (otab))
     ArduinoOTA.handle();
 
 #endif

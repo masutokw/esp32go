@@ -29,7 +29,7 @@ extern int azbackcounter, altbackcounter;
 char  buffer[30];
 extern c_star st_current;
 //extern bool n_disable;
-
+extern WiFiClient serverClients[MAX_SRV_CLIENTS];
 
 String getContentType(String filename)
 {
@@ -175,6 +175,9 @@ void handleHome(void)
       case 1:
         mount_goto_home(telescope);
         break;
+      case 2: 
+      if (serverClients[0]) serverClients[0].stop();
+      break;
     }
   }
   String content =  "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32go++ PARKED</h2><br>";
@@ -523,17 +526,19 @@ void handleMonitor(void)
 <br>Clients: %d<br>Focus Counter: %d \
 <br>Is slewing: %d <br>Is tracking: %d \
 <br>RA: %s<br>De: %s  \
-<br><br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>\
+<br>%d<br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>\
 </body></html>",
            BUTTTEXTT, AUTO_SIZE, telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
            altbackcounter, clients_connected, focus_motor.position,
            (telescope->azmotor->slewing || telescope->altmotor->slewing) ? 1 : 0,
-           telescope->is_tracking , &buffra, &buffdec);
+           telescope->is_tracking , &buffra, &buffdec,serverClients[0].remoteIP()[3]);//
 
 
 
   serverweb.send(200, "text/html", page);
 }
+
+
 void handleMain(void)
 { time_t now;
   now = time(nullptr);

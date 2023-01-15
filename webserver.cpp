@@ -224,6 +224,9 @@ void handleSync(void)
   String content =  "<!DOCTYPE html><html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32Go Sync </h2><br>";
   content += "<p id=\"fecha\">" + msg + " " + String(ctime(&rtc)) + "</p>";
   content += "<p id=\"fecha\">" + String(rtc) + "</p>";
+  
+  content += "<button onclick=\"location.href='/starinstructions'\"class=\"button_red\" type=\"button\">Continue 2-star alignment</button><br><br>";
+  
   content += "<button onclick=\"location.href='/'\"  type=\"button\">Back</button><br>";
   content += "</body></html>";
   serverweb.send(200, "text/html", content);
@@ -311,7 +314,10 @@ void handleStar( void)
   String content =   "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"" + String(TEXT_COLOR) + "\"><h2>Sync mode</h2><br>";
   content += "Last selected star " + String(align_star_index) + "<br>";
   content += "Sync mode set to:" + txt + "<br><br>";
-  content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Data</legend>";
+
+  content += "<a href=\"/instructions\" target=\"_instructions\"><button class=\"button_red\" type=\"button\">Instructions</button></a><br><br>";
+
+  content += "<fieldset style=\"width:50% ; border-radius:15px\"> <legend>Data</legend>";
   content += "<button onclick=\"location.href='/Align?Mode=1'\"   class=\"button_red\" type=\"button\">Star1 Select</button>";
   content += "<br>RA: " + String(st_1.ra * RAD_TO_DEG / 15.0) + "  Dec: " + String(st_1.dec * RAD_TO_DEG) + "<br>";
   content += "Az:  " + String(st_1.az * RAD_TO_DEG) + " Alt: " + String(st_1.alt * RAD_TO_DEG) + "<br>";
@@ -321,8 +327,8 @@ void handleStar( void)
   content += "Alt " + String(st_2.az * RAD_TO_DEG) + " Alt:" + String(st_2.alt * RAD_TO_DEG) + "<br>";
   content += "Time: " + String(st_2.timer_count) + "</fieldset><br>";
   content += "<button onclick=\"location.href='/Align?Mode=0'\"  class=\"button_red\" type=\"button\">Sync mode</button><br>";
-  content += "<button onclick=\"location.href='/time'\"  class=\"button_red\" type=\"button\">Update Date/Time</button><br>";
-  content += "<button onclick=\"location.href='/'\"  class=\"button_red\" type=\"button\">Back</button><br>";
+  content += "<button onclick=\"top.location.href='/time'\"  class=\"button_red\" type=\"button\">Update Date/Time</button><br>";
+  content += "<button onclick=\"top.location.href='/'\"  class=\"button_red\" type=\"button\">Back</button><br>";
   content += "</body></html>";
   serverweb.send(200, "text/html", content);
 
@@ -569,7 +575,7 @@ void handleMain(void)
   content += "<button onclick=\"location.href='/park'\" class=\"button_red\" type=\"button\">Park</button>&ensp;";
   content += "<button onclick=\"location.href='/home?HOME=0'\" class=\"button_red\" type=\"button\">Reset  home</button>&ensp;";
   content += "<button onclick=\"location.href='/home?HOME=1'\" class=\"button_red\" type=\"button\">GO&Park home</button><br>";
-  content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">2 stars align</button></table></fieldset>";
+  content += "<button onclick=\"location.href='/starinstructions'\"class=\"button_red\" type=\"button\">2 stars align</button></table></fieldset>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Control set</legend>";
   content += "<table style='width:250px'>";
 #ifdef IR_CONTROL
@@ -587,6 +593,34 @@ void handleMain(void)
   serverweb.send(200, "text/html", content);
 }
 
+void handleInstructions( void)
+{
+  String content =   "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"" + String(TEXT_COLOR) + "\"><br>";
+  content += "<h2>Instructions:</h2>""";
+  content += "1-Sync. Date/time and go back to 2 stars aling""<br>";
+  content += "2-Click `Star1 Select`""<br>";
+  content += "3-Toggle to Skysafari, choose  a star, center and align it""<br>";
+  content += "4-Toggle to webserver and Click `Star2 Select`""<br>";
+  content += "5-Toggle to Skysafary again, choose different star, center and align it""<br>";
+  content += "6-Click `Sync. mode` ""<br>";
+  content += "->>Try not to choose very high or very low stars, with some azimuth and altitude gap between them.""<br>";
+  content += "->>If you do mistake, go back to Sync date/time and start from new ""<br><br>";
+  content += "->>WATCHOUT: Performing date/time Sync will delete align data!.""<br><br>";
+  content += "</body></html>";
+  serverweb.send(200, "text/html", content);
+}
+
+void handleStarInstructions( void)
+{
+  String content = "<html><frameset cols=\"50%,50%\" frameborder=\"0\" border=\"0\">";
+  content += "<frame name=\"main\" src=\"/Align\">";
+  content += "<frame name=\"_instructions\" src=\"\" style=\"background-color:#000000;\">";
+  content += "</frameset>";
+  content += "<noframes>";
+  content += "<script>location=\"/Align\";</script>";
+  content += "</noframes></html>";
+  serverweb.send(200, "text/html", content);
+}
 
 void initwebserver(void)
 {
@@ -613,6 +647,8 @@ void initwebserver(void)
   serverweb.on("/nunchuk", handleNunchuk);
 #endif
   serverweb.on("/monitor", handleMonitor);
+  serverweb.on("/starinstructions", handleStarInstructions);
+  serverweb.on("/instructions", handleInstructions);
   serverweb.onNotFound([]()
   {
     if (!handleFileRead(serverweb.uri()))

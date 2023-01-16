@@ -175,9 +175,9 @@ void handleHome(void)
       case 1:
         mount_goto_home(telescope);
         break;
-      case 2: 
-      if (serverClients[0]) serverClients[0].stop();
-      break;
+      case 2:
+        if (serverClients[0]) serverClients[0].stop();
+        break;
     }
   }
   String content =  "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32go++ PARKED</h2><br>";
@@ -224,9 +224,9 @@ void handleSync(void)
   String content =  "<!DOCTYPE html><html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32Go Sync </h2><br>";
   content += "<p id=\"fecha\">" + msg + " " + String(ctime(&rtc)) + "</p>";
   content += "<p id=\"fecha\">" + String(rtc) + "</p>";
-  
+
   content += "<button onclick=\"location.href='/starinstructions'\"class=\"button_red\" type=\"button\">Continue 2-star alignment</button><br><br>";
-  
+
   content += "<button onclick=\"location.href='/'\"  type=\"button\">Back</button><br>";
   content += "</body></html>";
   serverweb.send(200, "text/html", content);
@@ -479,7 +479,7 @@ void handleFocus(void)
     move_to(&focus_motor, focus_motor.target, focuspeed);
 
   }
-  String content =  "<html><head><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "</head><body  bgcolor=\"#000000\" text=\"#5599ff\"><h2>Focus</h2><br>";
+  String content =  "<html><head><style>" + String(BUTT TEXTT) + "</style>" + String(AUTO_SIZE) + "</head><body  bgcolor=\"#000000\" text=\"#5599ff\"><h2>Focus</h2><br>";
   content += "Estado : " + String( focus_motor.position) + "<br>" + "<form action='/focus' method='POST'>";
 
   content += "<td><input type='number' step='1' name='FOCUS' class=\"text_red\" value='" + String(focus_motor.target) + "'></td></tr>";
@@ -505,7 +505,7 @@ void handleMeridian(void)
     meridianflip(telescope, side);
   }
 
-  String content =  "<html><head> <meta http-equiv='refresh' content=\"0;url='./\"><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + " </head><body  bgcolor=\"#000000\" text=\"#FF6000\"><h2>ESP-PGT++ Meridian flip</h2><br>";
+  String content =  "<html><head> <meta http-equiv='refresh' content=\"0;url='./\"><style>" + String(BUTTTEXTT) + "</style>" + String(AUTO_SIZE) + " </head><body  bgcolor=\"#000000\" text=\"#FF6000\"><h2>ESP-PGT++ Meridian flip</h2><br>";
   content += "Pier side: " + String(get_pierside(telescope)  ? "WEST" : "EAST") + "<br>";
   content += "AZ Counter:" + String(telescope->azmotor->counter) + "<br>";
   content += "Alt Counter:" + String(telescope->altmotor->counter) + "<br>";
@@ -537,7 +537,7 @@ void handleMonitor(void)
            BUTTTEXTT, AUTO_SIZE, telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
            altbackcounter, clients_connected, focus_motor.position,
            (telescope->azmotor->slewing || telescope->altmotor->slewing) ? 1 : 0,
-           telescope->is_tracking , &buffra, &buffdec,serverClients[0].remoteIP()[3]);//
+           telescope->is_tracking , &buffra, &buffdec, serverClients[0].remoteIP()[3]); //
 
 
 
@@ -549,18 +549,19 @@ void handleMain(void)
 { time_t now;
   now = time(nullptr);
   String checked = (get_pierside(telescope) ? "West" : "East");
-  String content = "<html><style>" + String(BUTTTEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"" + String(TEXT_COLOR) + "\"><h2>ESP32go";
-#ifdef IR_CONTROL
-  content += " IR Control</h2>";
-#else
-  content += " NUNCHUK</h2>";
-#endif
   String mount_mode;
   switch (telescope->mount_mode) {
     case EQ : mount_mode = "EQUATORIAL"; break;
     case ALTAZ: mount_mode = "ALT-A.Z"; break;
     case ALIGN: mount_mode = "EQ. 2-Stars Aligned"; break;
   }
+  String content = "<html><style>" + String(BUTTTEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"" + String(TEXT_COLOR) + "\"><h2>ESP32go";
+#ifdef IR_CONTROL
+  content += " IR Control</h2>";
+#else
+  content += " NUNCHUK</h2>";
+#endif
+
   content +=  "Mount mode:" + mount_mode + "<br>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Config</legend>";
   content += "<table style='width:250px'>";
@@ -595,31 +596,33 @@ void handleMain(void)
 
 void handleInstructions( void)
 {
-  String content =   "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"" + String(TEXT_COLOR) + "\"><br>";
-  content += "<h2>Instructions:</h2>""";
-  content += "1-Sync. Date/time and go back to 2 stars aling""<br>";
-  content += "2-Click `Star1 Select`""<br>";
-  content += "3-Toggle to Skysafari, choose  a star, center and align it""<br>";
-  content += "4-Toggle to webserver and Click `Star2 Select`""<br>";
-  content += "5-Toggle to Skysafary again, choose different star, center and align it""<br>";
-  content += "6-Click `Sync. mode` ""<br>";
-  content += "->>Try not to choose very high or very low stars, with some azimuth and altitude gap between them.""<br>";
-  content += "->>If you do mistake, go back to Sync date/time and start from new ""<br><br>";
-  content += "->>WATCHOUT: Performing date/time Sync will delete align data!.""<br><br>";
-  content += "</body></html>";
+  String content =   "<html><style>" + String(BUTTTEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"" + String(TEXT_COLOR) + "\"><br>"+
+"<h2>Instructions:</h2> \
+1-Sync. Date/time and go back to 2 stars aling <br> \
+2-Click `Star1 Select`<br> \
+3-Toggle to Skysafari, choose  a star, center and align it<br>\
+4-Toggle to webserver and Click `Star2 Select`<br>\
+5-Toggle to Skysafary again, choose different star, center and align it<br>\
+6-Click `Sync. mode` <br>\
+->>Try not to choose very high or very low stars, with some azimuth and altitude gap between them.<br>\
+->>If you do mistake, go back to Sync date/time and start from new <br><br>\
+->>WATCHOUT: Performing date/time Sync will delete align data!.<br><br>\
+</body ></html>";
+
   serverweb.send(200, "text/html", content);
 }
 
 void handleStarInstructions( void)
 {
-  String content = "<html><frameset cols=\"50%,50%\" frameborder=\"0\" border=\"0\">";
-  content += "<frame name=\"main\" src=\"/Align\">";
-  content += "<frame name=\"_instructions\" src=\"\" style=\"background-color:#000000;\">";
-  content += "</frameset>";
-  content += "<noframes>";
-  content += "<script>location=\"/Align\";</script>";
-  content += "</noframes></html>";
-  serverweb.send(200, "text/html", content);
+  serverweb.send(200, "text/html",
+                 "<html><frameset cols=\"50%,50%\" frameborder=\"0\" border=\"0\">\
+   <frame name=\"main\" src=\"/Align\"> \
+   <frame name=\"_instructions\" src=\"\" style=\"background-color:#000000;\"> \
+   </frameset> \
+   <noframes> \
+   <script>location=\"/Align\";</script>\
+   </noframes></html>");
+
 }
 
 void initwebserver(void)

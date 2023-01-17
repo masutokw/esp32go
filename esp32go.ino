@@ -61,6 +61,8 @@ extern long command( char *str );
 time_t now;
 time_t init_time;
 char counter;
+int  wifi_pad_IP3 = 0;
+int  wifi_pad_IP2 = 0;
 void IRAM_ATTR nunchuk_reset()
 {
   // nunchuck_init(SDA_PIN, SCL_PIN);
@@ -162,7 +164,6 @@ void bttask(void)
   }
 }
 
-
 int net_task(void)
 {
   int lag = millis();
@@ -178,9 +179,11 @@ int net_task(void)
       {
         if (serverClients[i]) serverClients[i].stop();
         serverClients[i] = server.available();
-        if (serverClients[i].remoteIP()[3] == WIFIPAD_IP_R)
+        //kill connections with marked selected ip for wifipad
+        if ((serverClients[i].remoteIP()[3] == wifi_pad_IP3) && (serverClients[i].remoteIP()[2] == wifi_pad_IP2))
         { for (j = 0; j < MAX_SRV_CLIENTS; j++) {
-            if ((serverClients[j].remoteIP()[3] == WIFIPAD_IP_R ) && ( j != i))serverClients[j].stop();
+            if ((serverClients[j].remoteIP()[3] == wifi_pad_IP3 ) && (serverClients[j].remoteIP()[2] == wifi_pad_IP2) && ( j != i))
+              serverClients[j].stop();
           }
         }
         continue;

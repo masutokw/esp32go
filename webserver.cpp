@@ -26,6 +26,8 @@ extern hw_timer_t * timer_alt;
 extern int8_t focusinv;
 extern int focusvolt;
 extern int azbackcounter, altbackcounter;
+extern int  wifi_pad_IP3;
+extern int wifi_pad_IP2;
 char  buffer[30];
 extern c_star st_current;
 //extern bool n_disable;
@@ -91,14 +93,12 @@ void handleConfig(void)
   }
   snprintf(temp, 4500,
 
-           "<html><style> %s </style>\
-<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\
-<body  bgcolor=\"#000000\" text=\"%s\"><form action='/config' method='POST'><h2>ESP32go NUNCHUK</h2>\
+           "<html><style>"  BUTTTEXTT "</style>" AUTO_SIZE \
+           "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/config' method='POST'><h2>ESP32go NUNCHUK</h2>\
 <fieldset style=\"width:15%; border-radius:15px\"> <legend>Mount parameters:</legend><table style='width:250px'>\
 <tr><th><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Main</button></th><th>Azimuth</th><th>Altitude</th></tr>\
 <tr><td>Counter</td><td> <input type='number' name='MAXCOUNTER' class=\"text_red\" value='%d'></td><td> <input type='number' name='MAXCOUNTER_ALT'  class=\"text_red\" value='%d'></td></tr>\
 </table><br>\
-\
 <table style='width:250px'><tr><th>Rate X</th><th>RA/AZ</th><th>Dec/Alt</th></tr>\
 <tr><td>Guide</td><td><input type='number' step='0.01' name='GUIDE' class=\"text_red\" value='%.2f'></td><td><input type='number' step='0.01' name='GUIDEA' class=\"text_red\" value='%.2f'></td></tr>\
 <tr><td>Center</td><td><input type='number' step='0.01' name='CENTER' class=\"text_red\" value='%.2f'></td><td><input type='number' step='0.01' name='CENTERA'  class=\"text_red\" value='%.2f'></td></tr>\
@@ -128,7 +128,7 @@ void handleConfig(void)
 <br>Load Time : %s \
 <br>%s \
 </body></html>",
-           BUTTTEXTT, TEXT_COLOR,
+
            telescope->azmotor->maxcounter, telescope->altmotor->maxcounter,
            telescope->rate[0][0], telescope->rate[0][1], telescope->rate[1][0], telescope->rate[1][1],
            telescope->rate[2][0], telescope->rate[2][1], telescope->rate[3][0], telescope->rate[3][1],
@@ -147,7 +147,7 @@ void handlePark(void)
   time_t now;
   now = time(nullptr);
   mount_park(telescope);
-  String content =  "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32go PARKED</h2><br>";
+  String content =  "<html>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32go PARKED</h2><br>";
   content += "Mount parked  ,position saved on EEPROM.<br>";
   content += "AZ Counter:" + String(telescope->azmotor->counter) + "<br>";
   content += "Alt Counter:" + String(telescope->altmotor->counter) + "<br>";
@@ -180,7 +180,7 @@ void handleHome(void)
         break;
     }
   }
-  String content =  "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32go++ PARKED</h2><br>";
+  String content =  "<html>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>ESP32go++ PARKED</h2><br>";
   content += "Mount parked  ,position saved on EEPROM.<br>";
   content += "AZ Counter:" + String(telescope->azmotor->counter) + "<br>";
   content += "Alt Counter:" + String(telescope->altmotor->counter) + "<br>";
@@ -221,7 +221,7 @@ void handleSync(void)
     }
 
   }
-  String content =  "<!DOCTYPE html><html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32Go Sync </h2><br>";
+  String content =  "<!DOCTYPE html><html>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR " \"><h2>ESP32Go Sync </h2><br>";
   content += "<p id=\"fecha\">" + msg + " " + String(ctime(&rtc)) + "</p>";
   content += "<p id=\"fecha\">" + String(rtc) + "</p>";
 
@@ -236,7 +236,7 @@ void handleTime(void)
 {
   time_t now;
   now = time(nullptr);
-  String content =  "<!DOCTYPE html><html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32Go++ Time </h2><br>";
+  String content =  "<!DOCTYPE html><html>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>ESP32Go++ Time </h2><br>";
   content += "<form id=\"frm1\" action=\"/sync\">";
   content += "<button onclick=\"myFunction()\">Synchronize now!</button>";
   content += "<input type=\"number\" name=\"GMT\" id=\"gmt\"  type=\"hidden\"><br><br>";
@@ -256,12 +256,13 @@ void handleTime(void)
 void handleRestart(void)
 {
   mount_park(telescope);
-  String content =   "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP-PGT++ restarted</h2><br>";
+  String content =   "<html>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>ESP-PGT++ restarted</h2><br>";
   content += "Mount parked  ,position saved on EEPROM.<br>";
   content += "AZ Counter:" + String(telescope->azmotor->counter) + "<br>";
   content += "Alt Counter:" + String(telescope->altmotor->counter) + "<br>";
   content += "<button onclick=\"location.href='/'\"  type=\"button\">Home</button><br>";
   content += "</body></html>";
+
   serverweb.send(200, "text/html", content);
   delay(1000);
   ESP.restart();
@@ -279,7 +280,7 @@ void handleNunchuk(void)
   else
     nunchuck_disable(TRUE);
 
-  String content =   "<html>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"#FFFFFF\"><h2>ESP32go Nunchuck " + action + "</h2><br>";
+  String content =   "<html>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>ESP32go Nunchuck " + action + "</h2><br>";
 
   content += "AZ Counter:" + String(telescope->azmotor->counter) + "<br>";
   content += "Alt Counter:" + String(telescope->altmotor->counter) + "<br>";
@@ -311,7 +312,7 @@ void handleStar( void)
       break;
   }
 
-  String content =   "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"" + String(TEXT_COLOR) + "\"><h2>Sync mode</h2><br>";
+  String content =   "<html><style>" BUTTTEXTT  "</style>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>Sync mode</h2><br>";
   content += "Last selected star " + String(align_star_index) + "<br>";
   content += "Sync mode set to:" + txt + "<br><br>";
 
@@ -366,7 +367,7 @@ void handleNetwork( void)
     msg += "\n" + serverweb.arg("DNS") ;
     msg += "\n" + serverweb.arg("OTAB") + "\n";
   }
-  String content = "<html><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"" + String(TEXT_COLOR) + "\"><form action='/network' method='POST'><h2>Network Config</h2>";
+  String content = "<html><style>" BUTTTEXTT"</style>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/network' method='POST'><h2>Network Config</h2>";
   content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Login  information:</legend>";
   content += "<table style='width:250px'>";
   content += "<tr><td>SSID</td><td><input type='text' name='SSID' class=\"text_red\" value='" + ssi + "'></td></tr> ";
@@ -427,9 +428,9 @@ void handleRemote(void)
     f.close ();
   }
 
-  //  String content =  "<html><head> <meta http-equiv='refresh' content='3'><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + " </head><body  bgcolor=\"#000000\" text=\"#FF6000\"><h2>info</h2><br>";
-  String content =  "<html><head> <style>" + String(BUTT) + String(TEXTT1) + "</style>" + String(AUTO_SIZE) + " </head><body  bgcolor=\"#000000\" text=\"#5599ff\"><h2>IR REMOTE</h2><br>";
-  // content += "Ir Code : " + String(truecode) + "  "+String(lasti)+"  " +codes[lasti] + "  "+String(obj)+"<br>";
+
+  String content =  "<html><head> <style>" BUTT TEXTT1  "</style>"  AUTO_SIZE " </head><body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>IR REMOTE</h2><br>";
+
   content += "<form id=\"IR_Form\" action=\"/remote\">";
   content += "IrCodes: <br><table style='width:200px'>";
 
@@ -455,7 +456,7 @@ void handleIr(void)
 {
   char n;
 
-  String content =  "<html><head> <meta http-equiv='refresh' content='3'><style>" + String(BUTT) + String(TEXTT) + "</style>" + String(AUTO_SIZE) + " </head><body  bgcolor=\"#000000\" text=\"#5599ff\"><h2>info</h2><br>";
+  String content =  "<html><head> <meta http-equiv='refresh' content='3'><style>" BUTTTEXTT "</style>" AUTO_SIZE " </head><body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>info</h2><br>";
   content += "Ir Code : " + String(truecode) + "<br>";
   if (lasti < 31)  content += "Action : " + codes[lasti] + "<br>";
   content += "<button onclick=\"location.href='/remote'\" class=\"button_red\" type=\"button\">Remote</button><br>";
@@ -479,7 +480,7 @@ void handleFocus(void)
     move_to(&focus_motor, focus_motor.target, focuspeed);
 
   }
-  String content =  "<html><head><style>" + String(BUTT TEXTT) + "</style>" + String(AUTO_SIZE) + "</head><body  bgcolor=\"#000000\" text=\"#5599ff\"><h2>Focus</h2><br>";
+  String content =  "<html><head><style>" BUTT TEXTT "</style>" AUTO_SIZE "</head><body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>Focus</h2><br>";
   content += "Estado : " + String( focus_motor.position) + "<br>" + "<form action='/focus' method='POST'>";
 
   content += "<td><input type='number' step='1' name='FOCUS' class=\"text_red\" value='" + String(focus_motor.target) + "'></td></tr>";
@@ -505,7 +506,7 @@ void handleMeridian(void)
     meridianflip(telescope, side);
   }
 
-  String content =  "<html><head> <meta http-equiv='refresh' content=\"0;url='./\"><style>" + String(BUTTTEXTT) + "</style>" + String(AUTO_SIZE) + " </head><body  bgcolor=\"#000000\" text=\"#FF6000\"><h2>ESP-PGT++ Meridian flip</h2><br>";
+  String content =  "<html><head> <meta http-equiv='refresh' content=\"0;url='./\"><style>" BUTTTEXTT "</style>" AUTO_SIZE " </head><body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>ESP-PGT++ Meridian flip</h2><br>";
   content += "Pier side: " + String(get_pierside(telescope)  ? "WEST" : "EAST") + "<br>";
   content += "AZ Counter:" + String(telescope->azmotor->counter) + "<br>";
   content += "Alt Counter:" + String(telescope->altmotor->counter) + "<br>";
@@ -525,28 +526,27 @@ void handleMonitor(void)
   buffdec[3] = ':';
   snprintf(page, 900,
            "<html>\
-<head> <meta http-equiv='refresh' content='3'><style>%s</style> %s </head>\
+<head> <meta http-equiv='refresh' content='3'><style>" BUTTTEXTT "</style>"AUTO_SIZE"</head>\
 <body  bgcolor=\"#000000\" text=\"#5599ff\"><h2>Monitor</h2> \
 <br>AZ Counter: %ld <br>Alt Counter: %ld \
 <br>AZ Back Counter: %d<br>Alt Back Counter: %d \
 <br>Clients: %d<br>Focus Counter: %d \
 <br>Is slewing: %d <br>Is tracking: %d \
 <br>RA: %s<br>De: %s  \
-<br>%d<br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>\
+<br>WifiPAD IP : X.X%d.%d<br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>\
 </body></html>",
-           BUTTTEXTT, AUTO_SIZE, telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
+           telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
            altbackcounter, clients_connected, focus_motor.position,
            (telescope->azmotor->slewing || telescope->altmotor->slewing) ? 1 : 0,
-           telescope->is_tracking , &buffra, &buffdec, serverClients[0].remoteIP()[3]); //
+           telescope->is_tracking , &buffra, &buffdec,wifi_pad_IP2,wifi_pad_IP3); //
 
 
 
   serverweb.send(200, "text/html", page);
 }
 
-
-void handleMain(void)
-{ time_t now;
+  void handleMain(void)
+  { time_t now;
   now = time(nullptr);
   String checked = (get_pierside(telescope) ? "West" : "East");
   String mount_mode;
@@ -555,12 +555,12 @@ void handleMain(void)
     case ALTAZ: mount_mode = "ALT-A.Z"; break;
     case ALIGN: mount_mode = "EQ. 2-Stars Aligned"; break;
   }
-  String content = "<html><style>" + String(BUTTTEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"" + String(TEXT_COLOR) + "\"><h2>ESP32go";
-#ifdef IR_CONTROL
+  String content = "<html><style>" BUTTTEXTT "</style>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>ESP32go";
+  #ifdef IR_CONTROL
   content += " IR Control</h2>";
-#else
+  #else
   content += " NUNCHUK</h2>";
-#endif
+  #endif
 
   content +=  "Mount mode:" + mount_mode + "<br>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Config</legend>";
@@ -579,25 +579,25 @@ void handleMain(void)
   content += "<button onclick=\"location.href='/starinstructions'\"class=\"button_red\" type=\"button\">2 stars align</button></table></fieldset>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Control set</legend>";
   content += "<table style='width:250px'>";
-#ifdef IR_CONTROL
+  #ifdef IR_CONTROL
   content += "<button onclick=\"location.href='/remote'\" class=\"button_red\" type=\"button\">IR Remote </button><br>";
-#endif
-#ifdef NUNCHUCK_CONTROL
+  #endif
+  #ifdef NUNCHUCK_CONTROL
   content += "<button onclick=\"location.href='/nunchuk?ENABLE=1'\" class=\"button_red\" type=\"button\">Init Nunchuk </button>";
   content += "<button onclick=\"location.href='/nunchuk'\" class=\"button_red\" type=\"button\">Disable Nunchuk </button>";
-#endif
+  #endif
   content += "</table></fieldset> <fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Info</legend>";
   content += "<table style='width:250px'>";
   content += "<button onclick=\"location.href='/time'\" class=\"button_red\" type=\"button\">Sync Date/Time</button><button onclick=\"location.href='/monitor'\" class=\"button_red\" type=\"button\">Monitor Counters</button></table></fieldset>";
 
   content += "<br>Loaded at Time :" + String(ctime(&now)) + "<br></body></html>";
   serverweb.send(200, "text/html", content);
-}
+  }
 
 void handleInstructions( void)
 {
-  String content =   "<html><style>" + String(BUTTTEXTT) + "</style>" + String(AUTO_SIZE) + "<body  bgcolor=\"#000000\" text=\"" + String(TEXT_COLOR) + "\"><br>"+
-"<h2>Instructions:</h2> \
+  serverweb.send(200, "text/html", "<html><style>"  BUTTTEXTT "</style>" AUTO_SIZE  "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><br>\
+<h2>Instructions:</h2> \
 1-Sync. Date/time and go back to 2 stars aling <br> \
 2-Click `Star1 Select`<br> \
 3-Toggle to Skysafari, choose  a star, center and align it<br>\
@@ -607,9 +607,9 @@ void handleInstructions( void)
 ->>Try not to choose very high or very low stars, with some azimuth and altitude gap between them.<br>\
 ->>If you do mistake, go back to Sync date/time and start from new <br><br>\
 ->>WATCHOUT: Performing date/time Sync will delete align data!.<br><br>\
-</body ></html>";
+</body ></html>");
 
-  serverweb.send(200, "text/html", content);
+  //  serverweb.send(200, "text/html", content);
 }
 
 void handleStarInstructions( void)
@@ -627,8 +627,6 @@ void handleStarInstructions( void)
 
 void initwebserver(void)
 {
-
-
   serverweb.on("/park", handlePark);
   serverweb.on("/time", handleTime);
   serverweb.on("/sync", handleSync);

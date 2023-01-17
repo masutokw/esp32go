@@ -129,6 +129,8 @@ long command( char *str )
     int min=0;
     int sec=0;
     int neg = 1;
+	int ip3 =0;
+	int ip2 =0;
     tmessage[0]=0;
     response[0]=0;
 	int pulse=0;
@@ -147,6 +149,8 @@ long command( char *str )
         action getmin {ADD_DIGIT(min,fc); }
         action getsec {ADD_DIGIT(sec,fc); }
 		action getpulse{ADD_DIGIT(pulse,fc);}
+		action getip3{ADD_DIGIT(ip3,fc);}
+		action getip2{ADD_DIGIT(ip2,fc);}
 		action getfocuscounter{ADD_DIGIT(focus_counter,fc);}
         action neg { neg=-1;}
         action dir {mount_move(telescope,stcmd);}
@@ -217,7 +221,7 @@ long command( char *str )
 		action a_product{ sprintf(tmessage,"esp32go#") ;APPEND;}
 		action a_time {sprintf(tmessage,"00:00:00#") ;APPEND;}
 		action a_firm {sprintf(tmessage,"43Eg#") ;APPEND;}
-
+		action  set_ip {setwifipad(ip3,ip2);}
 # LX200  auxiliary terms syntax definitions
         sexmin =  ([0-5][0-9])$getmin@addmin ;
         sex= ([0-5][0-9] )$getsec@addsec ((('.'|',')digit{1,2}){,1})':'{0,1};
@@ -277,11 +281,11 @@ long command( char *str )
 		Focuser='F'(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel|f_moving);
 # custom
 		Park = ('pH'%home)|('hP'%goto_home);
-		
+		IP_PAD ='IP' ((digit$getip3){1,3} '.' (digit$getip2){1,3})%set_ip;
 #autostar
         Autostar='GV'('D'%a_date | 'N'%a_number | 'P'%a_product | 'T'%a_time | 'F'%a_firm) ;
 #main
-		main :=   ((ACK|''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar)  '#')* ;
+		main :=   ((ACK|''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar | IP_PAD)  '#')* ;
 		#main :=   ACK | (( ACK | ''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar)'#')* ;
 		
 # Initialize and execute.

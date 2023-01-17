@@ -41,7 +41,7 @@
 #endif
 
 #define NUNCHUCK_CONTROL
-//#define IR_CONTROL
+#define IR_CONTROL
 //#define PAD
 #ifdef PAD
 // IMPORTANT: All pad pins (PAD_X and PIN_MODE) need an external 10K pull-up

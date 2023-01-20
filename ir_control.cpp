@@ -26,16 +26,16 @@ void ir_init(void)
 {
   String s;
   irrecv.enableIRIn();  // Start the receiver
-
-  File f = SPIFFS.open("/remote.config", "r");
-  if (f ) {
-    for (uint8_t i = 0; i < 31; i++) {
-      s = f.readStringUntil('\n');
-      cmd_map[i] = s.toInt();
-    } f.close();
-
+  File f;
+  if (SPIFFS.exists(IR_FILE)) {
+  f = SPIFFS.open(IR_FILE, "r");
+    if (f ) {
+      for (uint8_t i = 0; i < 31; i++) {
+        s = f.readStringUntil('\n');
+        cmd_map[i] = s.toInt();
+      } f.close();
+    }
   }
-
 }
 
 
@@ -49,10 +49,10 @@ void ir_read(void)
     else
     { truecode = results.command;
 #if REMOTE_T == 0
-     
+
       lasti = last = code =  get_IR_lcode(truecode);
 #else
-      lasti =last = code = truecode;
+      lasti = last = code = truecode;
 #endif
     }
     switch (code)
@@ -173,21 +173,27 @@ void ir_read(void)
           //telescope->ra_target = ra / (RAD_TO_DEG); telescope->dec_target = dec / (RAD_TO_DEG);
           //goto_ra_dec(telescope, ra / (RAD_TO_DEG), dec / (RAD_TO_DEG));
           if (telescope->mount_mode)
-          {goto_ra_dec(telescope, ra / (RAD_TO_DEG), dec / (RAD_TO_DEG));}
-           else{telescope->ra_target = ra / (RAD_TO_DEG); telescope->dec_target = dec / (RAD_TO_DEG);mount_slew(telescope);}
-          
+          {
+            goto_ra_dec(telescope, ra / (RAD_TO_DEG), dec / (RAD_TO_DEG));
+          }
+          else {
+            telescope->ra_target = ra / (RAD_TO_DEG);
+            telescope->dec_target = dec / (RAD_TO_DEG);
+            mount_slew(telescope);
+          }
+
         }
         break;
       case CLEAR :
         n = 0;
         break;
-        case FLIP_W:
-       if (telescope->mount_mode == EQ) meridianflip(telescope, 0);
-       break;
-       case FLIP_E:
-       if (telescope->mount_mode == EQ) meridianflip(telescope, 1);
-       break;
-       
+      case FLIP_W:
+        if (telescope->mount_mode == EQ) meridianflip(telescope, 0);
+        break;
+      case FLIP_E:
+        if (telescope->mount_mode == EQ) meridianflip(telescope, 1);
+        break;
+
       case 0xFFFF:
         lastpresstime = millis();
         ir_state = 1;

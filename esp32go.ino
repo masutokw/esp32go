@@ -11,7 +11,7 @@
 #include "focus.h"
 #include "esp32-hal-ledc.h"
 //Comment out undesired Feature at conf.h
-
+#define FORMAT_SPIFFS_IF_FAILED true
 #ifdef  NUNCHUCK_CONTROL
 #include "nunchuck.h"
 #endif
@@ -273,7 +273,6 @@ void setup()
   ledcSetup(2, 10000, 8);
   ledcWrite(1, focusvolt);
   ledcWrite(2, focusvolt);
-
 #ifdef OLED_DISPLAY
   oled_initscr();
 #endif
@@ -282,25 +281,27 @@ void setup()
   SerialBT.setPin(pin);
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP("ESP32go", "boquerones");
-  SPIFFS.begin();
-  File f = SPIFFS.open("/wifi.config", "r");
-  if (f)
-  {
+  if (!SPIFFS.begin())
+  { SPIFFS.begin(true);
+    ESP.restart();
+  }
+  File f ;
+  if (SPIFFS.exists(WIFI_FILE))
+  { f = SPIFFS.open(WIFI_FILE, FILE_READ);
     ssi = f.readStringUntil('\n');
     pwd = f.readStringUntil('\n');
-    f.close();
     ssi.trim();
     pwd.trim();
     WiFi.begin(ssi.c_str(), pwd.c_str());
+    f.close();
   }
   else
   {
-    SPIFFS.format();
     WiFi.begin(ssid, password);
   }
-  f = SPIFFS.open("/network.config", "r");
-  if (f)
-  {
+
+  if (SPIFFS.exists(NETWORK_FILE))
+  { f = SPIFFS.open(NETWORK_FILE, "r");
     IPAddress ip;
     IPAddress gateway;
     IPAddress subnet;
@@ -373,26 +374,6 @@ void setup()
     // counters_poll_tkr.attach_ms(COUNTERS_POLL_TICKER, track, telescope);
   }
 
-#ifdef PAD
-  pad_Init();
-#endif //PAD
-#ifdef NUNCHUCK_CONTROL
-  pinMode(SDA_PIN, INPUT_PULLUP);
-  pinMode(SCL_PIN, INPUT_PULLUP);
-  nunchuck_init( SDA_PIN, SCL_PIN);
-#ifdef OLED_DISPLAY
-  nunchuck_init( SDA_PIN, SCL_PIN); // si no se inicializa otra vez, no se detecta bien el nunchuck al inicio cuando esta el OLED activado
-#endif
-
-
-#endif
-#ifdef OTA
-  if (otab) InitOTA();
-#endif
-#ifdef IR_CONTROL
-  ir_init();
-#endif
-
   pinMode(CLOCK_OUT_AZ, OUTPUT);
   pinMode(CLOCK_OUT_ALT, OUTPUT);
   pinMode(DIR_OUT_AZ, OUTPUT);
@@ -418,7 +399,6 @@ void setup()
   // Use 1st timer of 4 (counted from zero).
   // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
   // info).
-
   timer_alt = timerBegin(TIMER_ALT, 80, true);
   timer_az = timerBegin(TIMER_AZ, 80, true);
 
@@ -441,9 +421,30 @@ void setup()
   WB_O;
   focuser_tckr.detach();
   if (telescope->mount_mode == EQ) telescope->azmotor->targetspeed =  telescope->track_speed ;
+
+#ifdef PAD
+  pad_Init();
+#endif //PAD
+
+#ifdef NUNCHUCK_CONTROL
+  pinMode(SDA_PIN, INPUT_PULLUP);
+  pinMode(SCL_PIN, INPUT_PULLUP);
+  nunchuck_init( SDA_PIN, SCL_PIN);
+#ifdef OLED_DISPLAY
+  nunchuck_init( SDA_PIN, SCL_PIN); // si no se inicializa otra vez, no se detecta bien el nunchuck al inicio cuando esta el OLED activado
+#endif
+
+#endif
+#ifdef OTA
+  if (otab) InitOTA();
+#endif
+#ifdef IR_CONTROL
+  ir_init();
+#endif
 #ifdef NUNCHUCK_CONTROL
   nunchuck_disable(nunchuck_read() == 0);
 #endif
+
 }
 
 void loop()

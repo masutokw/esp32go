@@ -74,7 +74,7 @@ void handleConfig(void)
       telescope->rate[3][0] = temp.toFloat();
       temp = serverweb.arg("SLEWA");
       telescope->rate[3][1] = temp.toFloat();*/
-    File f = SPIFFS.open("/mount.config", "w");
+    File f = SPIFFS.open(MOUNT_FILE, "w");
     if (!f)
     {
 
@@ -340,7 +340,7 @@ void handleNetwork( void)
     String ssid = serverweb.arg("SSID") + "\n" + serverweb.arg("PASSWORD") + "\n";
     ssi = serverweb.arg("SSID");
     pwd = serverweb.arg("PASSWORD");
-    File f = SPIFFS.open("/wifi.config", "w");
+    File f = SPIFFS.open(WIFI_FILE, "w");
     if (!f)
     {
       ssid = ("file open failed");
@@ -353,7 +353,7 @@ void handleNetwork( void)
   if (serverweb.hasArg("IP") && serverweb.hasArg("MASK") && serverweb.hasArg("GATEWAY") && serverweb.hasArg("DNS") && serverweb.hasArg("OTAB"))
   {
     String net = serverweb.arg("IP") + "\n" + serverweb.arg("MASK") + "\n" + serverweb.arg("GATEWAY") + "\n" + serverweb.arg("DNS") + "\n" + serverweb.arg("OTAB") + "\n";
-    File f = SPIFFS.open("/network.config", "w");
+    File f = SPIFFS.open(NETWORK_FILE, "w");
     if (!f)
     {
       net = ("file open failed");
@@ -415,7 +415,7 @@ void handleRemote(void)
   String code, msg;
   if (serverweb.args() == 31)
   {
-    File f = SPIFFS.open("/remote.config", "w");
+    File f = SPIFFS.open(IR_FILE, "w");
 
     for (uint8_t i = 0; i < serverweb.args(); i++)
     {

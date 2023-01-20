@@ -14,12 +14,12 @@
 #define LUNAR_RATE 14.685
 #define KING_RATE  15.0369
 #define ARC_SEC_LMT 1.0
-#define AZ_RED 8000*6*180
-#define ALT_RED  8000*6*180
+#define AZ_RED 8000*4*144
+#define ALT_RED  8000*4*144
 #define RATE_GUIDE 0.5
 #define RATE_CENTER 8
 #define RATE_FIND 50
-#define RATE_SLEW 290
+#define RATE_SLEW 300
 #define LOCAL_LONGITUDE -4.2
 #define LOCAL_LATITUDE 36.72
 #define ALT_ID 0X00

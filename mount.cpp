@@ -41,11 +41,10 @@ mount_t* create_mount(void)
   m->lat = LOCAL_LATITUDE;
   m->time_zone = TIME_ZONE;
   m->prescaler = 1.0;
-  //  init_motor( m->azmotor, AZ_ID, maxcounter, SID_RATE * SEC_TO_RAD, m->prescaler, m->maxspeed[0]);
-  //  init_motor( m->altmotor,  ALT_ID, maxcounteralt, 0, m->prescaler, m->maxspeed[1]);
+
   m->is_tracking = TRUE;
-  m->mount_mode = ALTAZ;
-  //m->mount_mode = EQ;
+  // m->mount_mode = ALTAZ;
+  m->mount_mode = EQ;
   m->sync = FALSE;
   m->smode = 0;
   m->track_speed = SID_RATE_RAD;
@@ -53,6 +52,8 @@ mount_t* create_mount(void)
   m->autoflip = 0;
   m->fix_ra_target = 0;
   m->parked = 0;
+  init_motor( m->azmotor, AZ_ID, AZ_RED,  SID_RATE_RAD, m->prescaler, m->maxspeed[0], 412, 0, 0);
+  init_motor( m->altmotor,  ALT_ID, ALT_RED, 0, m->prescaler, m->maxspeed[1], 412, 0, 0);
   return m;
 }
 
@@ -414,19 +415,15 @@ void mount_lxra_str(char *message, mount_t *mt)
   sprintf(message, "%02d:%02d:%02d.%d#", gra, min, sec, rest);
 };
 
-
-
 int readconfig(mount_t *mt)
 {
   int maxcounter, maxcounteralt, back_az, back_alt;
   double tmp, tmp2;
-  File f = SPIFFS.open("/mount.config", "r");
-  if (!f)
-  {
-    init_motor( mt->azmotor, AZ_ID, AZ_RED,  SID_RATE_RAD, mt->prescaler, mt->maxspeed[0], 0, 0, 0);
-    init_motor( mt->altmotor,  ALT_ID, ALT_RED, 0, mt->prescaler, mt->maxspeed[1], 0, 0, 0);
-    return -1;
-  }
+  File f ;
+
+  if (!SPIFFS.exists(MOUNT_FILE)) return -1;
+
+  f = SPIFFS.open(MOUNT_FILE, FILE_READ);
   String s = f.readStringUntil('\n');
   maxcounter = s.toInt();
   s = f.readStringUntil('\n');
@@ -451,8 +448,6 @@ int readconfig(mount_t *mt)
   s = f.readStringUntil('\n');
   mt->time_zone = s.toInt();
 
-  //f.close();
-
   s = f.readStringUntil('\n');
   focusmax = focus_motor.max_steps = s.toInt();
   s = f.readStringUntil('\n');
@@ -464,9 +459,9 @@ int readconfig(mount_t *mt)
   s = f.readStringUntil('\n');
   tmp2 = s.toFloat();
   s = f.readStringUntil('\n');
-  back_az = s.toInt(); if (azbackcounter > back_az) azbackcounter=back_az;
+  back_az = s.toInt(); if (azbackcounter > back_az) azbackcounter = back_az;
   s = f.readStringUntil('\n');
-  back_alt = s.toInt(); if (altbackcounter > back_alt) altbackcounter=back_alt;
+  back_alt = s.toInt(); if (altbackcounter > back_alt) altbackcounter = back_alt;
   s = f.readStringUntil('\n');
   mt->mount_mode = (mount_mode_t)s.toInt();
   s = f.readStringUntil('\n');
@@ -490,7 +485,6 @@ int readconfig(mount_t *mt)
   mt->azmotor->active = s.toInt();
   s = f.readStringUntil('\n');
   mt->altmotor->active = s.toInt();
-
   f.close();
   return 0;
 }
@@ -733,10 +727,10 @@ void set_track_speed(mount_t *mt, int index)
 
 void load_saved_pos(void)
 {
-  String s;
-  File f = SPIFFS.open("/mount.config", "r");
-  if (f)
-  {
+
+  File f ;
+  if (SPIFFS.exists("/savedpos"))
+  { String s;
     f = SPIFFS.open("/savedpos", "r");
     s = f.readStringUntil('\n');
     azcounter = s.toInt();
@@ -744,7 +738,10 @@ void load_saved_pos(void)
     altcounter = s.toInt();
     s = f.readStringUntil('\n');
     focus_motor.position = focus_motor.target = s.toInt();
+    f.close();
 
-  }
-  f.close();
+  } else
+    azcounter = altcounter = focus_motor.position = focus_motor.target = 0;
+
+
 }

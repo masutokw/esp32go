@@ -41,7 +41,7 @@
 #endif
 
 #define NUNCHUCK_CONTROL
-#define IR_CONTROL
+//#define IR_CONTROL
 //#define PAD
 #ifdef PAD
 // IMPORTANT: All pad pins (PAD_X and PIN_MODE) need an external 10K pull-up
@@ -54,7 +54,7 @@
 //#define OLED_DISPLAY
 //#define OLED_13 // use 1.3 SSH1106 (OLED_DISPLAY is needed also)
 #define OTA
-//#define FIXED_IP 13
+//#define FIXED_IP 16
 
 
 //mandatory
@@ -113,6 +113,9 @@
 //Trace WIFI lx200 protocol using output serial interface
 //#define LX200TRACE
 //#define  BT_TRACE_USB
- #define AZBACKSPD 226
- #define ALTBACKSPD 226
- #define WIFIPAD_IP_R 35
+#define AZBACKSPD 226
+#define ALTBACKSPD 226
+#define WIFI_FILE "/wifi.config"
+#define MOUNT_FILE "/mount.config"
+#define NETWORK_FILE "/network.config"
+#define IR_FILE "/remote.config"

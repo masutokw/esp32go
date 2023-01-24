@@ -225,7 +225,7 @@ void handleSync(void)
   content += "<p id=\"fecha\">" + msg + " " + String(ctime(&rtc)) + "</p>";
   content += "<p id=\"fecha\">" + String(rtc) + "</p>";
 
-  content += "<button onclick=\"location.href='/starinstructions'\"class=\"button_red\" type=\"button\">Continue 2-star alignment</button><br><br>";
+  content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">Continue 2-star alignment</button><br><br>";
 
   content += "<button onclick=\"location.href='/'\"  type=\"button\">Back</button><br>";
   content += "</body></html>";
@@ -318,7 +318,7 @@ void handleStar( void)
 
   content += "<a href=\"/instructions\" target=\"_instructions\"><button class=\"button_red\" type=\"button\">Instructions</button></a><br><br>";
 
-  content += "<fieldset style=\"width:50% ; border-radius:15px\"> <legend>Data</legend>";
+  content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Data</legend>";
   content += "<button onclick=\"location.href='/Align?Mode=1'\"   class=\"button_red\" type=\"button\">Star1 Select</button>";
   content += "<br>RA: " + String(st_1.ra * RAD_TO_DEG / 15.0) + "  Dec: " + String(st_1.dec * RAD_TO_DEG) + "<br>";
   content += "Az:  " + String(st_1.az * RAD_TO_DEG) + " Alt: " + String(st_1.alt * RAD_TO_DEG) + "<br>";
@@ -576,7 +576,7 @@ void handleMonitor(void)
   content += "<button onclick=\"location.href='/park'\" class=\"button_red\" type=\"button\">Park</button>&ensp;";
   content += "<button onclick=\"location.href='/home?HOME=0'\" class=\"button_red\" type=\"button\">Reset  home</button>&ensp;";
   content += "<button onclick=\"location.href='/home?HOME=1'\" class=\"button_red\" type=\"button\">GO&Park home</button><br>";
-  content += "<button onclick=\"location.href='/starinstructions'\"class=\"button_red\" type=\"button\">2 stars align</button></table></fieldset>";
+  content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">2 stars align</button></table></fieldset>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Control set</legend>";
   content += "<table style='width:250px'>";
   #ifdef IR_CONTROL

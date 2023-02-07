@@ -34,9 +34,9 @@ hw_timer_t * timer_alt = NULL;
 #include <FS.h>
 const char *TZstr = "GMT-1";
 extern long sdt_millis;
-//#include "wifipass.h" //comment wifipass.h and uncomment for your  wifi parameters
-const char* ssid = "MyWIFI";
-const char* password = "Mypassword";
+#include "wifipass.h" //comment wifipass.h and uncomment for your  wifi parameters
+//const char* ssid = "MyWIFI";
+//const char* password = "Mypassword";
 extern volatile int state;
 extern stepper focus_motor;
 extern int8_t focusinv;

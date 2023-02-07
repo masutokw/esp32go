@@ -10,6 +10,10 @@ const String codes[31] = {"EAST", "WEST", "NORTH", "SOUTH", "OK", "FOCUS_F", "FO
                           "S_WEST", "TRACK", "UNTRACK", "B_1", "B_2", "B_3", "B_4", "B_5", "B_6", "B_7", "B_8", "B_9", "B_0", "GO_TO", "CLEAR", "FLIP_W", "FLIP_E"
                          };
 #endif
+#ifdef PAD
+#include "pad.h"
+extern bool pad_enabled;
+#endif
 extern int clients_connected;
 extern uint64_t  period_alt;
 extern char sync_target;
@@ -178,6 +182,11 @@ void handleHome(void)
       case 2:
         if (serverClients[0]) serverClients[0].stop();
         break;
+#ifdef PAD
+      case 3:
+        if (pad_enabled) pad_Detach(); else pad_Init();
+        break;
+#endif
     }
   }
   String content =  "<html>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>ESP32go++ PARKED</h2><br>";
@@ -538,15 +547,15 @@ void handleMonitor(void)
            telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
            altbackcounter, clients_connected, focus_motor.position,
            (telescope->azmotor->slewing || telescope->altmotor->slewing) ? 1 : 0,
-           telescope->is_tracking , &buffra, &buffdec,wifi_pad_IP2,wifi_pad_IP3); //
+           telescope->is_tracking , &buffra, &buffdec, wifi_pad_IP2, wifi_pad_IP3); //
 
 
 
   serverweb.send(200, "text/html", page);
 }
 
-  void handleMain(void)
-  { time_t now;
+void handleMain(void)
+{ time_t now;
   now = time(nullptr);
   String checked = (get_pierside(telescope) ? "West" : "East");
   String mount_mode;
@@ -556,11 +565,11 @@ void handleMonitor(void)
     case ALIGN: mount_mode = "EQ. 2-Stars Aligned"; break;
   }
   String content = "<html><style>" BUTTTEXTT "</style>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>ESP32go";
-  #ifdef IR_CONTROL
+#ifdef IR_CONTROL
   content += " IR Control</h2>";
-  #else
+#else
   content += " NUNCHUK</h2>";
-  #endif
+#endif
 
   content +=  "Mount mode:" + mount_mode + "<br>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Config</legend>";
@@ -579,20 +588,24 @@ void handleMonitor(void)
   content += "<button onclick=\"location.href='/starinstructions'\"class=\"button_red\" type=\"button\">2 stars align</button></table></fieldset>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Control set</legend>";
   content += "<table style='width:250px'>";
-  #ifdef IR_CONTROL
+#ifdef IR_CONTROL
   content += "<button onclick=\"location.href='/remote'\" class=\"button_red\" type=\"button\">IR Remote </button><br>";
-  #endif
-  #ifdef NUNCHUCK_CONTROL
+#endif
+#ifdef NUNCHUCK_CONTROL
   content += "<button onclick=\"location.href='/nunchuk?ENABLE=1'\" class=\"button_red\" type=\"button\">Init Nunchuk </button>";
   content += "<button onclick=\"location.href='/nunchuk'\" class=\"button_red\" type=\"button\">Disable Nunchuk </button>";
-  #endif
+#endif
+#ifdef PAD
+  content += "<br><button onclick=\"location.href='/home?HOME=3'\" class=\"button_red\" type=\"button\"> PAD/ST4 </button>" ;
+  content += String(pad_enabled ? " ON" : " OFF");
+#endif
   content += "</table></fieldset> <fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Info</legend>";
   content += "<table style='width:250px'>";
   content += "<button onclick=\"location.href='/time'\" class=\"button_red\" type=\"button\">Sync Date/Time</button><button onclick=\"location.href='/monitor'\" class=\"button_red\" type=\"button\">Monitor Counters</button></table></fieldset>";
 
   content += "<br>Loaded at Time :" + String(ctime(&now)) + "<br></body></html>";
   serverweb.send(200, "text/html", content);
-  }
+}
 
 void handleInstructions( void)
 {

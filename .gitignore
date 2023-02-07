@@ -4,3 +4,4 @@ esp32go.layout
 esp32go.cbp
 firmbin/esp32go.ino.bin
 wifipass.h
+*.zip

@@ -54,7 +54,7 @@
 //#define OLED_DISPLAY
 //#define OLED_13 // use 1.3 SSH1106 (OLED_DISPLAY is needed also)
 #define OTA
-//#define FIXED_IP 16
+//#define FIXED_IP 17
 
 
 //mandatory
@@ -111,7 +111,7 @@
 // Retry NTP connection up to 3 trimes to get network time before mount init
 //#define RETRY_NTP
 //Trace WIFI lx200 protocol using output serial interface
-//#define LX200TRACE
+#define LX200TRACE
 //#define  BT_TRACE_USB
 #define AZBACKSPD 226
 #define ALTBACKSPD 226

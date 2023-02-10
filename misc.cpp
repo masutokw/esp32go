@@ -369,6 +369,7 @@ void setwifipad(int ip3,int ip2)
 
 
 }
+
 /*
 
   void Eq_to_alaz(double ar, dec,*az, *alt)

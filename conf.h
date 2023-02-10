@@ -5,6 +5,10 @@
 #include <HTTPUpdateServer.h>
 #include <SPIFFS.h>
 #include "BluetoothSerial.h"
+#include "sntp.h"
+//#define   RTC_IC RTC_DS3231
+//#define   RTC_IC RTC_DS1307
+
 //#define ENCODER
 #define BT_NAME "ESP32go_BT"
 #define IR_PIN 15
@@ -111,7 +115,7 @@
 // Retry NTP connection up to 3 trimes to get network time before mount init
 //#define RETRY_NTP
 //Trace WIFI lx200 protocol using output serial interface
-#define LX200TRACE
+//#define LX200TRACE
 //#define  BT_TRACE_USB
 #define AZBACKSPD 226
 #define ALTBACKSPD 226

@@ -32,6 +32,11 @@ hw_timer_t * timer_alt = NULL;
 #include "ir_control.h"
 #endif
 #include <FS.h>
+#ifdef RTC_IC
+#include "RTClib.h"
+DateTime RTC_now;
+RTC_IC rtc;
+#endif
 const char *TZstr = "GMT-1";
 extern long sdt_millis;
 #include "wifipass.h" //comment wifipass.h and uncomment for your  wifi parameters
@@ -63,6 +68,16 @@ time_t init_time;
 char counter;
 int  wifi_pad_IP3 = 0;
 int  wifi_pad_IP2 = 0;
+bool NTP_Sync =false;
+void timeavailable(struct timeval *t)
+{
+  //Serial.println("Got time adjustment from NTP!");
+  NTP_Sync=true;
+#ifdef RTC_IC
+ rtc.adjust(DateTime(time(nullptr)));
+#endif
+}
+
 void IRAM_ATTR nunchuk_reset()
 {
   // nunchuck_init(SDA_PIN, SCL_PIN);
@@ -276,6 +291,16 @@ void setup()
 #ifdef OLED_DISPLAY
   oled_initscr();
 #endif
+#ifdef RTC_IC 
+  if (! rtc.begin())
+    Serial.println("Couldn't find RTC");
+  else
+  {RTC_now = rtc.now();
+ // Serial.println(RTC_now.unixtime());
+  timeval tv = { RTC_now.unixtime(), 0 };
+  settimeofday(&tv, nullptr);}
+
+#endif
   // SerialBT.enableSSP();
   SerialBT.begin(BT_NAME);
   SerialBT.setPin(pin);
@@ -343,6 +368,7 @@ void setup()
   init_stepper(&focus_motor);
   readconfig(telescope);
   httpUpdater.setup(&serverweb);
+  sntp_set_time_sync_notification_cb( timeavailable );
   config_NTP(telescope->time_zone, 0);
   if  (WiFi.status() == WL_CONNECTED)
   {

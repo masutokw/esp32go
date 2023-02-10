@@ -38,4 +38,5 @@ void ln_get_equ_prec (double mean_ra,double mean_dec, double JD,double  *positio
 long getDecimal(float val);
 void setwifipad(int ip3, int ip2);
 
+
 #endif

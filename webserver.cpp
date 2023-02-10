@@ -14,6 +14,10 @@ const String codes[31] = {"EAST", "WEST", "NORTH", "SOUTH", "OK", "FOCUS_F", "FO
 #include "pad.h"
 extern bool pad_enabled;
 #endif
+#ifdef RTC_IC
+#include "RTClib.h"
+extern RTC_IC rtc;
+#endif
 extern int clients_connected;
 extern uint64_t  period_alt;
 extern char sync_target;
@@ -36,7 +40,7 @@ char  buffer[30];
 extern c_star st_current;
 //extern bool n_disable;
 extern WiFiClient serverClients[MAX_SRV_CLIENTS];
-
+extern bool NTP_Sync ;
 String getContentType(String filename)
 {
   if (serverweb.hasArg("download")) return "application/octet-stream";
@@ -204,17 +208,20 @@ void handleHome(void)
 void handleSync(void)
 {
   String msg, msg1;
-  time_t rtc;
+  time_t rtc_l;
   if (serverweb.hasArg("GMT"))
   {
     msg1 = serverweb.arg("OFFSET");
     msg = serverweb.arg("GMT");
-    rtc = msg.toInt();
+    rtc_l = msg.toInt();
     //msg = serverweb.arg("OFFSET");
-    timeval tv = { rtc, 0 };
+    timeval tv = { rtc_l, 0 };
     //timezone tz = {msg.toInt()  ,0 };
     settimeofday(&tv, nullptr);
-    rtc = time(nullptr);
+    rtc_l = time(nullptr);
+#ifdef RTC_IC
+    rtc.adjust(DateTime(time(nullptr)));
+#endif
     if (telescope->mount_mode == EQ)
     {
       sdt_init(telescope->longitude, telescope->time_zone);
@@ -231,8 +238,8 @@ void handleSync(void)
 
   }
   String content =  "<!DOCTYPE html><html>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR " \"><h2>ESP32Go Sync </h2><br>";
-  content += "<p id=\"fecha\">" + msg + " " + String(ctime(&rtc)) + "</p>";
-  content += "<p id=\"fecha\">" + String(rtc) + "</p>";
+  content += "<p id=\"fecha\">" + msg + " " + String(ctime(&rtc_l)) + "</p>";
+  content += "<p id=\"fecha\">" + String(rtc_l) + "</p>";
 
   content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">Continue 2-star alignment</button><br><br>";
 
@@ -602,8 +609,8 @@ void handleMain(void)
   content += "</table></fieldset> <fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Info</legend>";
   content += "<table style='width:250px'>";
   content += "<button onclick=\"location.href='/time'\" class=\"button_red\" type=\"button\">Sync Date/Time</button><button onclick=\"location.href='/monitor'\" class=\"button_red\" type=\"button\">Monitor Counters</button></table></fieldset>";
-
-  content += "<br>Loaded at Time :" + String(ctime(&now)) + "<br></body></html>";
+  
+  content += "<br>Loaded at Time :" + String(ctime(&now)) +String(NTP_Sync ? "NTP OK":"RTC")+ "<br></body></html>";
   serverweb.send(200, "text/html", content);
 }
 

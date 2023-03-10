@@ -535,6 +535,10 @@ void handleMonitor(void)
 { char page[900];
   char buffra[12];
   char buffdec[12];
+  time_t  now  =time(nullptr);
+  
+ // Serial.println(RTC_now.unixtime());
+  //timeval tv = { RTC_now.unixtime(), 0 };
   if (telescope->mount_mode) lxprintra(buffra, st_current.ra);
   else mount_lxra_str(buffra, telescope);
   if (telescope->mount_mode) lxprintde(buffdec, st_current.dec);
@@ -550,11 +554,12 @@ void handleMonitor(void)
 <br>Is slewing: %d <br>Is tracking: %d \
 <br>RA: %s<br>De: %s  \
 <br>WifiPAD IP : X.X%d.%d<br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>\
+ Date %s \
 </body></html>",
            telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
            altbackcounter, clients_connected, focus_motor.position,
            (telescope->azmotor->slewing || telescope->altmotor->slewing) ? 1 : 0,
-           telescope->is_tracking , &buffra, &buffdec, wifi_pad_IP2, wifi_pad_IP3); //
+           telescope->is_tracking , &buffra, &buffdec, wifi_pad_IP2, wifi_pad_IP3,ctime(&now)); //
 
 
 

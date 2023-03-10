@@ -242,7 +242,7 @@ void setclock (int year, int month, int day, int hour, int min, int sec, int gmt
 */
 void config_NTP(int zone, int dls)
 {
-  configTime(zone * 3600, dls * 3600,  "pool.ntp.org");
+  configTime(zone * 3600, dls * 3600,"pool.ntp.org");
 #ifdef RETRY_NTP
   // check DNS first to avoid timeouts
   IPAddress ip;

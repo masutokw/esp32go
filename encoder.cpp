@@ -1,4 +1,4 @@
-#include "conf.h"
+ #include "conf.h"
 #ifdef ENCODER
 #include "AS5600.h"
 #include "Wire.h"

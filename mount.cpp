@@ -556,7 +556,11 @@ void mount_home_set(mount_t *mt)
       break;
     case EQ:
 #ifdef NCP_HOME
+      if (mt->lat >0)
       setpositionf(mt->altmotor, (M_PI / 2) + 5e-6);
+      else
+      setpositionf(mt->altmotor, (M_PI*3.0/2.0) + 5e-6); 
+      
 #else
       setpositionf(mt->altmotor, M_PI );
 #endif

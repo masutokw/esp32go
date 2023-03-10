@@ -348,7 +348,7 @@ tr149:
 	goto st144;
 tr154:
 #line 196 "command.rl"
-	{ telescope->time_zone=deg;}
+	{ telescope->time_zone=deg*neg;}
 #line 174 "command.rl"
 	{sprintf(tmessage,"1");APPEND;deg=sec=min=0;}
 	goto st144;

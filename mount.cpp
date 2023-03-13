@@ -514,7 +514,7 @@ void mount_goto_home(mount_t *mt)
   {
     case ALTAZ:
       mt->parked = 1;
-      set_star(&st_target,  90.0, 0.0, 00.0, abs(mt->lat) , 0);
+      set_star(&st_target, 90.0, 0.0, (mt->lat>0)? 0.0 :180.0,abs(mt->lat) , 0);
       break;
     case ALIGN:
       set_star(&st_target,  90.0, 0.0, 00.0, 90 * sign(mt->lat), 0);
@@ -522,7 +522,7 @@ void mount_goto_home(mount_t *mt)
       break;
     case EQ:
 #ifdef NCP_HOME
-      mt->altmotor->target = (M_PI / 2) + 5e-6;
+      mt->altmotor->target = ((mt->lat>0)? (M_PI / 2):(M_PI*1.5)) + 5e-6;
 #else
       mt->altmotor->target = M_PI;
 #endif
@@ -545,7 +545,10 @@ void mount_home_set(mount_t *mt)
   switch (mt->mount_mode)
   {
     case ALTAZ:
+     if (mt->lat >0)
       setpositionf(mt->azmotor, M_PI );
+      else
+      setpositionf(mt->azmotor,0.0 );
       delay(10);
       setpositionf(mt->altmotor, M_PI / 4 );
       break;
@@ -556,10 +559,8 @@ void mount_home_set(mount_t *mt)
       break;
     case EQ:
 #ifdef NCP_HOME
-      if (mt->lat >0)
-      setpositionf(mt->altmotor, (M_PI / 2) + 5e-6);
-      else
-      setpositionf(mt->altmotor, (M_PI*3.0/2.0) + 5e-6); 
+      setpositionf(mt->altmotor,((mt->lat >0)? (M_PI / 2): (M_PI*1.5)) + 5e-6);
+     
       
 #else
       setpositionf(mt->altmotor, M_PI );

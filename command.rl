@@ -85,8 +85,8 @@ void set_cmd_exe(char cmd,long date)
         temp = (date % 3600);
         mount.min = temp / 60;
         mount.sec = temp % 60;
-        //setclock (mount.year,mount.month,mount.day,mount.hour,mount.min,mount.sec,telescope->time_zone)
-        setclock (22,8,01,14,6,12,telescope->time_zone);
+        setclock (mount.year,mount.month,mount.day,mount.hour,mount.min,mount.sec,telescope->time_zone);
+        //setclock (22,8,01,14,6,12,telescope->time_zone);
         break;
     case 'S':
         break;
@@ -193,7 +193,7 @@ long command( char *str )
         action storecmd {stcmd=fc;}
         action setdate {set_date(min,deg,sec);}
         action return_align{if (telescope->mount_mode==ALTAZ) sprintf(tmessage,"A");else if (telescope->track) sprintf(tmessage,"P"); else sprintf(tmessage,"L"); APPEND; }
-		action set_gmt_offset{ telescope->time_zone=deg*neg;}
+		action set_gmt_offset{ telescope->time_zone=-deg*neg;}
 		action return_GMT_offset {lxprintGMT_offset(tmessage,telescope->time_zone );APPEND}
         action settime{set_time(deg,min,sec);}
 		action return_formatTime{sprintf(tmessage,"24#");APPEND;}
@@ -222,6 +222,14 @@ long command( char *str )
 		action a_time {sprintf(tmessage,"00:00:00#") ;APPEND;}
 		action a_firm {sprintf(tmessage,"43Eg#") ;APPEND;}
 		action  set_ip {setwifipad(ip3,ip2);}
+		action syncmode {if ((fc>='0')&&(fc<'3'))telescope->smode=fc-'0';
+						else if ((fc=='3')&&(telescope->mount_mode>EQ)){
+							 telescope->is_tracking = FALSE;
+							sync_target = TRUE;
+							tak_init(telescope);
+        					telescope->azmotor->targetspeed = 0.0;
+							telescope->altmotor->targetspeed = 0.0;}
+		}
 # LX200  auxiliary terms syntax definitions
         sexmin =  ([0-5][0-9])$getmin@addmin ;
         sex= ([0-5][0-9] )$getsec@addsec ((('.'|',')digit{1,2}){,1})':'{0,1};
@@ -282,10 +290,13 @@ long command( char *str )
 # custom
 		Park = ('pH'%home)|('hP'%goto_home);
 		IP_PAD ='IP' ((digit$getip3){1,3} '.' (digit$getip2){1,3})%set_ip;
+		Sync_mode='a'digit$syncmode;
 #autostar
         Autostar='GV'('D'%a_date | 'N'%a_number | 'P'%a_product | 'T'%a_time | 'F'%a_firm) ;
+
+		
 #main
-		main :=   ((ACK|''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar | IP_PAD)  '#')* ;
+		main :=   ((ACK|''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar | IP_PAD | Sync_mode)  '#')* ;
 		#main :=   ACK | (( ACK | ''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar)'#')* ;
 		
 # Initialize and execute.

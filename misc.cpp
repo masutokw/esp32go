@@ -198,7 +198,7 @@ void lxprintGMT_offset(char *message, double offset )
   if (offset > 0) c = '-';
 
   // sprintf(message, "%c%02d.0#", c, gmt);
-  sprintf(message, "%c%02d#", c, gmt);
+  sprintf(message, "%c%02d#", c, abs(gmt));
 }
 void setclock (int year, int month, int day, int hour, int min, int sec, int gmt)
 {

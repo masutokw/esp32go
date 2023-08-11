@@ -44,7 +44,7 @@
 #define DEN_DRIVER 1
 #endif
 
-//#define NUNCHUCK_CONTROL
+#define NUNCHUCK_CONTROL
 //#define IR_CONTROL
 //#define PAD
 #ifdef PAD
@@ -111,7 +111,7 @@
 //#define AZ_P_DELAY 23
 //#define ALT_P_DELAY 23
 // Use NCP as default position for EQ mount
-#define NCP_HOME
+//#define NCP_HOME
 // Retry NTP connection up to 3 trimes to get network time before mount init
 //#define RETRY_NTP
 //Trace WIFI lx200 protocol using output serial interface
@@ -123,3 +123,5 @@
 #define MOUNT_FILE "/mount.config"
 #define NETWORK_FILE "/network.config"
 #define IR_FILE "/remote.config"
+#define SSID_AP  "ESP32go"
+#define PASS_AP  "boquerones"

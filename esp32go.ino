@@ -21,6 +21,7 @@ int volatile azcounter, altcounter, azbackcounter, altbackcounter;
 boolean volatile az_active = true;
 boolean volatile  alt_active = true;
 int  volatile azdir, altdir;
+int encb;
 String a;
 hw_timer_t * timer_az = NULL;
 hw_timer_t * timer_alt = NULL;
@@ -37,11 +38,17 @@ hw_timer_t * timer_alt = NULL;
 DateTime RTC_now;
 RTC_IC rtc;
 #endif
+#ifdef ENCODER
+#include "encoder.h"
+#endif
 const char *TZstr = "GMT-1";
 extern long sdt_millis;
+#if __has_include("wifipass.h")
 #include "wifipass.h" //comment wifipass.h and uncomment for your  wifi parameters
-//const char* ssid = "MyWIFI";
-//const char* password = "Mypassword";
+#else
+const char* ssid = "MyWIFI";
+const char* password = "Mypassword";
+#endif
 extern volatile int state;
 extern stepper focus_motor;
 extern int8_t focusinv;
@@ -68,13 +75,13 @@ time_t init_time;
 char counter;
 int  wifi_pad_IP3 = 0;
 int  wifi_pad_IP2 = 0;
-bool NTP_Sync =false;
+bool NTP_Sync = false;
 void timeavailable(struct timeval *t)
 {
   //Serial.println("Got time adjustment from NTP!");
-  NTP_Sync=true;
+  NTP_Sync = true;
 #ifdef RTC_IC
- rtc.adjust(DateTime(time(nullptr)));
+  rtc.adjust(DateTime(time(nullptr)));
 #endif
 }
 
@@ -291,21 +298,21 @@ void setup()
 #ifdef OLED_DISPLAY
   oled_initscr();
 #endif
-#ifdef RTC_IC 
+#ifdef RTC_IC
   if (! rtc.begin())
     Serial.println("Couldn't find RTC");
   else
-  {RTC_now = rtc.now();
- // Serial.println(RTC_now.unixtime());
-  timeval tv = { RTC_now.unixtime(), 0 };
-  settimeofday(&tv, nullptr);}
+  { RTC_now = rtc.now();
+    // Serial.println(RTC_now.unixtime());
+    timeval tv = { RTC_now.unixtime(), 0 };
+    settimeofday(&tv, nullptr);
+  }
 
 #endif
   // SerialBT.enableSSP();
   SerialBT.begin(BT_NAME);
   SerialBT.setPin(pin);
   WiFi.mode(WIFI_AP_STA);
-  WiFi.softAP("ESP32go", "boquerones");
   if (!SPIFFS.begin())
   { SPIFFS.begin(true);
     ESP.restart();
@@ -323,7 +330,9 @@ void setup()
   else
   {
     WiFi.begin(ssid, password);
+
   }
+  WiFi.softAP(SSID_AP, PASS_AP);
 
   if (SPIFFS.exists(NETWORK_FILE))
   { f = SPIFFS.open(NETWORK_FILE, "r");
@@ -469,6 +478,9 @@ void setup()
 #endif
 #ifdef NUNCHUCK_CONTROL
   nunchuck_disable(nunchuck_read() == 0);
+#endif
+#ifdef ENCODER
+  encb = init_encoder();
 #endif
 
 }

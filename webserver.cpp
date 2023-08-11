@@ -3,6 +3,7 @@
 #include "webserver.h"
 #include "nunchuck.h"
 #include "tb6612.h"
+#include "encoder.h"
 #ifdef IR_CONTROL
 extern uint32_t truecode, lasti;
 extern byte cmd_map [];
@@ -24,7 +25,7 @@ extern char sync_target;
 extern int  focuspeed;
 extern int  focuspeed_low;
 extern int focusmax;
-extern  int align_star_index;
+extern  int align_star_index,encb;
 extern c_star st_1, st_2;
 extern  time_t init_time;
 extern stepper focus_motor;
@@ -536,6 +537,11 @@ void handleMonitor(void)
   char buffra[12];
   char buffdec[12];
   time_t  now  =time(nullptr);
+  int enc=0;
+#ifdef ENCODER
+ if (encb)enc=read_raw_encoder();
+#endif
+  
   
  // Serial.println(RTC_now.unixtime());
   //timeval tv = { RTC_now.unixtime(), 0 };
@@ -553,13 +559,14 @@ void handleMonitor(void)
 <br>Clients: %d<br>Focus Counter: %d \
 <br>Is slewing: %d <br>Is tracking: %d \
 <br>RA: %s<br>De: %s  \
+<br>PEC:%d  %d<br>\
 <br>WifiPAD IP : X.X%d.%d<br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>\
  Date %s \
 </body></html>",
            telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
            altbackcounter, clients_connected, focus_motor.position,
            (telescope->azmotor->slewing || telescope->altmotor->slewing) ? 1 : 0,
-           telescope->is_tracking , &buffra, &buffdec, wifi_pad_IP2, wifi_pad_IP3,ctime(&now)); //
+           telescope->is_tracking , &buffra, &buffdec,encb,enc, wifi_pad_IP2, wifi_pad_IP3,ctime(&now)); //
 
 
 

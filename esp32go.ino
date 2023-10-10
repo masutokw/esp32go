@@ -43,7 +43,7 @@ RTC_IC rtc;
 #endif
 const char *TZstr = "GMT-1";
 extern long sdt_millis;
-#if __has_include("wifipass.h")
+#if __has_include("wifipaiss.h")
 #include "wifipass.h" //comment wifipass.h and uncomment for your  wifi parameters
 #else
 const char* ssid = "MyWIFI";
@@ -289,8 +289,8 @@ void setup()
   digitalWrite(ENABLE_AZ, DEN_DRIVER);
   digitalWrite(ENABLE_ALT, DEN_DRIVER);
   Serial.begin(BAUDRATE);
-  ledcAttachPin(12, 1); // assign RGB led pins to channels
-  ledcAttachPin(13, 2);
+  ledcAttachPin(PWM_B, 1); // assign RGB led pins to channels
+  ledcAttachPin(PWM_A, 2);
   ledcSetup(1, 10000, 8); // 12 kHz PWM, 8-bit resolution
   ledcSetup(2, 10000, 8);
   ledcWrite(1, focusvolt);
@@ -431,6 +431,7 @@ void setup()
   digitalWrite(ENABLE_ALT, EN_DRIVER);
   digitalWrite(AZ_RES, 1);
   digitalWrite(ALT_RES, 1);
+
   // Use 1st timer of 4 (counted from zero).
   // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
   // info).

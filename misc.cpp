@@ -103,7 +103,7 @@ void lxprintde(char* message, double ang)
 
 };
 void lxprintra1(char *message, double ang)
-{  if (ang<0) ang=2*M_PI-ang;
+{  if (ang<0) ang=abs(2*M_PI-ang);
   int seconds = ang * RAD_TO_DEG * 3600.0;
   int x = trunc (seconds) / 15.0;
   int rest = ((seconds % 15) * 2) / 3;
@@ -117,7 +117,7 @@ void lxprintra1(char *message, double ang)
   sprintf(message, "%02d:%02d:%02d.%d#", gra, min, sec, rest);
 };
 void lxprintra(char *message, double ang)
-{ if (ang<0) ang=2*M_PI-ang;
+{ if (ang<0) ang=abs(2*M_PI-ang);
   int x = ang * RAD_TO_DEG * 3600.0 / 15.0;
   int gra = x / 3600;
   int temp = (x % 3600);

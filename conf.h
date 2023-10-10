@@ -57,7 +57,7 @@
 #endif
 //#define OLED_DISPLAY
 //#define OLED_13 // use 1.3 SSH1106 (OLED_DISPLAY is needed also)
-#define OTA
+//#define OTA
 //#define FIXED_IP 17
 
 
@@ -72,11 +72,20 @@
 #define COUNTERS_POLL_TICKER 100
 #endif
 
+#define DC_FOCUS
+#define DRV_8833
 
+#ifdef DRV_8833
+#define PWM_A 33
+#define PWM_B 32
+#define AIN_1 13
+#define AIN_2 12
+#else
 #define PWM_A 13
 #define PWM_B 12
 #define AIN_1 33
 #define AIN_2 32
+#endif
 #define BIN_1 14
 #define BIN_2 27
 
@@ -106,7 +115,8 @@
 #define TIMER_AZ 3
 #define TIMER_ALT 2
 #endif
-//#define DC_FOCUS
+
+
 //On slow pulse detect stepper driver as DRV8825 comment out
 //#define AZ_P_DELAY 23
 //#define ALT_P_DELAY 23

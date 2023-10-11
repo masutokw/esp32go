@@ -57,7 +57,7 @@
 #endif
 //#define OLED_DISPLAY
 //#define OLED_13 // use 1.3 SSH1106 (OLED_DISPLAY is needed also)
-//#define OTA
+#define OTA
 //#define FIXED_IP 17
 
 

@@ -99,7 +99,9 @@ void move_to (int dir)
 }
 #else
 void move_to (int dir)
-{ if (dir < 0) {
+{ digitalWrite(AIN_1, 1);
+  digitalWrite(AIN_2, 1);
+  if (dir < 0) {
     ledcWrite(2, 0);
     ledcWrite(1, focusspd_current );
   } else if (dir == 0) {

@@ -14,7 +14,7 @@
 #define IR_PIN 15
 #define SDA_PIN 21
 #define SCL_PIN 22
-//#define PROTO
+#define PROTO
 #ifdef PROTO
 #define CLOCK_OUT_AZ 4
 #define DIR_OUT_AZ 2
@@ -72,9 +72,9 @@
 #define COUNTERS_POLL_TICKER 100
 #endif
 
-#define DC_FOCUS
-#define DRV_8833
+//#define DC_FOCUS
 
+//#define DRV_8833
 #ifdef DRV_8833
 #define PWM_A 33
 #define PWM_B 32

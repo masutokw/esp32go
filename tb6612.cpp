@@ -44,7 +44,7 @@ void move_to(stepper *motor, long int  target)
 }
 void move_to(stepper *motor, long int  target, int period)
 {
-  focuser_tckr.attach_ms(max(3, period), do_step, &focus_motor);
+  focuser_tckr.attach_ms(max(1, period), do_step, &focus_motor);
   motor->target = target;
   motor->state = slew;
   if ( motor->position == target) {

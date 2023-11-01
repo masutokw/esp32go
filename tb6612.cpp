@@ -5,6 +5,22 @@ stepper focus_motor;
 extern Ticker  focuser_tckr;
 extern int8_t focusinv;
 extern int focusvolt, focusspd_current;
+#define LOG2(n) (((sizeof(unsigned int) * CHAR_BIT) - 1) - (__builtin_clz((n))))
+#define WAVE_SIZE 32
+#define MSTEPS 8
+#define MSTEPS_DIV 3
+#define MSTEPS4 (MSTEPS*4)
+const static uint16_t wave_f[] = {0, 12, 25, 37, 50, 62, 74, 86, 98, 109, 121, 131, 142, 153, 163, 172, 181,
+                              190, 198, 206, 213, 220, 226, 232, 237, 241, 245, 249, 251, 252, 253, 254, 255};
+
+uint16_t wave[MSTEPS + 1];
+unsigned int mdiv = LOG2(MSTEPS);
+void generate_wave(int percent)
+{ int n;
+  for (n = 0; n <= MSTEPS ; n++) {
+    wave[n] = (wave_f[n * (WAVE_SIZE / MSTEPS)] * percent) / 255;
+  }
+}
 void init_stepper(stepper *motor)
 {
   motor->max_steps = 50000;
@@ -62,7 +78,78 @@ void move_to(stepper *motor, long int  target, int period)
 
 
 }
+#ifdef M_STEP
+void do_step(stepper *motor)
+{
+  uint8_t p, s, j;
+  uint16_t  pwma, pwmb;
+  // speedup();
+  if ((motor->position == motor->target) && (motor->resolution != 0))
+  {
+    motor->resolution = 0;
+    //  set_speed(fspeedt);
+    motor->target = 0xF0000000;
+    // return;
+    focuser_tckr.detach();
+  }
 
+  //  speedup();
+#ifdef BACKSLASH_COMP
+  if (dir < 0)
+  {
+    if (backcounter == 0) position += motor->resolution;
+    else backcounter += motor->resolution ;
+  }
+  else
+  {
+    if (backcounter == backslash)position += motor->resolution;
+    else backcounter += motor->resolution ;
+  }
+
+#else
+  motor->position += motor->resolution;
+#endif // BACKSLASH_COMP
+  motor->ustep_index += motor->resolution;
+  if ( motor->ustep_index < 0) motor->ustep_index += MSTEPS4;
+  else if ( motor->ustep_index >= MSTEPS4)  motor->ustep_index -= MSTEPS4;
+  s = motor->ustep_index >> mdiv;// MSTEPS_DIV; /// MSTEPS;
+  j = MSTEPS - (p =  motor->ustep_index % (MSTEPS));
+  if (s & 1) //check odd even step
+  {
+    pwma = wave[p];
+    pwmb = wave[j];
+    if (s == 1)
+    {
+      WA_P;
+      WB_N
+    }
+    else
+    {
+      WA_N
+      WB_P
+    }
+  }
+  else
+  {
+    pwma = wave[j];
+    pwmb = wave[p];
+
+    if (s == 0)
+    {
+      WA_P
+      WB_P
+    }
+    else
+    {
+      WA_N
+      WB_N
+    }
+  }
+
+  ledcWrite(1, pwma);
+  ledcWrite(2, pwmb);
+}
+#else
 void do_step(stepper *motor)
 {
   if ((motor->state == slew) && (motor->position == motor->target))
@@ -86,6 +173,7 @@ void do_step(stepper *motor)
   }
 
 }
+#endif
 #ifndef DRV_8833
 void move_to (int dir)
 { if (dir < 0) {

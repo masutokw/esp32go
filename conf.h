@@ -14,7 +14,7 @@
 #define IR_PIN 15
 #define SDA_PIN 21
 #define SCL_PIN 22
-#define PROTO
+//#define PROTO
 #ifdef PROTO
 #define CLOCK_OUT_AZ 4
 #define DIR_OUT_AZ 2
@@ -135,3 +135,4 @@
 #define IR_FILE "/remote.config"
 #define SSID_AP  "ESP32go"
 #define PASS_AP  "boquerones"
+#define M_STEP

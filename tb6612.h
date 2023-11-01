@@ -8,6 +8,8 @@
 #define WB_N  digitalWrite(BIN_1, 0); digitalWrite(BIN_2, 1); //set  V- for B winding
 #define WB_O  digitalWrite(BIN_1, 0); digitalWrite(BIN_2, 0); //set  V0 for B winding
 #define WA_O  digitalWrite(AIN_1, 0); digitalWrite(AIN_2, 0);//set  V+ for A winding
+//#define WB_O  digitalWrite(BIN_1, 1); digitalWrite(BIN_2, 1); //set  V0 for B winding
+//#define WA_O  digitalWrite(AIN_1, 1); digitalWrite(AIN_2, 1);//set  V+ for A winding
 enum motor_state
 { slew, stop, synced };
 typedef struct stepper
@@ -22,10 +24,13 @@ typedef struct stepper
     int pcounter;
     short resolution;
     double temperature;
-    int period,periodtemp;
+    int period,periodtemp,ustep_index;
+   
+    
 
 }
 stepper;
+void generate_wave(int percent);
 void init_stepper(stepper *motor);
 void move_to(stepper *motor,long int  target);
 void move_to(stepper *motor, long int  target,int period);

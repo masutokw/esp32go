@@ -282,7 +282,7 @@ void serialtask(void)
 }
 
 void setup()
-{
+{ generate_wave(255);
   delay(300);
   pinMode(ENABLE_AZ, OUTPUT);
   pinMode(ENABLE_ALT, OUTPUT);

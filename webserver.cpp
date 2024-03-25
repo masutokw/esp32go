@@ -1,3 +1,5 @@
+#include "conf.h"
+#ifdef WEB_INTERFACE
 #include "time.h"
 #include "taki.h"
 #include "webserver.h"
@@ -25,7 +27,7 @@ extern char sync_target;
 extern int  focuspeed;
 extern int  focuspeed_low;
 extern int focusmax;
-extern  int align_star_index,encb;
+extern  int align_star_index, encb;
 extern c_star st_1, st_2;
 extern  time_t init_time;
 extern stepper focus_motor;
@@ -536,14 +538,14 @@ void handleMonitor(void)
 { char page[900];
   char buffra[12];
   char buffdec[12];
-  time_t  now  =time(nullptr);
-  int enc=0;
+  time_t  now  = time(nullptr);
+  int enc = 0;
 #ifdef ENCODER
- if (encb)enc=read_raw_encoder();
+  if (encb)enc = read_raw_encoder();
 #endif
-  
-  
- // Serial.println(RTC_now.unixtime());
+
+
+  // Serial.println(RTC_now.unixtime());
   //timeval tv = { RTC_now.unixtime(), 0 };
   if (telescope->mount_mode) lxprintra(buffra, st_current.ra);
   else mount_lxra_str(buffra, telescope);
@@ -566,7 +568,7 @@ void handleMonitor(void)
            telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
            altbackcounter, clients_connected, focus_motor.position,
            (telescope->azmotor->slewing || telescope->altmotor->slewing) ? 1 : 0,
-           telescope->is_tracking , &buffra, &buffdec,encb,enc, wifi_pad_IP2, wifi_pad_IP3,ctime(&now)); //
+           telescope->is_tracking , &buffra, &buffdec, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now)); //
 
 
 
@@ -621,8 +623,8 @@ void handleMain(void)
   content += "</table></fieldset> <fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Info</legend>";
   content += "<table style='width:250px'>";
   content += "<button onclick=\"location.href='/time'\" class=\"button_red\" type=\"button\">Sync Date/Time</button><button onclick=\"location.href='/monitor'\" class=\"button_red\" type=\"button\">Monitor Counters</button></table></fieldset>";
-  
-  content += "<br>Loaded at Time :" + String(ctime(&now)) +String(NTP_Sync ? "NTP OK":"RTC")+ "<br></body></html>";
+
+  content += "<br>Loaded at Time :" + String(ctime(&now)) + String(NTP_Sync ? "NTP OK" : "RTC") + "<br></body></html>";
   serverweb.send(200, "text/html", content);
 }
 
@@ -689,4 +691,6 @@ void initwebserver(void)
   });
 
   serverweb.begin();
+ 
 }
+#endif

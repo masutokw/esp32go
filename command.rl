@@ -14,14 +14,19 @@
 #include <math.h>
 #include "tb6612.h"
 #include "focus.h"
+#include "FS.h"
+#ifdef NUNCHUCK_CONTROL
+#include "nunchuck.h"
+#endif
 
 char response [200];
-char tmessage[50];
+//char tmessage[50];
+char tmessage[300];
 extern c_star st_now, st_target, st_current;
 extern char volatile sync_target;
 extern stepper focus_motor;
-extern int  focuspeed;
-extern int  focuspeed_low;
+extern int  focusmax,focuspeed;
+extern int  focuspeed_low,focusvolt,focusinv;
 struct _telescope_
 {   long dec_target,ra_target;
     long alt_target,az_target;
@@ -34,11 +39,59 @@ struct _telescope_
 mount;
 extern long sdt_millis;
 extern mount_t *telescope;
-
+void conf(void);
 void lxprintsite(void)
 {
     sprintf(tmessage,"Site Name#");APPEND;
 };
+
+void appcmd(char cmd)
+{switch(cmd)
+{
+	
+  case 'z':sprintf(tmessage,"%d",telescope->azmotor->maxcounter);
+  break;
+  case 'a':sprintf(tmessage,"%d",telescope->altmotor->maxcounter);
+  break;
+  case 'g':sprintf(tmessage,"%f",telescope->rate[0][0]);
+  break;
+  case 'j':sprintf(tmessage,"%f",telescope->rate[0][1]);
+    break;
+  case 'A':conf();
+ 
+  break;
+  
+}
+
+
+}
+void conf(void)
+{
+	
+	sprintf(tmessage,"%d\r\n%d\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.4f\r\n%.6f\r\n%.6f\r\n%d\r\n%d\r\n%d\r\n%d\r\n%.0f\r\n%.0f\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n",
+          telescope->azmotor->maxcounter, telescope->altmotor->maxcounter,
+          telescope->rate[0][0], telescope->rate[1][0], telescope->rate[2][0], telescope->rate[3][0],
+          telescope->rate[0][1], telescope->rate[1][1], telescope->rate[2][1], telescope->rate[3][1],
+		  telescope->prescaler,
+          telescope->longitude, telescope->lat, telescope->time_zone,
+		  focusmax, focuspeed_low, focuspeed,
+		 telescope->azmotor->acceleration / SEC_TO_RAD, telescope->altmotor->acceleration / SEC_TO_RAD,
+		 telescope->azmotor->backlash, telescope->altmotor->backlash,
+		  telescope->mount_mode ,telescope->track, telescope->autoflip, telescope->azmotor->cw,
+		  telescope->altmotor->cw, focusvolt * focusinv,  telescope->azmotor->active, telescope->altmotor->active
+		 );
+			 
+		
+          
+         	 
+}
+void conf_write(char *text,const char *filename)
+{ File f = SPIFFS.open(filename,"w");
+  if (!f) exit;
+     f.print(text);
+	 f.close();   
+   
+  }
 
 
 void set_cmd_exe(char cmd,long date)
@@ -88,7 +141,7 @@ void set_cmd_exe(char cmd,long date)
         setclock (mount.year,mount.month,mount.day,mount.hour,mount.min,mount.sec,telescope->time_zone);
         //setclock (22,8,01,14,6,12,telescope->time_zone);
         break;
-    case 'S':
+    case 'S': 
         break;
 
     }
@@ -118,13 +171,27 @@ void set_time( int hour,int min,int sec)
     mount.sec=sec;
     sprintf(tmessage,"1");APPEND;
 }
+void setnunchuk(char enable)
+{
+	#ifdef NUNCHUCK_CONTROL
+	 if (enable=='1')
+  {
+    nunchuck_init(SDA_PIN, SCL_PIN);
+    nunchuck_disable(FALSE);
+    
+  }
+  else
+    nunchuck_disable(TRUE);
+#endif
+}
 
 //----------------------------------------------------------------------------------------
 long command( char *str )
 {
     char *p = str, *pe = str + strlen( str );
     int cs;
-    char stcmd;
+    char stcmd,*mark;
+	
     long deg=0;
     int min=0;
     int sec=0;
@@ -191,6 +258,7 @@ long command( char *str )
         action addmin {deg=deg*3600+min*60;}
         action addsec {deg+=sec;}
         action storecmd {stcmd=fc;}
+		action markinput {stcmd=fc;mark=p;mark++;}
         action setdate {set_date(min,deg,sec);}
         action return_align{if (telescope->mount_mode==ALTAZ) sprintf(tmessage,"A");else if (telescope->track) sprintf(tmessage,"P"); else sprintf(tmessage,"L"); APPEND; }
 		action set_gmt_offset{ telescope->time_zone=-deg*neg;}
@@ -210,6 +278,8 @@ long command( char *str )
 		action f_moving {sprintf(tmessage,"%d#",focus_motor.state<stop);APPEND;}
 		action goto_home{mount_goto_home(telescope);}
 		action home{mount_home_set(telescope);}
+		action getpierside {sprintf(tmessage,"%s#",(get_pierside(telescope)? "WEST" : "EAST"));APPEND;}
+		action setpierside{meridianflip(telescope,stcmd='w');}
 		action set_land {telescope->track=0;telescope->azmotor->targetspeed=0.0;}
 		action set_polar {telescope->track=1;}
 		action set_altaz {;}
@@ -222,6 +292,7 @@ long command( char *str )
 		action a_time {sprintf(tmessage,"00:00:00#") ;APPEND;}
 		action a_firm {sprintf(tmessage,"43Eg#") ;APPEND;}
 		action  set_ip {setwifipad(ip3,ip2);}
+		action cmd_app {appcmd(stcmd);APPEND;}
 		action syncmode {if ((fc>='0')&&(fc<'3'))telescope->smode=fc-'0';
 						else if ((fc=='3')&&(telescope->mount_mode>EQ)){
 							 telescope->is_tracking = FALSE;
@@ -229,7 +300,15 @@ long command( char *str )
 							tak_init(telescope);
         					telescope->azmotor->targetspeed = 0.0;
 							telescope->altmotor->targetspeed = 0.0;}
+		
 		}
+	action writeconf {switch (stcmd){ 
+						case 's':conf_write(mark,MOUNT_FILE);break;
+						case 'w':conf_write(mark,WIFI_FILE);break;
+						case 'n':conf_write(mark,NETWORK_FILE);break;
+						}
+						}
+	action nunchuk {setnunchuk(stcmd);}				
 # LX200  auxiliary terms syntax definitions
         sexmin =  ([0-5][0-9])$getmin@addmin ;
         sex= ([0-5][0-9] )$getsec@addsec ((('.'|',')digit{1,2}){,1})':'{0,1};
@@ -288,15 +367,22 @@ long command( char *str )
 		f_moving='B'%f_moving;
 		Focuser='F'(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel|f_moving);
 # custom
-		Park = ('pH'%home)|('hP'%goto_home);
+		Park = ('pH'%home)|('hP'%goto_home)|('pS'%getpierside) |(('ps')('e'|'w')@setpierside)|('pnk'('0'|'1')@nunchuk);
 		IP_PAD ='IP' ((digit$getip3){1,3} '.' (digit$getip2){1,3})%set_ip;
 		Sync_mode='a'digit$syncmode;
 #autostar
         Autostar='GV'('D'%a_date | 'N'%a_number | 'P'%a_product | 'T'%a_time | 'F'%a_firm) ;
+		
+#app commands
+		cgfsend=[zagjA]@storecmd %cmd_app;
+		cgfwrite=[snw]@markinput extend* %writeconf ;
+		Appcmd= 'c'(cgfsend | cgfwrite);
+		
+		
 
 		
 #main
-		main :=   ((ACK|''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar | IP_PAD | Sync_mode)  '#')* ;
+		main :=   ((ACK|''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar | IP_PAD | Sync_mode| Appcmd)  '#')* ;
 		#main :=   ACK | (( ACK | ''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar)'#')* ;
 		
 # Initialize and execute.

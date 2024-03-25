@@ -4,14 +4,14 @@ int32_t max_steps;
 stepper focus_motor;
 extern Ticker  focuser_tckr;
 extern int8_t focusinv;
-extern int focusvolt, focusspd_current;
+extern int focusvolt, focusspd_current, focuspeed_low;
 #define LOG2(n) (((sizeof(unsigned int) * CHAR_BIT) - 1) - (__builtin_clz((n))))
 #define WAVE_SIZE 32
 #define MSTEPS 8
-#define MSTEPS_DIV 3
 #define MSTEPS4 (MSTEPS*4)
 const static uint16_t wave_f[] = {0, 12, 25, 37, 50, 62, 74, 86, 98, 109, 121, 131, 142, 153, 163, 172, 181,
-                              190, 198, 206, 213, 220, 226, 232, 237, 241, 245, 249, 251, 252, 253, 254, 255};
+                                  190, 198, 206, 213, 220, 226, 232, 237, 241, 245, 249, 251, 252, 253, 254, 255
+                                 };
 
 uint16_t wave[MSTEPS + 1];
 unsigned int mdiv = LOG2(MSTEPS);
@@ -55,7 +55,7 @@ void move_to(stepper *motor, long int  target)
     motor->resolution = -1;
   else if ((motor->target) > motor->position)
     motor->resolution = 1;
-
+  //if (period >10) motor.resolution*=4
 
 }
 void move_to(stepper *motor, long int  target, int period)
@@ -75,26 +75,25 @@ void move_to(stepper *motor, long int  target, int period)
     motor->resolution = -1;
   else if ((motor->target) > motor->position)
     motor->resolution = 1;
-
-
+#ifdef M_STEP
+  if (period < focuspeed_low) motor->resolution *= (MSTEPS / 4);
+#endif
 }
+
 #ifdef M_STEP
 void do_step(stepper *motor)
 {
   uint8_t p, s, j;
   uint16_t  pwma, pwmb;
-  // speedup();
+
   if ((motor->position == motor->target) && (motor->resolution != 0))
   {
     motor->resolution = 0;
-    //  set_speed(fspeedt);
-    motor->target = 0xF0000000;
-    // return;
+   // motor->target = 0xF0000000;
     focuser_tckr.detach();
   }
 
-  //  speedup();
-#ifdef BACKSLASH_COMP
+ #ifdef BACKSLASH_COMP
   if (dir < 0)
   {
     if (backcounter == 0) position += motor->resolution;

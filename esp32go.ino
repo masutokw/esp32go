@@ -43,7 +43,7 @@ RTC_IC rtc;
 #endif
 const char *TZstr = "GMT-1";
 extern long sdt_millis;
-#if __has_include("wifipaiss.h")
+#if __has_include("wifipass.h")
 #include "wifipass.h" //comment wifipass.h and uncomment for your  wifi parameters
 #else
 const char* ssid = "MyWIFI";
@@ -60,7 +60,7 @@ BluetoothSerial SerialBT;
 WebServer serverweb(WEB_PORT);
 HTTPUpdateServer httpUpdater;
 bool bnunchuk = 0;
-char buff[70] = "Waiting for connection..";
+char buff[512] = "Waiting for connection..";
 const char *pin = "0000";
 extern char  response[200];
 byte otab = 0;
@@ -310,7 +310,9 @@ void setup()
 
 #endif
   // SerialBT.enableSSP();
-  SerialBT.begin(BT_NAME);
+  uint8_t baseMac[6];
+  esp_read_mac(baseMac, ESP_MAC_BT);
+  SerialBT.begin(BT_NAME+String(baseMac[4],HEX)+"_"+String(baseMac[5],HEX));
   SerialBT.setPin(pin);
   WiFi.mode(WIFI_AP_STA);
   if (!SPIFFS.begin())
@@ -392,8 +394,12 @@ void setup()
     init_time = time(nullptr);
 
   }
-
+#ifdef WEB_INTERFACE
   initwebserver();
+#else
+ serverweb.begin(); 
+ 
+#endif
   // focuser_tckr.attach_ms(5, do_step, &focus_motor);
   if (telescope->mount_mode == EQ)
   {

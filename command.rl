@@ -279,7 +279,7 @@ long command( char *str )
 		action goto_home{mount_goto_home(telescope);}
 		action home{mount_home_set(telescope);}
 		action getpierside {sprintf(tmessage,"%s#",(get_pierside(telescope)? "WEST" : "EAST"));APPEND;}
-		action setpierside{meridianflip(telescope,stcmd='w');}
+		action setpierside{meridianflip(telescope,fc=='w');}
 		action set_land {telescope->track=0;telescope->azmotor->targetspeed=0.0;}
 		action set_polar {telescope->track=1;}
 		action set_altaz {;}
@@ -308,7 +308,7 @@ long command( char *str )
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						}
 						}
-	action nunchuk {setnunchuk(stcmd);}				
+	action nunchuk {setnunchuk(fc);}				
 # LX200  auxiliary terms syntax definitions
         sexmin =  ([0-5][0-9])$getmin@addmin ;
         sex= ([0-5][0-9] )$getsec@addsec ((('.'|',')digit{1,2}){,1})':'{0,1};
@@ -395,6 +395,7 @@ long command( char *str )
         //	fprintf( stderr, "LX command:  error\n" );
 
         return  neg;
+		return 0;
 };
 
 

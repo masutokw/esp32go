@@ -1986,11 +1986,11 @@ tr196:
 	goto st141;
 tr422:
 #line 311 "command.rl"
-	{setnunchuk(stcmd);}
+	{setnunchuk((*p));}
 	goto st141;
 tr423:
 #line 282 "command.rl"
-	{meridianflip(telescope,stcmd='w');}
+	{meridianflip(telescope,(*p)=='w');}
 	goto st141;
 st141:
 	if ( ++p == pe )
@@ -2045,11 +2045,11 @@ tr199:
 	goto st144;
 tr411:
 #line 311 "command.rl"
-	{setnunchuk(stcmd);}
+	{setnunchuk((*p));}
 	goto st144;
 tr412:
 #line 282 "command.rl"
-	{meridianflip(telescope,stcmd='w');}
+	{meridianflip(telescope,(*p)=='w');}
 	goto st144;
 st144:
 	if ( ++p == pe )
@@ -4814,6 +4814,7 @@ case 302:
         //	fprintf( stderr, "LX command:  error\n" );
 
         return  neg;
+		return 0;
 };
 
 

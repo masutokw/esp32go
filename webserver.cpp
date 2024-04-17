@@ -554,7 +554,7 @@ void handleMonitor(void)
   buffdec[3] = ':';
   snprintf(page, 900,
            "<html>\
-<head> <meta http-equiv='refresh' content='3'><style>" BUTTTEXTT "</style>"AUTO_SIZE"</head>\
+<head> <meta http-equiv='refresh' content='3'><style>" BUTTTEXTT "</style>" AUTO_SIZE" </head>\
 <body  bgcolor=\"#000000\" text=\"#5599ff\"><h2>Monitor</h2> \
 <br>AZ Counter: %ld <br>Alt Counter: %ld \
 <br>AZ Back Counter: %d<br>Alt Back Counter: %d \

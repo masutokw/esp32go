@@ -80,6 +80,7 @@ void conf(void)
 		  telescope->mount_mode ,telescope->track, telescope->autoflip, telescope->azmotor->cw,
 		  telescope->altmotor->cw, focusvolt * focusinv,  telescope->azmotor->active, telescope->altmotor->active
 		 );
+		  readconfig(telescope);
 			 
 		
           
@@ -169,7 +170,7 @@ void set_time( int hour,int min,int sec)
     mount.min=min;
     mount.hour=hour;
     mount.sec=sec;
-    sprintf(tmessage,"1");APPEND;
+    sprintf(tmessage,"%c",'1');APPEND;
 }
 void setnunchuk(char enable)
 {
@@ -303,7 +304,7 @@ long command( char *str )
 		
 		}
 	action writeconf {switch (stcmd){ 
-						case 's':conf_write(mark,MOUNT_FILE);break;
+						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						}

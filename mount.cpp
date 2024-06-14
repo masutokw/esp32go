@@ -15,6 +15,7 @@ Ticker pulse_dec_tckr, pulse_ra_tckr;
 char sel_flag;
 char volatile sync_target = TRUE;
 char volatile sync_stop = FALSE;
+extern char tzstr[50];
 extern stepper focus_motor;
 mount_t* create_mount(void)
 {
@@ -446,8 +447,9 @@ int readconfig(mount_t *mt)
   mt->lat = s.toFloat();
   mt->hmf = (mt->lat < 0) ? -1 : 1;
   s = f.readStringUntil('\n');
-  mt->time_zone = s.toInt();
-
+   mt->time_zone = s.toInt();
+  if (((mt->time_zone)==0)&& (s.length()>2 ))
+  { strcpy(tzstr,s.c_str());}
   s = f.readStringUntil('\n');
   focusmax = focus_motor.max_steps = s.toInt();
   s = f.readStringUntil('\n');

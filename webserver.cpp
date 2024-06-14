@@ -44,6 +44,7 @@ extern c_star st_current;
 //extern bool n_disable;
 extern WiFiClient serverClients[MAX_SRV_CLIENTS];
 extern bool NTP_Sync ;
+extern char tzstr[50];
 String getContentType(String filename)
 {
   if (serverweb.hasArg("download")) return "application/octet-stream";
@@ -70,7 +71,7 @@ void handleConfig(void)
   now = time(nullptr);
   if (serverweb.hasArg("MAXCOUNTER") && serverweb.hasArg("MAXCOUNTER_ALT"))
   {
-    snprintf(temp, 300, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+    snprintf(temp, 500, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
              serverweb.arg("MAXCOUNTER"), serverweb.arg("MAXCOUNTER_ALT"),
              serverweb.arg("GUIDE"), serverweb.arg("CENTER"), serverweb.arg("FIND"), serverweb.arg("SLEW"),
              serverweb.arg("GUIDEA"), serverweb.arg("CENTERA"), serverweb.arg("FINDA"), serverweb.arg("SLEWA"),
@@ -104,7 +105,7 @@ void handleConfig(void)
   }
   snprintf(temp, 4500,
 
-           "<html><style>"  BUTTTEXTT "</style>" AUTO_SIZE \
+           "<html><style>"  BUTTTEXTT TEXTT2 "</style>" AUTO_SIZE \
            "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/config' method='POST'><h2>ESP32go NUNCHUK</h2>\
 <fieldset style=\"width:15%; border-radius:15px\"> <legend>Mount parameters:</legend><table style='width:250px'>\
 <tr><th><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Main</button></th><th>Azimuth</th><th>Altitude</th></tr>\
@@ -134,7 +135,8 @@ void handleConfig(void)
 <fieldset style=\"width:15% ; border-radius:15px\"> <legend>Geodata</legend>\
 <table style='width:250px'><tr><td>Longitude:</td><td><input type='number' step='any' name='LONGITUDE' class=\"text_red\" value='%.4f'></td></tr>\
 <tr><td>Latitude:</td><td><input type='number'step='any'  name='LATITUDE' class=\"text_red\"  value='%.4f'></td></tr>\
-<tr><td>GMT offset:</td><td><input type='number'step='1' name='TIMEZONE' class=\"text_red\" value='%d'></td></tr></table>\
+<tr><td>GMT offset:</td><td><input type='number'step='1' name='TIMEZONE' class=\"text_red\" value='%d'></td></tr>\
+ <tr><td>TZ IANA<input type='text' name='IANA' class=\"text_red2\" value='%s'></td></tr> </table>\
 </fieldset></form><br>\
 <br>Load Time : %s \
 <br>%s \
@@ -148,7 +150,7 @@ void handleConfig(void)
            telescope->mount_mode == EQ ?  "checked" : "", telescope->mount_mode == ALTAZ ?  "checked" : "", telescope->mount_mode == ALIGN ?  "checked" : "",
            telescope->autoflip ? "checked" : "", telescope->azmotor->cw ?  "checked" : "", telescope->altmotor->cw ?  "checked" : "", telescope->azmotor->active ?  "checked" : "", telescope->altmotor->active ?  "checked" : "",
            focusmax, focuspeed_low, focuspeed, focusvolt * focusinv,
-           telescope->longitude, telescope->lat, telescope->time_zone, ctime(&now), &msg);
+           telescope->longitude, telescope->lat, telescope->time_zone, &tzstr, ctime(&now), &msg);
   serverweb.send(200, "text/html", temp);
 }
 
@@ -538,7 +540,14 @@ void handleMonitor(void)
 { char page[900];
   char buffra[12];
   char buffdec[12];
+  char times[300];
   time_t  now  = time(nullptr);
+  time_t t = time(NULL);
+  int fg;
+  fg=getoffset();
+  sprintf(times, "UTC:%s  %d", asctime(gmtime(&t)),fg);
+
+
   int enc = 0;
 #ifdef ENCODER
   if (encb)enc = read_raw_encoder();
@@ -563,12 +572,12 @@ void handleMonitor(void)
 <br>RA: %s<br>De: %s  \
 <br>PEC:%d  %d<br>\
 <br>WifiPAD IP : X.X%d.%d<br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>\
- Date %s \
+ Date %s <br> %s \
 </body></html>",
            telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
            altbackcounter, clients_connected, focus_motor.position,
            (telescope->azmotor->slewing || telescope->altmotor->slewing) ? 1 : 0,
-           telescope->is_tracking , &buffra, &buffdec, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now)); //
+           telescope->is_tracking , &buffra, &buffdec, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times); //
 
 
 
@@ -691,6 +700,6 @@ void initwebserver(void)
   });
 
   serverweb.begin();
- 
+
 }
 #endif

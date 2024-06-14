@@ -37,6 +37,7 @@ void setclock (int year,int month,int day,int hour,int min,int sec,int gmt);
 void ln_get_equ_prec (double mean_ra,double mean_dec, double JD,double  *position_ra,double  *position_dec);
 long getDecimal(float val);
 void setwifipad(int ip3, int ip2);
+int getoffset(void);
 
 
 #endif

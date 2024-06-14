@@ -5,6 +5,7 @@ long sdt_millis;
 extern WiFiClass Wifi;
 extern int  wifi_pad_IP3;
 extern int wifi_pad_IP2;
+char tzstr[50] = TZ_SPAIN;
 void sdt_init(double longitude, int tz)
 {
   sdt_millis = millis();
@@ -103,7 +104,7 @@ void lxprintde(char* message, double ang)
 
 };
 void lxprintra1(char *message, double ang)
-{  if (ang<0) ang=abs(2*M_PI-ang);
+{ if (ang < 0) ang = abs(2 * M_PI - ang);
   int seconds = ang * RAD_TO_DEG * 3600.0;
   int x = trunc (seconds) / 15.0;
   int rest = ((seconds % 15) * 2) / 3;
@@ -117,7 +118,7 @@ void lxprintra1(char *message, double ang)
   sprintf(message, "%02d:%02d:%02d.%d#", gra, min, sec, rest);
 };
 void lxprintra(char *message, double ang)
-{ if (ang<0) ang=abs(2*M_PI-ang);
+{ if (ang < 0) ang = abs(2 * M_PI - ang);
   int x = ang * RAD_TO_DEG * 3600.0 / 15.0;
   int gra = x / 3600;
   int temp = (x % 3600);
@@ -217,33 +218,31 @@ void setclock (int year, int month, int day, int hour, int min, int sec, int gmt
   tv.tv_usec = 0;
   settimeofday(&tv, nullptr);
 
-}/*
-  void config_NTP(int zone, int dls)
-  {
-  #define NUEVO
-  #ifdef NUEVO
-    char tx[10];
-    int x = zone;
-    char c = '-';
-  // configTime(TZ_Europe_Madrid, "pool.ntp.org");
-    if (x < 0)
-    {
-        x = -x;
-        c = '+';
-    }
-    sprintf(tx, "GMT%c%x", c, x);
-    configTime(tx, "pool.ntp.org");
-    setenv ("TZ", tx, 1);
-    tzset ();
-  #else
-    configTime(zone * 3600, dls * 3600,  "pool.ntp.org");
-  #endif
-  }
-*/
+}
+
 void config_NTP(int zone, int dls)
 {
+  char tx[10];
+  //  configTime(0, 0,  "pool.ntp.org");
+  if (zone) {
+    sprintf(tx, "<%+03d>%d", zone, -zone);
+    configTzTime(tx, "pool.ntp.org");
+    setenv("TZ", tx, 1);
+  }
+  else {
+    setenv("TZ", tzstr , 1);
+    configTzTime( tzstr, "pool.ntp.org");
+  }
+
+  tzset();
+
+}
+
+/*
+  void config_NTP(int zone, int dls)
+  {
   configTime(zone * 3600, dls * 3600,"pool.ntp.org");
-#ifdef RETRY_NTP
+  #ifdef RETRY_NTP
   // check DNS first to avoid timeouts
   IPAddress ip;
   if (Wifi.hostByName("pool.ntp.org", ip) != 1 )
@@ -255,8 +254,8 @@ void config_NTP(int zone, int dls)
     n++;
     configTime(zone * 3600, dls * 3600,  "pool.ntp.org");
   }
-#endif
-}
+  #endif
+  }*/
 
 void enc_to_eq(double x, double y, double *a, double  *b, char *pier)
 {
@@ -359,7 +358,7 @@ long getDecimal(float val)
   else if (decPart = 0)return (0);       //return 0 if decimal part of float number is not available
   return 0;
 }
-void setwifipad(int ip3,int ip2)
+void setwifipad(int ip3, int ip2)
 {
   if ((ip3 > 0) && (ip3 < 255)) {
     wifi_pad_IP3 = ip3;
@@ -369,6 +368,32 @@ void setwifipad(int ip3,int ip2)
 
 
 }
+int getoffset(void) {
+
+  time_t  rawt;
+  struct tm *tinfo;
+  struct tm  linfo, ginfo;
+  int y;
+
+
+  rawt  = time(nullptr);
+  tinfo = localtime( &rawt );
+
+  gmtime_r( &rawt, &ginfo);
+  localtime_r( &rawt, &linfo);
+linfo.tm_isdst=0;
+
+  time_t g = mktime(&ginfo);
+  time_t l = mktime(&linfo);
+
+  double offsetSeconds = l-g;// difftime( g, l );
+  int    offsetHours   = (int)offsetSeconds / (60 * 60);
+
+
+  return   offsetHours;//linfo.tm_isdst ? offsetHours + 1 : offsetHours;
+}
+
+
 
 /*
 

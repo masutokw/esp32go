@@ -9,3 +9,6 @@ do.bat
 Nuevo documento de texto.txt
 esp32go.ino.esp32.bin
 esp32go.ino.esp32.bin
+*.bin
+esp32go.ino.esp32.bin
+/data

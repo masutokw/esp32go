@@ -411,6 +411,7 @@ void setup()
   else
   {
     tak_init(telescope);
+    mount_track_off(telescope);
     speed_control_tckr.attach_ms(SPEED_CONTROL_TICKER, thread_motor2, telescope);
     // counters_poll_tkr.attach_ms(COUNTERS_POLL_TICKER, track, telescope);
   }

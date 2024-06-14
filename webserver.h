@@ -34,7 +34,9 @@
 #define BUTT ".button_red {text-align: right; background-color:" BUT_BG ";color:" BUT_COLOR ";border-color:" BUT_BORDER_COLOR"; border-radius:" BUT_BORDER "}"
 #define AUTO_SIZE "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
 #define TEXTT  ".text_red {text-align: right;height:20px; width:90px; background-color:black;color: "  TEXT_COL " ;border:0}"
+
 #define TEXTT1  ".text_red {text-align: right;height:20px; width:45px; background-color:black;color:"  TEXT_COL ";border:1}"
+#define TEXTT2  ".text_red2 {text-align: right;height:20px; width:190px; background-color:black;color: "  TEXT_COL " ;border:0}"
 #define BUTTTEXTT  BUTT TEXTT
 extern WebServer serverweb;
 extern mount_t *telescope;

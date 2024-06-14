@@ -14,7 +14,7 @@
 #define IR_PIN 15
 #define SDA_PIN 21
 #define SCL_PIN 22
-//#define PROTO
+#define PROTO
 #ifdef PROTO
 #define CLOCK_OUT_AZ 4
 #define DIR_OUT_AZ 2
@@ -118,8 +118,8 @@
 
 
 //On slow pulse detect stepper driver as DRV8825 comment out
-//#define AZ_P_DELAY 23
-//#define ALT_P_DELAY 23
+#define AZ_P_DELAY 23
+#define ALT_P_DELAY 23
 // Use NCP as default position for EQ mount
 //#define NCP_HOME
 // Retry NTP connection up to 3 trimes to get network time before mount init
@@ -136,3 +136,4 @@
 #define SSID_AP  "ESP32go"
 #define PASS_AP  "boquerones"
 #define M_STEP
+#define TZ_SPAIN "CET-1CEST,M3.5.0,M10.5.0/3"

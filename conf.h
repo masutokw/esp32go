@@ -121,11 +121,11 @@
 #define AZ_P_DELAY 23
 #define ALT_P_DELAY 23
 // Use NCP as default position for EQ mount
-//#define NCP_HOME
+#define NCP_HOME
 // Retry NTP connection up to 3 trimes to get network time before mount init
 //#define RETRY_NTP
 //Trace WIFI lx200 protocol using output serial interface
-//#define LX200TRACE
+#define LX200TRACE
 //#define  BT_TRACE_USB
 #define AZBACKSPD 226
 #define ALTBACKSPD 226

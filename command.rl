@@ -376,6 +376,7 @@ long command( char *str )
 		f_query='p'%fquery;
 		f_go='A'([\+]|[\-]@neg)digit{5}$getfocuscounter %fmove_to;
 		f_moving='B'%f_moving;
+		f_speed=digit;
 		Focuser='F'(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel|f_moving);
 # custom
 		Park = ('pH'%home)|('hP'%goto_home)|('pS'%getpierside)|('pF'%getflip)  |(('ps')('e'|'w')@setpierside)|('pnk'('0'|'1')@nunchuk)|('pa'('0'|'1')@autoflip);

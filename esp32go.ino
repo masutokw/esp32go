@@ -438,7 +438,10 @@ void setup()
   digitalWrite(ENABLE_ALT, EN_DRIVER);
   digitalWrite(AZ_RES, 1);
   digitalWrite(ALT_RES, 1);
-
+  #ifdef FYSECT
+  pinMode(CLOCK_OUT_FOCUS, OUTPUT);
+  pinMode(DIR_OUT_FOCUS, OUTPUT);
+#endif
   // Use 1st timer of 4 (counted from zero).
   // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
   // info).

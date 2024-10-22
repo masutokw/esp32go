@@ -6,6 +6,7 @@
 #include <SPIFFS.h>
 #include "BluetoothSerial.h"
 #include "sntp.h"
+#include "fysetc.h"
 //#define   RTC_IC RTC_DS3231
 //#define   RTC_IC RTC_DS1307
 #define WEB_INTERFACE
@@ -14,6 +15,20 @@
 #define IR_PIN 15
 #define SDA_PIN 21
 #define SCL_PIN 22
+//#define FYSECT
+#ifdef FYSECT
+#define CLOCK_OUT_AZ X_STEP
+#define DIR_OUT_AZ X_DIR
+#define CLOCK_OUT_ALT Y_STEP
+#define DIR_OUT_ALT Y_DIR
+#define ENABLE_AZ MOTOR_EN
+#define ENABLE_ALT MOTOR_EN
+#define AZ_RES 17
+#define ALT_RES 19
+#define CLOCK_OUT_FOCUS E_STEP 
+#define DIR_OUT_FOCUS E_DIR
+
+#else
 #define PROTO
 #ifdef PROTO
 #define CLOCK_OUT_AZ 4
@@ -33,6 +48,7 @@
 #define ENABLE_ALT 23
 #define AZ_RES 16
 #define ALT_RES 19
+#endif
 #endif
 //optional
 //#define ENABLE_HIGH
@@ -73,7 +89,6 @@
 #endif
 
 //#define DC_FOCUS
-
 //#define DRV_8833
 #ifdef DRV_8833
 #define PWM_A 33
@@ -86,6 +101,7 @@
 #define AIN_1 33
 #define AIN_2 32
 #endif
+
 #define BIN_1 14
 #define BIN_2 27
 
@@ -125,7 +141,7 @@
 // Retry NTP connection up to 3 trimes to get network time before mount init
 //#define RETRY_NTP
 //Trace WIFI lx200 protocol using output serial interface
-#define LX200TRACE
+//#define LX200TRACE
 //#define  BT_TRACE_USB
 #define AZBACKSPD 226
 #define ALTBACKSPD 226
@@ -135,5 +151,7 @@
 #define IR_FILE "/remote.config"
 #define SSID_AP  "ESP32go"
 #define PASS_AP  "boquerones"
-#define M_STEP
+//#define M_STEP
 #define TZ_SPAIN "CET-1CEST,M3.5.0,M10.5.0/3"
+//selected rate at boot 0:guide,1:center,2:find,3:slew.
+#define I_SELECT_RATE 3

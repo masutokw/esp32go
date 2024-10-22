@@ -35,7 +35,7 @@ mount_t* create_mount(void)
   m->rate[2][1] = RATE_FIND;
   m->rate[1][1] = RATE_CENTER;
   m->rate[0][1] = RATE_GUIDE;
-  m->srate = 0;
+  m->srate = 3;
   m->maxspeed[0] = (m->rate[3][0] *  SID_RATE_RAD);
   m->maxspeed[1] = (m->rate[3][1] *  SID_RATE_RAD);
   m->longitude = LOCAL_LONGITUDE;
@@ -435,7 +435,7 @@ int readconfig(mount_t *mt)
       s = f.readStringUntil('\n');
       mt->rate[n][j] = s.toFloat();
     };
-  mt->srate = 0;
+  mt->srate = I_SELECT_RATE ;
   mt->maxspeed[0] = (mt->rate[3][0] *  SID_RATE_RAD);
   mt->maxspeed[1] = (mt->rate[3][1] *  SID_RATE_RAD);
   s = f.readStringUntil('\n');
@@ -497,6 +497,8 @@ void mount_track_off(mount_t *mt)
   mt->altmotor->slewing = mt->azmotor->slewing = mt->is_tracking = FALSE;
   mt->altmotor->targetspeed = 0.0;
   mt->azmotor->targetspeed = 0.0;
+  mount_park(mt);
+  
 }
 void mount_park(mount_t *mt)
 

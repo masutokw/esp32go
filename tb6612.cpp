@@ -89,11 +89,11 @@ void do_step(stepper *motor)
   if ((motor->position == motor->target) && (motor->resolution != 0))
   {
     motor->resolution = 0;
-   // motor->target = 0xF0000000;
+    // motor->target = 0xF0000000;
     focuser_tckr.detach();
   }
 
- #ifdef BACKSLASH_COMP
+#ifdef BACKSLASH_COMP
   if (dir < 0)
   {
     if (backcounter == 0) position += motor->resolution;
@@ -204,7 +204,9 @@ void move_to (int dir)
 
 
 void step_out(uint8_t step)
-{ if (focusinv < 0)step = 7 - step;
+{
+#ifndef FYSECT
+  if (focusinv < 0)step = 7 - step;
   switch (step) {
     case 0: WA_P; WB_N; break;
     case 1: WA_P; WB_O; break;
@@ -217,4 +219,13 @@ void step_out(uint8_t step)
     default: break;
 
   }
+#else
+  if  (focus_motor.resolution > 0)
+    digitalWrite( DIR_OUT_FOCUS, 1);
+  else digitalWrite( DIR_OUT_FOCUS, 0);
+  digitalWrite(CLOCK_OUT_FOCUS, 0);
+  char pulse_w;
+  for (pulse_w = 0; pulse_w < 23; pulse_w++) __asm__ __volatile__("nop;nop;nop;nop;nop;nop;nop;");
+  digitalWrite(CLOCK_OUT_FOCUS, 1);
+#endif
 }

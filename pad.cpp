@@ -53,8 +53,7 @@ void doEvent(void)
       event[0] = 3;
       break;
     case 1:
-      if (digitalRead(PIN_MODE)) mount_stop(telescope, 'n')
-      else telescope->srate = (telescope->srate +5) % 4;
+      mount_stop(telescope, 'n');
       event[0] = 3;
       break;
   }
@@ -62,7 +61,8 @@ void doEvent(void)
   switch (event[1])
   {
     case  0:
-      mount_move(telescope, 's');
+      if (digitalRead(PIN_MODE)) mount_move(telescope, 's');
+      else  telescope->srate = (telescope->srate + 5) % 4;
       event[1] = 3;
       break;
     case 1:

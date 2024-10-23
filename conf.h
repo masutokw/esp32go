@@ -29,7 +29,7 @@
 #define DIR_OUT_FOCUS E_DIR
 
 #else
-#define PROTO
+//#define PROTO
 #ifdef PROTO
 #define CLOCK_OUT_AZ 4
 #define DIR_OUT_AZ 2

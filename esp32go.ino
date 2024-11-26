@@ -312,7 +312,7 @@ void setup()
   // SerialBT.enableSSP();
   uint8_t baseMac[6];
   esp_read_mac(baseMac, ESP_MAC_BT);
-  SerialBT.begin(BT_NAME+String(baseMac[4],HEX)+"_"+String(baseMac[5],HEX));
+  SerialBT.begin(BT_NAME + String(baseMac[4], HEX) + "_" + String(baseMac[5], HEX));
   SerialBT.setPin(pin);
   WiFi.mode(WIFI_AP_STA);
   if (!SPIFFS.begin())
@@ -397,8 +397,8 @@ void setup()
 #ifdef WEB_INTERFACE
   initwebserver();
 #else
- serverweb.begin(); 
- 
+  serverweb.begin();
+
 #endif
   // focuser_tckr.attach_ms(5, do_step, &focus_motor);
   if (telescope->mount_mode == EQ)
@@ -438,9 +438,11 @@ void setup()
   digitalWrite(ENABLE_ALT, EN_DRIVER);
   digitalWrite(AZ_RES, 1);
   digitalWrite(ALT_RES, 1);
-  #ifdef FYSECT
+#ifdef STEP_FOCUS
   pinMode(CLOCK_OUT_FOCUS, OUTPUT);
   pinMode(DIR_OUT_FOCUS, OUTPUT);
+  pinMode(ENABLE_FOCUS, OUTPUT);
+  digitalWrite(ENABLE_FOCUS, EN_DRIVER);
 #endif
   // Use 1st timer of 4 (counted from zero).
   // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more

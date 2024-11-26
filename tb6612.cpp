@@ -205,7 +205,7 @@ void move_to (int dir)
 
 void step_out(uint8_t step)
 {
-#ifndef FYSECT
+#ifndef STEP_FOCUS
   if (focusinv < 0)step = 7 - step;
   switch (step) {
     case 0: WA_P; WB_N; break;

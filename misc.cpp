@@ -219,13 +219,14 @@ void setclock (int year, int month, int day, int hour, int min, int sec, int gmt
   settimeofday(&tv, nullptr);
 
 }
-
+/*
 void config_NTP(int zone, int dls)
 {
   char tx[10];
   //  configTime(0, 0,  "pool.ntp.org");
   if (zone) {
-    sprintf(tx, "<%+03d>%d", zone, -zone);
+  //  sprintf(tx, "<%+03d>%d", -zone, zone);
+   sprintf(tx, "<%+03d>%d", zone, -zone);
     configTzTime(tx, "pool.ntp.org");
     setenv("TZ", tx, 1);
   }
@@ -236,9 +237,9 @@ void config_NTP(int zone, int dls)
 
   tzset();
 
-}
+}*/
 
-/*
+
   void config_NTP(int zone, int dls)
   {
   configTime(zone * 3600, dls * 3600,"pool.ntp.org");
@@ -255,7 +256,7 @@ void config_NTP(int zone, int dls)
     configTime(zone * 3600, dls * 3600,  "pool.ntp.org");
   }
   #endif
-  }*/
+  }
 
 void enc_to_eq(double x, double y, double *a, double  *b, char *pier)
 {

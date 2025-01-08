@@ -534,9 +534,9 @@ void loop()
 #endif
 
 #ifdef OTA
-  if ((counter++ % 10 == 0) && (otab))
+  if ((counter % 10 == 0) && (otab))
     ArduinoOTA.handle();
-
 #endif
   //step_out(stepcounter++ % 8);
+  counter++;
 }

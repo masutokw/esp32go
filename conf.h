@@ -15,7 +15,7 @@
 #define IR_PIN 15
 #define SDA_PIN 21
 #define SCL_PIN 22
-#define STEP_FOCUS
+//#define STEP_FOCUS
 //#define FYSECT_BRD
 #ifdef FYSECT_BRD
 #define CLOCK_OUT_AZ X_STEP
@@ -141,7 +141,7 @@
 #define AZ_P_DELAY 23
 #define ALT_P_DELAY 23
 // Use NCP as default position for EQ mount
-#define NCP_HOME
+//#define NCP_HOME
 // Retry NTP connection up to 3 trimes to get network time before mount init
 //#define RETRY_NTP
 //Trace WIFI lx200 protocol using output serial interface

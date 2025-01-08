@@ -268,6 +268,7 @@ long command( char *str )
         action setdate {set_date(min,deg,sec);}
         action return_align{if (telescope->mount_mode==ALTAZ) sprintf(tmessage,"A");else if (telescope->track) sprintf(tmessage,"P"); else sprintf(tmessage,"L"); APPEND; }
 		action set_gmt_offset{ telescope->time_zone=-deg*neg;}
+#		action set_gmt_offset{ telescope->time_zone=deg*neg;}	
 		action return_GMT_offset {lxprintGMT_offset(tmessage,telescope->time_zone );APPEND}
         action settime{set_time(deg,min,sec);}
 		action return_formatTime{sprintf(tmessage,"24#");APPEND;}

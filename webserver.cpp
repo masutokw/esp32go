@@ -607,6 +607,9 @@ void handleMain(void)
   content += "<button onclick=\"location.href='/config'\" class=\"button_red\"   type=\"button\">Mount</button>&ensp; ";
   content += "<button onclick=\"location.href='/network'\" class=\"button_red\"   type=\"button\">WLAN&Network</button><br>";
   content += "<button onclick=\"location.href='/update'\" class=\"button_red\" type=\"button\">Firmware</button>&ensp;";
+#ifdef FYSECT_BRD
+  content += "<button onclick=\"location.href='/tmc'\" class=\"button_red\" type=\"button\">TMC</button>&ensp;";
+#endif
   content += "<button onclick=\"location.href='/restart'\"class=\"button_red\"  type=\"button\">ReStart ESP32go</button></table></fieldset>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Commands</legend>" ;
   content += "<table style='width:250px'>";
@@ -668,6 +671,76 @@ void handleStarInstructions( void)
 
 }
 
+void handleTmc(void)
+{
+  String msg;
+  String tmc_data;
+
+  if (serverweb.hasArg("ra_msteps") && serverweb.hasArg("dec_msteps"))
+  {
+    tmc_data  = serverweb.arg("ra_msteps") + "\n" + serverweb.arg("ra_mamps") + "\n";
+    tmc_data += serverweb.arg("dec_msteps") + "\n" + serverweb.arg("dec_mamps") + "\n";
+    tmc_data += serverweb.arg("z_msteps") + "\n" + serverweb.arg("z_mamps") + "\n";
+    tmc_data += serverweb.arg("e_msteps") + "\n" + serverweb.arg("e_mamps") + "\n";
+
+    File f = SPIFFS.open(TMC_FILE, "w");
+    f.println(tmc_data);
+    f.close();
+    tmc_init();
+  }
+
+  int ra_msteps,ra_mamps,dec_msteps,dec_mamps,z_msteps,z_mamps,e_msteps,e_mamps;
+
+  if (SPIFFS.exists(TMC_FILE))
+  { 
+    File f = SPIFFS.open(TMC_FILE, "r");
+
+    ra_msteps=f.readStringUntil('\n').toInt();
+    ra_mamps=f.readStringUntil('\n').toInt();
+    dec_msteps=f.readStringUntil('\n').toInt();
+    dec_mamps=f.readStringUntil('\n').toInt();
+    z_msteps=f.readStringUntil('\n').toInt();
+    z_mamps=f.readStringUntil('\n').toInt();
+    e_msteps=f.readStringUntil('\n').toInt();
+    e_mamps=f.readStringUntil('\n').toInt();
+
+    f.close();
+  }
+  else
+  {
+    ra_msteps=32;
+    ra_mamps=1000;
+    dec_msteps=32;
+    dec_mamps=1000;
+    z_msteps=8;
+    z_mamps=500;
+    e_msteps=8;
+    e_mamps=500;
+  }
+
+
+  String content = "<html><style>" BUTTTEXTT "</style>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/tmc' method='POST'><h2>ESP32go - TMC</h2>";
+  content += "<fieldset style=\"width:15%;border-radius:15px\"><legend>TMC values</legend><table style='width:200px'>";
+  content += "<tr><td>RA microsteps</td><td><input type='text' name='ra_msteps' class=\"text_red\" value='" + String(ra_msteps) + "'></td></td>";
+  content += "<td><td>RA milliAmps</td><td><input type='text' name='ra_mamps'class=\"text_red\"  value='" + String(ra_mamps) + "'></td></tr>";
+  content += "<tr><td>DEC microsteps</td><td><input type='text' name='dec_msteps' class=\"text_red\" value='" + String(dec_msteps) + "'></td></td>";
+  content += "<td><td>DEC milliAmps</td><td><input type='text' name='dec_mamps'class=\"text_red\"  value='" + String(dec_mamps) + "'></td></tr>";
+  content += "<tr><td>Focus1 microsteps</td><td><input type='text' name='z_msteps' class=\"text_red\" value='" + String(z_msteps) + "'></td></td>";
+  content += "<td><td>Focus1 milliAmps</td><td><input type='text' name='z_mamps'class=\"text_red\"  value='" + String(z_mamps) + "'></td></tr>";
+  content += "<tr><td>Focus2 microsteps</td><td><input type='text' name='e_msteps' class=\"text_red\" value='" + String(e_msteps) + "'></td></td>";
+  content += "<td><td>Focus2 milliAmps</td><td><input type='text' name='e_mamps'class=\"text_red\"  value='" + String(e_mamps) + "'></td></tr>";
+
+  content += "</table>";
+
+  content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Save'></fieldset></form>" + msg + "<br>";
+  content += "<button onclick=\"location.href='/'\"class=\"button_red\" type=\"button\">Back</button> <br>";
+
+  content += "</body></html>";
+
+
+  serverweb.send(200, "text/html", content);
+}
+
 void initwebserver(void)
 {
   serverweb.on("/park", handlePark);
@@ -693,6 +766,7 @@ void initwebserver(void)
   serverweb.on("/monitor", handleMonitor);
   serverweb.on("/starinstructions", handleStarInstructions);
   serverweb.on("/instructions", handleInstructions);
+  serverweb.on("/tmc", handleTmc);
   serverweb.onNotFound([]()
   {
     if (!handleFileRead(serverweb.uri()))

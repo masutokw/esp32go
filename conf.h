@@ -16,7 +16,7 @@
 #define SDA_PIN 21
 #define SCL_PIN 22
 //#define STEP_FOCUS
-#define FYSECT_BRD
+//#define FYSECT_BRD
 #ifdef FYSECT_BRD
 #define CLOCK_OUT_AZ X_STEP
 #define DIR_OUT_AZ X_DIR
@@ -34,7 +34,7 @@
 #define CLOCK_OUT_FOCUS  13 
 #define DIR_OUT_FOCUS 12
 #define ENABLE_FOCUS 14
-#define PROTO
+//#define PROTO
 #ifdef PROTO
 #define CLOCK_OUT_AZ 4
 #define DIR_OUT_AZ 2

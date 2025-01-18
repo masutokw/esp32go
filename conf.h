@@ -16,7 +16,7 @@
 #define SDA_PIN 21
 #define SCL_PIN 22
 //#define STEP_FOCUS
-//#define FYSECT_BRD
+#define FYSECT_BRD
 #ifdef FYSECT_BRD
 #define CLOCK_OUT_AZ X_STEP
 #define DIR_OUT_AZ X_DIR
@@ -24,6 +24,7 @@
 #define DIR_OUT_ALT Y_DIR
 #define ENABLE_AZ MOTOR_EN
 #define ENABLE_ALT MOTOR_EN
+#define ENABLE_FOCUS MOTOR_EN
 #define AZ_RES 17
 #define ALT_RES 19
 #define CLOCK_OUT_FOCUS E_STEP 
@@ -153,6 +154,7 @@
 #define MOUNT_FILE "/mount.config"
 #define NETWORK_FILE "/network.config"
 #define IR_FILE "/remote.config"
+#define TMC_FILE "/tmc.config"
 #define SSID_AP  "ESP32go"
 #define PASS_AP  "boquerones"
 //#define M_STEP

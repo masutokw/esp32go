@@ -1,4 +1,5 @@
 #include "conf.h"
+#ifdef FYSECT_BRD
 #include "fysetc.h"
 #include <TMCStepper.h>
 
@@ -48,3 +49,4 @@ void tmc_init(void)
 #endif
 
 }
+#endif

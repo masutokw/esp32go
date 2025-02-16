@@ -26,6 +26,7 @@
 #define DIR_OUT_ALT Y_DIR
 #define ENABLE_AZ MOTOR_EN
 #define ENABLE_ALT MOTOR_EN
+#define ENABLE_FOCUS MOTOR_EN
 #define AZ_RES 17
 #define ALT_RES 19
 #define CLOCK_OUT_FOCUS E_STEP 
@@ -156,6 +157,7 @@
 #define MOUNT_FILE "/mount.config"
 #define NETWORK_FILE "/network.config"
 #define IR_FILE "/remote.config"
+#define TMC_FILE "/tmc.config"
 #define SSID_AP  "ESP32go"
 #define PASS_AP  "boquerones"
 //#define M_STEP

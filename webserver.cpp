@@ -670,7 +670,7 @@ void handleStarInstructions( void)
    </noframes></html>");
 
 }
-
+#ifdef FYSECT_BRD
 void handleTmc(void)
 {
   String msg;
@@ -740,6 +740,7 @@ void handleTmc(void)
 
   serverweb.send(200, "text/html", content);
 }
+#endif
 
 void initwebserver(void)
 {
@@ -766,7 +767,9 @@ void initwebserver(void)
   serverweb.on("/monitor", handleMonitor);
   serverweb.on("/starinstructions", handleStarInstructions);
   serverweb.on("/instructions", handleInstructions);
+#ifdef FYSECT_BRD  
   serverweb.on("/tmc", handleTmc);
+#endif  
   serverweb.onNotFound([]()
   {
     if (!handleFileRead(serverweb.uri()))

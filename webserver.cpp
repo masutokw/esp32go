@@ -607,7 +607,7 @@ void handleMain(void)
   content += "<button onclick=\"location.href='/config'\" class=\"button_red\"   type=\"button\">Mount</button>&ensp; ";
   content += "<button onclick=\"location.href='/network'\" class=\"button_red\"   type=\"button\">WLAN&Network</button><br>";
   content += "<button onclick=\"location.href='/update'\" class=\"button_red\" type=\"button\">Firmware</button>&ensp;";
-#ifdef FYSECT_BRD
+#ifdef TMC_DRIVERS
   content += "<button onclick=\"location.href='/tmc'\" class=\"button_red\" type=\"button\">TMC</button>&ensp;";
 #endif
   content += "<button onclick=\"location.href='/restart'\"class=\"button_red\"  type=\"button\">ReStart ESP32go</button></table></fieldset>";

@@ -7,6 +7,7 @@
 #include "BluetoothSerial.h"
 #include "sntp.h"
 #include "fysetc.h"
+#include "tmc.h"
 //#define   RTC_IC RTC_DS3231
 //#define   RTC_IC RTC_DS1307
 #define WEB_INTERFACE
@@ -16,7 +17,8 @@
 #define SDA_PIN 21
 #define SCL_PIN 22
 //#define STEP_FOCUS
-#define FYSECT_BRD
+#define TMC_DRIVERS
+//#define FYSECT_BRD
 #ifdef FYSECT_BRD
 #define CLOCK_OUT_AZ X_STEP
 #define DIR_OUT_AZ X_DIR
@@ -30,6 +32,7 @@
 #define CLOCK_OUT_FOCUS E_STEP 
 #define DIR_OUT_FOCUS E_DIR
 #define STEP_FOCUS
+#define TMC_DRIVERS
 #else
 #define CLOCK_OUT_FOCUS  13 
 #define DIR_OUT_FOCUS 12

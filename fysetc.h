@@ -11,6 +11,7 @@
  #define E_DIR 17 //enable o res 
  #define MOTOR_EN 25 //pin mode
 
+ /*
 //---------- TMC
 // IMPORTANT: remove all factory shunts from the board
 // and use a jumper wire to connect the Z-MIN (GPIO15) pin
@@ -27,5 +28,6 @@
 #define TMC_DRIVER_E_ADDRESS 0b10 // TMC2209 Driver address according to MS1 and MS2
 
 void tmc_init(void);
+*/
 
 #endif

@@ -15,7 +15,7 @@
 #ifdef  NUNCHUCK_CONTROL
 #include "nunchuck.h"
 #endif
-#ifdef FYSECT_BRD
+#ifdef TMC_DRIVERS
  #include <TMCStepper.h>
  TMC2209Stepper driver_ra = TMC2209Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE, TMC_DRIVER_RA_ADDRESS);  
  TMC2209Stepper driver_dec = TMC2209Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE, TMC_DRIVER_DEC_ADDRESS); 
@@ -375,7 +375,7 @@ void setup()
 #endif
 
   //start UART and the server
-#ifdef FYSECT_BRD
+#ifdef TMC_DRIVERS
   Serial2.begin(115200, SERIAL_8N1,TMC_SERIAL_RX_PIN,TMC_SERIAL_TX_PIN);
   delay(500);
   driver_ra.begin();

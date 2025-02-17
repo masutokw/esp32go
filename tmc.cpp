@@ -1,9 +1,8 @@
 #include "conf.h"
-#ifdef FYSECT_BRD
-#include "fysetc.h"
+#include "tmc.h"
 #include <TMCStepper.h>
 
-#ifdef FYSECT_BRD
+#ifdef TMC_DRIVERS
 extern TMC2209Stepper driver_ra, driver_dec, driver_z, driver_e;
 #endif
 
@@ -36,7 +35,7 @@ void tmc_init(void)
     e_msteps=8;
     e_mamps=100;
   }
-#ifdef FYSECT_BRD
+#ifdef TMC_DRIVERS
   driver_ra.microsteps(ra_msteps);
   driver_dec.microsteps(dec_msteps);
   driver_z.microsteps(z_msteps);
@@ -49,4 +48,3 @@ void tmc_init(void)
 #endif
 
 }
-#endif

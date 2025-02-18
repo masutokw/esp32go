@@ -9,6 +9,7 @@ extern int  focuspeed_low;
 extern int focusmax;
 extern int8_t focusinv;
 extern int focusvolt;
+extern int dcfocus;
 extern int azcounter, altcounter;
 extern int azbackcounter, altbackcounter;
 Ticker pulse_dec_tckr, pulse_ra_tckr;
@@ -488,6 +489,8 @@ int readconfig(mount_t *mt)
   mt->azmotor->active = s.toInt();
   s = f.readStringUntil('\n');
   mt->altmotor->active = s.toInt();
+  s = f.readStringUntil('\n');
+  dcfocus = s.toInt();
   f.close();
   return 0;
 }

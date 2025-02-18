@@ -27,6 +27,7 @@ extern char sync_target;
 extern int  focuspeed;
 extern int  focuspeed_low;
 extern int focusmax;
+extern int dcfocus;
 extern  int align_star_index, encb;
 extern c_star st_1, st_2;
 extern  time_t init_time;
@@ -71,7 +72,7 @@ void handleConfig(void)
   now = time(nullptr);
   if (serverweb.hasArg("MAXCOUNTER") && serverweb.hasArg("MAXCOUNTER_ALT"))
   {
-    snprintf(temp, 500, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+    snprintf(temp, 500, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
              serverweb.arg("MAXCOUNTER"), serverweb.arg("MAXCOUNTER_ALT"),
              serverweb.arg("GUIDE"), serverweb.arg("CENTER"), serverweb.arg("FIND"), serverweb.arg("SLEW"),
              serverweb.arg("GUIDEA"), serverweb.arg("CENTERA"), serverweb.arg("FINDA"), serverweb.arg("SLEWA"),
@@ -80,7 +81,7 @@ void handleConfig(void)
              serverweb.arg("FOCUSMAX"), serverweb.arg("FOCUSPEEDLOW"), serverweb.arg("FOCUSPEED"),
              serverweb.arg("RAMP"), serverweb.arg("RAMPA"), serverweb.arg("BACK_AZ"), serverweb.arg("BACK_ALT"),
              serverweb.arg("MOUNT"), serverweb.arg("TRACK"), serverweb.arg("AUTOFLIP"), String(serverweb.hasArg("INVAZ")),
-             String(serverweb.hasArg("INVALT")), serverweb.arg("PWR_DIR"), String(serverweb.hasArg("ACTAZ")), String(serverweb.hasArg("ACTALT")));
+             String(serverweb.hasArg("INVALT")), serverweb.arg("PWR_DIR"), String(serverweb.hasArg("ACTAZ")), String(serverweb.hasArg("ACTALT")), serverweb.arg("DC_FOCUS"));
 
     /*  String temp = serverweb.arg("SLEW");
       telescope->rate[3][0] = temp.toFloat();
@@ -103,6 +104,7 @@ void handleConfig(void)
     }
 
   }
+/*
   snprintf(temp, 4500,
 
            "<html><style>"  BUTTTEXTT TEXTT2 "</style>" AUTO_SIZE \
@@ -152,6 +154,48 @@ void handleConfig(void)
            focusmax, focuspeed_low, focuspeed, focusvolt * focusinv,
            telescope->longitude, telescope->lat, telescope->time_zone, &tzstr, ctime(&now), &msg);
   serverweb.send(200, "text/html", temp);
+*/
+  String content =  "<html><style>"  BUTTTEXTT TEXTT2 "</style>" AUTO_SIZE ;
+  content += "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/config' method='POST'><h2>ESP32go NUNCHUK</h2>";
+  content += "<fieldset style=\"width:15%; border-radius:15px\"> <legend>Mount parameters:</legend><table style='width:250px'>";
+  content += "<tr><th><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Main</button></th><th>Azimuth</th><th>Altitude</th></tr>";
+  content += "<tr><td>Counter</td><td> <input type='number' name='MAXCOUNTER' class=\"text_red\" value='"+String(telescope->azmotor->maxcounter)+"'></td><td> <input type='number' name='MAXCOUNTER_ALT'  class=\"text_red\" value='"+String(telescope->altmotor->maxcounter)+"'></td></tr>";
+  content += "</table><br>";
+  content += "<table style='width:250px'><tr><th>Rate X</th><th>RA/AZ</th><th>Dec/Alt</th></tr>";
+  content += "<tr><td>Guide</td><td><input type='number' step='0.01' name='GUIDE' class=\"text_red\" value='"+String(telescope->rate[0][0],2)+"'></td><td><input type='number' step='0.01' name='GUIDEA' class=\"text_red\" value='"+String(telescope->rate[0][1],2)+"'></td></tr>";
+  content += "<tr><td>Center</td><td><input type='number' step='0.01' name='CENTER' class=\"text_red\" value='"+String(telescope->rate[1][0],2)+"'></td><td><input type='number' step='0.01' name='CENTERA'  class=\"text_red\" value='"+String(telescope->rate[1][1],2)+"'></td></tr>";
+  content += "<tr><td>Find</td><td><input type='number' step='0.01' name='FIND' class=\"text_red\" value='"+String(telescope->rate[2][0],2)+"'></td><td><input type='number' step='0.01' name='FINDA' class=\"text_red\" value='"+String(telescope->rate[2][1],2)+"'></td></tr>";
+  content += "<tr><td>Slew</td><td><input type='number' step='0.01' name='SLEW' class=\"text_red\" value='"+String(telescope->rate[3][0],2)+"'></td><td><input type='number' step='0.01' name='SLEWA' class=\"text_red\" value='"+String(telescope->rate[3][1],2)+"'></td></tr>";
+  content += "<tr><td>Ramp</td><td><input type='number' step='0.01' name='RAMP' class=\"text_red\" value='"+String(telescope->azmotor->acceleration / SEC_TO_RAD,2)+"'></td><td><input type='number' step='0.01' name='RAMPA' class=\"text_red\" value='"+String(telescope->altmotor->acceleration / SEC_TO_RAD,2)+"'></td></tr>";
+  content += "<tr><td>BackSlash</td><td><input type='number' step='1' name='BACK_AZ' class=\"text_red\" value='"+String(telescope->azmotor->backlash)+"'></td><td><input type='number' step='1' name='BACK_ALT' class=\"text_red\" value='"+String(telescope->altmotor->backlash)+"'></td></tr>";
+  content += "<tr><td>Prescaler</td><td><input type='number' step='0.0001' name='PRESCALER' class=\"text_red\" value='"+String(telescope->prescaler,5)+"' uSec</td></tr>";
+  content += "<tr><td>EQ Track</td><td><input type='number' min='0' max='4' title='0.No track 1-Sideral 2-Solar 3-Lunar 4-King.' step='1' name='TRACK'  class=\"text_red\" value ='"+String(telescope->track)+"' </td></tr>";
+  content += "<tr><td>EQ<input type='radio' name='MOUNT' value='0'   "+String(telescope->mount_mode == EQ ?  "checked" : "")+" ></td><td>ALT-AZ<input type='radio' name='MOUNT' value='1' "+String(telescope->mount_mode == ALTAZ ?  "checked" : "")+" ></td><td>EQ2-stars<input type='radio' name='MOUNT' value='2' "+(telescope->mount_mode == ALIGN ?  "checked" : "")+" ></td></tr>";
+  content += "<tr><td>FLIP<input type='checkbox' name='AUTOFLIP' value='1'  "+String(telescope->autoflip ? "checked" : "")+" ></td><td>Invert Az<input type='checkbox' name='INVAZ' value='1' "+String(telescope->azmotor->cw ?  "checked" : "")+" ></td><td>Invert Alt<input type='checkbox' name='INVALT' value='1' "+(telescope->altmotor->cw ?  "checked" : "")+" ></td></tr>";
+  content += "<tr><td>AZ<input type='checkbox' name='ACTAZ' value='1' "+String(telescope->azmotor->active ?  "checked" : "")+"></td><td>ALT<input type='checkbox' name='ACTALT' value='1' "+String(telescope->altmotor->active ?  "checked" : "")+"  ></td></tr>";
+  content += "</table><input type='submit' name='SUBMIT' class=\"button_red\" value='Save'></fieldset>";
+
+  content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Focuser</legend>";
+  content += "<table style='width:250px'><tr><td>Focus Max:</td><td><input type='number'step='1' name='FOCUSMAX' class=\"text_red\" value='"+String(focusmax)+"'></td></tr>";
+  content += "<tr><td>Low Speed:</td><td><input type='number'step='1' name='FOCUSPEEDLOW' class=\"text_red\" value='"+String(focuspeed_low)+"'></td></tr>";
+  content += "<tr><td>Speed</td><td><input type='number'step='1' name='FOCUSPEED' class=\"text_red\" value='"+String(focuspeed)+"'></td></tr><tr>";
+  content += "<td>Volt</td><td><input type='number'step='1' name='PWR_DIR' class=\"text_red\" value='"+String(focusvolt * focusinv)+"'></td></tr>";
+#ifndef STEP_FOCUS
+  content += "<tr><td>Stepper<input type='radio' name='DC_FOCUS' value='0'   "+String(dcfocus == 0 ?  "checked" : "")+" ></td><td>Dc<input type='radio' name='DC_FOCUS' value='1' "+String(dcfocus == 1 ?  "checked" : "")+" ></td></tr>";
+  content += "<tr><td colspan='2'>Handle with care: This option changes TB6612 output pins!</td></tr>";
+#endif
+  content += "<tr><td><button onclick=\"location.href='/focus'\" class=\"button_red\" type=\"button\">Focuser set</button></td></tr></table>";
+  content += "</fieldset>";
+
+  content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Geodata</legend>";
+  content += "<table style='width:250px'><tr><td>Longitude:</td><td><input type='number' step='any' name='LONGITUDE' class=\"text_red\" value='"+String(telescope->longitude,4)+"'></td></tr>";
+  content += "<tr><td>Latitude:</td><td><input type='number'step='any'  name='LATITUDE' class=\"text_red\"  value='"+String(telescope->lat,4)+"'></td></tr>";
+  content += "<tr><td>GMT offset:</td><td><input type='number'step='1' name='TIMEZONE' class=\"text_red\" value='"+String(telescope->time_zone)+"'></td></tr>";
+  content += "<tr><td>TZ IANA<input type='text' name='IANA' class=\"text_red2\" value='"+String(tzstr)+"'></td></tr> </table>";
+  content += "</fieldset></form><br>";
+  content += "<br>Load Time : "+String(ctime(&now))+" <br> "+String(msg);
+  content += "</body></html>";
+  serverweb.send(200, "text/html", content);
 }
 
 
@@ -670,7 +714,7 @@ void handleStarInstructions( void)
    </noframes></html>");
 
 }
-#ifdef FYSECT_BRD
+
 void handleTmc(void)
 {
   String msg;
@@ -740,7 +784,6 @@ void handleTmc(void)
 
   serverweb.send(200, "text/html", content);
 }
-#endif
 
 void initwebserver(void)
 {
@@ -767,9 +810,7 @@ void initwebserver(void)
   serverweb.on("/monitor", handleMonitor);
   serverweb.on("/starinstructions", handleStarInstructions);
   serverweb.on("/instructions", handleInstructions);
-#ifdef FYSECT_BRD  
   serverweb.on("/tmc", handleTmc);
-#endif  
   serverweb.onNotFound([]()
   {
     if (!handleFileRead(serverweb.uri()))

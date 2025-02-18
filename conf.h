@@ -17,6 +17,7 @@
 #define SDA_PIN 21
 #define SCL_PIN 22
 //#define STEP_FOCUS
+#define BUZZER_PIN 26
 #define TMC_DRIVERS
 //#define FYSECT_BRD
 #ifdef FYSECT_BRD
@@ -96,7 +97,6 @@
 #define COUNTERS_POLL_TICKER 100
 #endif
 
-//#define DC_FOCUS
 //#define DRV_8833
 #ifdef DRV_8833
 #define PWM_A 33

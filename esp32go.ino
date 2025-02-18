@@ -518,6 +518,15 @@ void setup()
   encb = init_encoder();
 #endif
 
+#ifdef BUZZER_PIN
+  pinMode(BUZZER_PIN, OUTPUT);
+  //activo
+  digitalWrite(BUZZER_PIN,HIGH);
+  delay(200);
+  digitalWrite(BUZZER_PIN,LOW);
+  // pasivo
+  //tone(BUZZER_PIN,1000,1000);
+#endif
 }
 
 void loop()

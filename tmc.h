@@ -10,7 +10,8 @@
 #define TMC_SERIAL_TX_PIN 15 // FYSETC Z-MIN pin, ESP32 GPIO 15
 #define TMC_SERIAL_RX_PIN 35 // not really used, but needed
 #define TMC_R_SENSE 0.11f 
-
+//#define TMC_TYPE TMC2209Stepper
+#define TMC_TYPE TMC2209Stepper
 #define TMC_DRIVER_RA_ADDRESS 0b01 // TMC2209 Driver address according to MS1 and MS2 (MS1 jumper ON)
 #define TMC_DRIVER_DEC_ADDRESS 0b11 // TMC2209 Driver address according to MS1 and MS2 (MS1 and MS2 jumpers ON)
 #define TMC_DRIVER_Z_ADDRESS 0b00 // TMC2209 Driver address according to MS1 and MS2 (no jumper)

@@ -38,6 +38,12 @@
 #define TEXTT1  ".text_red {text-align: right;height:20px; width:45px; background-color:black;color:"  TEXT_COL ";border:1}"
 #define TEXTT2  ".text_red2 {text-align: right;height:20px; width:190px; background-color:black;color: "  TEXT_COL " ;border:0}"
 #define BUTTTEXTT  BUTT TEXTT
+//#define DCRADIO " "
+//#ifdef STEP_FOCUS 
+#define DCRADIO "<tr><td>Stepper<input type='radio' name='DC_FOCUS' value='0' %s ></td><td>Dc<input type='radio' name='DC_FOCUS' value='1' %s ></td></tr>"
+
+
+//#endif
 extern WebServer serverweb;
 extern mount_t *telescope;
 extern String ssi;

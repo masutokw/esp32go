@@ -2,10 +2,12 @@
 #include "tmc.h"
 #include <TMCStepper.h>
 
-#ifdef TMC_DRIVERS
-extern TMC2209Stepper driver_ra, driver_dec, driver_z, driver_e;
-#endif
 
+#ifdef TMC_DRIVERS
+
+extern TMC_TYPE driver_ra, driver_dec, driver_z, driver_e;
+
+#endif
 void tmc_init(void)
 {
   int ra_msteps,ra_mamps,dec_msteps,dec_mamps,z_msteps,z_mamps,e_msteps,e_mamps;
@@ -45,6 +47,7 @@ void tmc_init(void)
   driver_dec.rms_current(dec_mamps);
   driver_z.rms_current(z_mamps);
   driver_e.rms_current(e_mamps);
+
 #endif
 
 }

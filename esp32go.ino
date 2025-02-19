@@ -12,31 +12,38 @@
 #include "esp32-hal-ledc.h"
 //Comment out undesired Feature at conf.h
 #define FORMAT_SPIFFS_IF_FAILED true
-#ifdef  NUNCHUCK_CONTROL
+#ifdef NUNCHUCK_CONTROL
 #include "nunchuck.h"
 #endif
 #ifdef TMC_DRIVERS
- #include <TMCStepper.h>
- TMC2209Stepper driver_ra = TMC2209Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE, TMC_DRIVER_RA_ADDRESS);  
- TMC2209Stepper driver_dec = TMC2209Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE, TMC_DRIVER_DEC_ADDRESS); 
- TMC2209Stepper driver_z = TMC2209Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE, TMC_DRIVER_Z_ADDRESS);
- TMC2209Stepper driver_e = TMC2209Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE, TMC_DRIVER_E_ADDRESS);
+#include <TMCStepper.h>
+#if TMC_TYPE == TMC2209Stepper
+TMC2209Stepper driver_ra = TMC2209Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE, TMC_DRIVER_RA_ADDRESS);
+TMC2209Stepper driver_dec = TMC2209Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE, TMC_DRIVER_DEC_ADDRESS);
+TMC2209Stepper driver_z = TMC2209Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE, TMC_DRIVER_Z_ADDRESS);
+TMC2209Stepper driver_e = TMC2209Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE, TMC_DRIVER_E_ADDRESS);
+#else
+TMC2208Stepper driver_ra = TMC2208Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE);
+TMC2208Stepper driver_dec = TMC2208Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE);
+TMC2208Stepper driver_z = TMC2208Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE);
+TMC2208Stepper driver_e = TMC2208Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE);
+#endif
 #endif
 volatile int stepcounter1, stepcounter2;
-uint64_t  volatile period_az, period_alt;
+uint64_t volatile period_az, period_alt;
 int volatile azcounter, altcounter, azbackcounter, altbackcounter;
 boolean volatile az_active = true;
-boolean volatile  alt_active = true;
-int  volatile azdir, altdir;
+boolean volatile alt_active = true;
+int volatile azdir, altdir;
 int encb;
 String a;
-hw_timer_t * timer_az = NULL;
-hw_timer_t * timer_alt = NULL;
+hw_timer_t* timer_az = NULL;
+hw_timer_t* timer_alt = NULL;
 #ifdef OTA
 #include <ArduinoOTA.h>
 #include "OTA_helper.hpp"
 #endif
-#ifdef   IR_CONTROL
+#ifdef IR_CONTROL
 #include "ir_control.h"
 #endif
 #include <FS.h>
@@ -48,13 +55,13 @@ RTC_IC rtc;
 #ifdef ENCODER
 #include "encoder.h"
 #endif
-const char *TZstr = "GMT-1";
+const char* TZstr = "GMT-1";
 extern long sdt_millis;
 #if __has_include("wifipass.h")
-#include "wifipass.h" //comment wifipass.h and uncomment for your  wifi parameters
+#include "wifipass.h"  //comment wifipass.h and uncomment for your  wifi parameters
 #else
-const char* ssid = "MyWIFI";
-const char* password = "Mypassword";
+const char *ssid = "MyWIFI";
+const char *password = "Mypassword";
 #endif
 extern volatile int state;
 extern stepper focus_motor;
@@ -68,23 +75,22 @@ WebServer serverweb(WEB_PORT);
 HTTPUpdateServer httpUpdater;
 bool bnunchuk = 0;
 char buff[512] = "Waiting for connection..";
-const char *pin = "0000";
-extern char  response[200];
+const char* pin = "0000";
+extern char response[200];
 byte otab = 0;
-mount_t  *telescope;
+mount_t* telescope;
 c_star volatile st_now, st_target, st_current, st_1, st_2;
 String ssi;
 String pwd;
 Ticker speed_control_tckr, counters_poll_tkr, focuser_tckr;
-extern long command( char *str );
+extern long command(char* str);
 time_t now;
 time_t init_time;
 char counter;
-int  wifi_pad_IP3 = 0;
-int  wifi_pad_IP2 = 0;
+int wifi_pad_IP3 = 0;
+int wifi_pad_IP2 = 0;
 bool NTP_Sync = false;
-void timeavailable(struct timeval *t)
-{
+void timeavailable(struct timeval* t) {
   //Serial.println("Got time adjustment from NTP!");
   NTP_Sync = true;
 #ifdef RTC_IC
@@ -92,64 +98,57 @@ void timeavailable(struct timeval *t)
 #endif
 }
 
-void IRAM_ATTR nunchuk_reset()
-{
+void IRAM_ATTR nunchuk_reset() {
   // nunchuck_init(SDA_PIN, SCL_PIN);
   bnunchuk = true;
 }
 
-void IRAM_ATTR onTimer_az()
-{
+void IRAM_ATTR onTimer_az() {
   uint32_t delay;
   stepcounter1++;
 
-  if (azdir)
-  { digitalWrite(CLOCK_OUT_AZ, 0);
+  if (azdir) {
+    digitalWrite(CLOCK_OUT_AZ, 0);
     int backlash = telescope->azmotor->backlash;
     char active = telescope->azmotor->active;
 
-    if ((azdir == 1) && (azbackcounter == 0) || (azdir == -1) && (azbackcounter == backlash))
-    { azcounter += azdir;
-      if ((active) && (timerAlarmRead(timer_az)) != period_az) timerAlarmWrite(timer_az, period_az , true);
-    }
-    else
-    { azbackcounter += -azdir;
-      if ((active) && (period_az > AZBACKSPD)) timerAlarmWrite(timer_az, AZBACKSPD , true);
+    if ((azdir == 1) && (azbackcounter == 0) || (azdir == -1) && (azbackcounter == backlash)) {
+      azcounter += azdir;
+      if ((active) && (timerAlarmRead(timer_az)) != period_az) timerAlarmWrite(timer_az, period_az, true);
+    } else {
+      azbackcounter += -azdir;
+      if ((active) && (period_az > AZBACKSPD)) timerAlarmWrite(timer_az, AZBACKSPD, true);
     }
 
 
     if (azcounter < 0) azcounter = telescope->azmotor->maxcounter;
-    if (azcounter > telescope->azmotor->maxcounter)  azcounter = 0;
+    if (azcounter > telescope->azmotor->maxcounter) azcounter = 0;
   }
 #ifdef AZ_P_DELAY
   char pulse_w;
   for (pulse_w = 0; pulse_w < AZ_P_DELAY; pulse_w++) __asm__ __volatile__("nop;nop;nop;nop;nop;nop;nop;");
 #endif
   digitalWrite(CLOCK_OUT_AZ, 1);
-
 }
 
-void IRAM_ATTR onTimer_alt()
-{
+void IRAM_ATTR onTimer_alt() {
   stepcounter2++;
-  if (altdir)
-  { digitalWrite(CLOCK_OUT_ALT, 0);
+  if (altdir) {
+    digitalWrite(CLOCK_OUT_ALT, 0);
     int backlash = telescope->altmotor->backlash;
     char active = telescope->altmotor->active;
 
 
-    if ((altdir == 1) && (altbackcounter == 0) || (altdir == -1) && (altbackcounter == backlash))
-    { altcounter += altdir;
-      if   ((active) && (timerAlarmRead(timer_alt)) != period_alt) timerAlarmWrite(timer_alt, period_alt , true);
-    }
-    else
-    {
+    if ((altdir == 1) && (altbackcounter == 0) || (altdir == -1) && (altbackcounter == backlash)) {
+      altcounter += altdir;
+      if ((active) && (timerAlarmRead(timer_alt)) != period_alt) timerAlarmWrite(timer_alt, period_alt, true);
+    } else {
       altbackcounter += -altdir;
-      if   ((active) && (period_az > ALTBACKSPD)) timerAlarmWrite(timer_alt, ALTBACKSPD, true);
+      if ((active) && (period_az > ALTBACKSPD)) timerAlarmWrite(timer_alt, ALTBACKSPD, true);
     }
 
     if (altcounter < 0) altcounter = telescope->altmotor->maxcounter;
-    if (altcounter > telescope->altmotor->maxcounter)  altcounter = 0;
+    if (altcounter > telescope->altmotor->maxcounter) altcounter = 0;
   }
 
 #ifdef ALT_P_DELAY
@@ -170,48 +169,42 @@ void IRAM_ATTR onTimer_alt()
 //SSD1306 display(0x3c, D5, D6);
 #endif
 
-void bttask(void)
-{
-  if (SerialBT.available())
-  {
+void bttask(void) {
+  if (SerialBT.available()) {
     char n = 0;
-    while (SerialBT.available())  buff[n++] = (char) SerialBT.read() ;
+    while (SerialBT.available()) buff[n++] = (char)SerialBT.read();
     buff[n] = 0;
 
     //  Serial.write((const uint8_t* )buff, n);
     command(buff);
 #ifdef LX200TRACE
-    Serial.write((const uint8_t* )buff, strlen(buff));
+    Serial.write((const uint8_t*)buff, strlen(buff));
     Serial.print("   ");
 #endif
     buff[n] = 0;
-    SerialBT.write((const uint8_t* )response, strlen(response));
+    SerialBT.write((const uint8_t*)response, strlen(response));
 #ifdef LX200TRACE
-    Serial.write((const uint8_t* )response, strlen(response));
+    Serial.write((const uint8_t*)response, strlen(response));
     Serial.println();
 #endif
   }
 }
 
-int net_task(void)
-{
+int net_task(void) {
   int lag = millis();
   size_t n;
   uint8_t i, j;
   //Sky Safari does not make a persistent connection, so each commnad query is managed as a single independent client.
-  if (server.hasClient())
-  {
-    for (i = 0; i < MAX_SRV_CLIENTS; i++)
-    {
+  if (server.hasClient()) {
+    for (i = 0; i < MAX_SRV_CLIENTS; i++) {
       //find free/disconnected spot
-      if (!serverClients[i] || !serverClients[i].connected())
-      {
+      if (!serverClients[i] || !serverClients[i].connected()) {
         if (serverClients[i]) serverClients[i].stop();
         serverClients[i] = server.available();
         //kill connections with marked selected ip for wifipad
-        if ((serverClients[i].remoteIP()[3] == wifi_pad_IP3) && (serverClients[i].remoteIP()[2] == wifi_pad_IP2))
-        { for (j = 0; j < MAX_SRV_CLIENTS; j++) {
-            if ((serverClients[j].remoteIP()[3] == wifi_pad_IP3 ) && (serverClients[j].remoteIP()[2] == wifi_pad_IP2) && ( j != i))
+        if ((serverClients[i].remoteIP()[3] == wifi_pad_IP3) && (serverClients[i].remoteIP()[2] == wifi_pad_IP2)) {
+          for (j = 0; j < MAX_SRV_CLIENTS; j++) {
+            if ((serverClients[j].remoteIP()[3] == wifi_pad_IP3) && (serverClients[j].remoteIP()[2] == wifi_pad_IP2) && (j != i))
               serverClients[j].stop();
           }
         }
@@ -221,84 +214,75 @@ int net_task(void)
     //Only one client at time, so reject
     // WiFiClient serverClient = server.available();
     // serverClient.stop();
-    if (i >= MAX_SRV_CLIENTS)
-    {
+    if (i >= MAX_SRV_CLIENTS) {
       //no free/disconnected spot so reject
       server.available().stop();
     }
   }
   //check clients for data
   clients_connected = 0;
-  for (i = 0; i < MAX_SRV_CLIENTS; i++)
-  {
-    if (serverClients[i] && serverClients[i].connected())
-    {
+  for (i = 0; i < MAX_SRV_CLIENTS; i++) {
+    if (serverClients[i] && serverClients[i].connected()) {
       clients_connected++;
-      if (serverClients[i].available())
-      {
+      if (serverClients[i].available()) {
         //get data from the  client and push it to LX200 FSM
 
-        while (serverClients[i].available())
-        {
+        while (serverClients[i].available()) {
           delay(1);
           size_t n = serverClients[i].available();
           serverClients[i].readBytes(buff, n);
-          buff[n ] = 0;
+          buff[n] = 0;
           command(buff);
 #ifdef LX200TRACE
-          Serial.write((const uint8_t* )buff, strlen(buff));
+          Serial.write((const uint8_t*)buff, strlen(buff));
           Serial.print("   ");
 #endif
           buff[n] = 0;
           serverClients[i].write((char*)response, strlen(response));
 #ifdef LX200TRACE
-          Serial.write((const uint8_t* )response, strlen(response));
+          Serial.write((const uint8_t*)response, strlen(response));
           Serial.println();
 #endif
           //checkfsm();
         }
-
       }
-    }
-    else if (serverClients[i]) {
+    } else if (serverClients[i]) {
       serverClients[i].stop();
     }
   }
   return millis() - lag;
 }
-void serialtask(void)
-{
-  if (Serial.available())
-  {
+void serialtask(void) {
+  if (Serial.available()) {
     char n = 0;
     delay(2);
-    while (Serial.available())  buff[n++] = (char) Serial.read() ;
+    while (Serial.available()) buff[n++] = (char)Serial.read();
 #ifdef BT_TRACE_USB
-    SerialBT.write((const uint8_t* )buff, n);
+    SerialBT.write((const uint8_t*)buff, n);
     SerialBT.println(n);
 #endif
     buff[n] = 0;
     command(buff);
     buff[n] = 0;
-    Serial.write((const uint8_t* )response, strlen(response));
+    Serial.write((const uint8_t*)response, strlen(response));
 #ifdef BT_TRACE_USB
-    SerialBT.write((const uint8_t* )response, strlen(response));
+    SerialBT.write((const uint8_t*)response, strlen(response));
     SerialBT.println();
 #endif
   }
 }
 
-void setup()
-{ generate_wave(255);
+void setup() {
+  generate_wave(255);
   delay(300);
   pinMode(ENABLE_AZ, OUTPUT);
   pinMode(ENABLE_ALT, OUTPUT);
   digitalWrite(ENABLE_AZ, DEN_DRIVER);
   digitalWrite(ENABLE_ALT, DEN_DRIVER);
   Serial.begin(BAUDRATE);
-  ledcAttachPin(PWM_B, 1); // assign RGB led pins to channels
+  ledcAttachPin(PWM_B, 1);  // assign RGB led pins to channels
   ledcAttachPin(PWM_A, 2);
-  ledcSetup(1, 10000, 8); // 12 kHz PWM, 8-bit resolution
+  ledcSetup(1, 10000, 8);  // 12 kHz PWM, 8-bit resolution
   ledcSetup(2, 10000, 8);
   ledcWrite(1, focusvolt);
   ledcWrite(2, focusvolt);
@@ -306,10 +290,10 @@ void setup()
   oled_initscr();
 #endif
 #ifdef RTC_IC
-  if (! rtc.begin())
+  if (!rtc.begin())
     Serial.println("Couldn't find RTC");
-  else
-  { RTC_now = rtc.now();
+  else {
+    RTC_now = rtc.now();
     // Serial.println(RTC_now.unixtime());
     timeval tv = { RTC_now.unixtime(), 0 };
     settimeofday(&tv, nullptr);
@@ -322,35 +306,31 @@ void setup()
   SerialBT.begin(BT_NAME + String(baseMac[4], HEX) + "_" + String(baseMac[5], HEX));
   SerialBT.setPin(pin);
   WiFi.mode(WIFI_AP_STA);
-  if (!SPIFFS.begin())
-  { SPIFFS.begin(true);
+  if (!SPIFFS.begin()) {
+    SPIFFS.begin(true);
     ESP.restart();
   }
-  File f ;
-  if (SPIFFS.exists(WIFI_FILE))
-  { f = SPIFFS.open(WIFI_FILE, FILE_READ);
+  File f;
+  if (SPIFFS.exists(WIFI_FILE)) {
+    f = SPIFFS.open(WIFI_FILE, FILE_READ);
     ssi = f.readStringUntil('\n');
     pwd = f.readStringUntil('\n');
     ssi.trim();
     pwd.trim();
     WiFi.begin(ssi.c_str(), pwd.c_str());
     f.close();
-  }
-  else
-  {
+  } else {
     WiFi.begin(ssid, password);
-
   }
   WiFi.softAP(SSID_AP, PASS_AP);
 
-  if (SPIFFS.exists(NETWORK_FILE))
-  { f = SPIFFS.open(NETWORK_FILE, "r");
+  if (SPIFFS.exists(NETWORK_FILE)) {
+    f = SPIFFS.open(NETWORK_FILE, "r");
     IPAddress ip;
     IPAddress gateway;
     IPAddress subnet;
     IPAddress dns;
-    if (ip.fromString(f.readStringUntil('\n')) && subnet.fromString(f.readStringUntil('\n')) && gateway.fromString(f.readStringUntil('\n')) + dns.fromString(f.readStringUntil('\n')))
-    {
+    if (ip.fromString(f.readStringUntil('\n')) && subnet.fromString(f.readStringUntil('\n')) && gateway.fromString(f.readStringUntil('\n')) + dns.fromString(f.readStringUntil('\n'))) {
       WiFi.config(ip, gateway, subnet, dns);
       otab = f.readStringUntil('\n').toInt();
     }
@@ -368,7 +348,7 @@ void setup()
   delay(500);
   uint8_t i = 0;
   while (WiFi.status() != WL_CONNECTED && i++ < 20) delay(500);
-  if  (WiFi.status() != WL_CONNECTED) WiFi.disconnect(true);
+  if (WiFi.status() != WL_CONNECTED) WiFi.disconnect(true);
 
 #ifdef OLED_DISPLAY
   oled_waitscr();
@@ -376,9 +356,16 @@ void setup()
 
   //start UART and the server
 #ifdef TMC_DRIVERS
-  Serial2.begin(115200, SERIAL_8N1,TMC_SERIAL_RX_PIN,TMC_SERIAL_TX_PIN);
+  Serial2.begin(115200, SERIAL_8N1, TMC_SERIAL_RX_PIN, TMC_SERIAL_TX_PIN);
   delay(500);
-  driver_ra.begin();
+ driver_ra.begin();
+  driver_ra.en_spreadCycle(0);
+  driver_ra.intpol(1);
+  driver_ra.mstep_reg_select(1);
+  driver_ra.toff(5);
+  driver_ra.microsteps(16);
+  driver_ra.rms_current(1000);
+  /*driver_ra.begin();
   driver_dec.begin();
   driver_z.begin();
   driver_e.begin();
@@ -388,7 +375,8 @@ void setup()
   driver_z.toff(5);
   driver_e.toff(5);
 
-  tmc_init();
+
+  tmc_init();*/
 #endif
 
 #ifdef OLED_DISPLAY
@@ -401,20 +389,17 @@ void setup()
   init_stepper(&focus_motor);
   readconfig(telescope);
   httpUpdater.setup(&serverweb);
-  sntp_set_time_sync_notification_cb( timeavailable );
+  sntp_set_time_sync_notification_cb(timeavailable);
   config_NTP(telescope->time_zone, 0);
-  if  (WiFi.status() == WL_CONNECTED)
-  {
+  if (WiFi.status() == WL_CONNECTED) {
     int cn = 0;
     now = time(nullptr);
 
-    while ((now < EPOCH_1_1_2023) && (cn++) < 5)
-    {
+    while ((now < EPOCH_1_1_2023) && (cn++) < 5) {
       delay(500);
       now = time(nullptr);
     }
     init_time = time(nullptr);
-
   }
 #ifdef WEB_INTERFACE
   initwebserver();
@@ -423,15 +408,12 @@ void setup()
 
 #endif
   // focuser_tckr.attach_ms(5, do_step, &focus_motor);
-  if (telescope->mount_mode == EQ)
-  {
+  if (telescope->mount_mode == EQ) {
     sdt_init(telescope->longitude, telescope->time_zone);
     speed_control_tckr.attach_ms(SPEED_CONTROL_TICKER, thread_motor, telescope);
     // counters_poll_tkr.attach_ms(COUNTERS_POLL_TICKER, eq_track, telescope);
 
-  }
-  else
-  {
+  } else {
     tak_init(telescope);
     mount_track_off(telescope);
     speed_control_tckr.attach_ms(SPEED_CONTROL_TICKER, thread_motor2, telescope);
@@ -490,18 +472,18 @@ void setup()
   WA_O;
   WB_O;
   focuser_tckr.detach();
-  if (telescope->mount_mode == EQ) telescope->azmotor->targetspeed =  telescope->track_speed ;
+  if (telescope->mount_mode == EQ) telescope->azmotor->targetspeed = telescope->track_speed;
 
 #ifdef PAD
   pad_Init();
-#endif //PAD
+#endif  //PAD
 
 #ifdef NUNCHUCK_CONTROL
   pinMode(SDA_PIN, INPUT_PULLUP);
   pinMode(SCL_PIN, INPUT_PULLUP);
-  nunchuck_init( SDA_PIN, SCL_PIN);
+  nunchuck_init(SDA_PIN, SCL_PIN);
 #ifdef OLED_DISPLAY
-  nunchuck_init( SDA_PIN, SCL_PIN); // si no se inicializa otra vez, no se detecta bien el nunchuck al inicio cuando esta el OLED activado
+  nunchuck_init(SDA_PIN, SCL_PIN);  // si no se inicializa otra vez, no se detecta bien el nunchuck al inicio cuando esta el OLED activado
 #endif
 
 #endif
@@ -521,16 +503,15 @@ void setup()
 #ifdef BUZZER_PIN
   pinMode(BUZZER_PIN, OUTPUT);
   //activo
-  digitalWrite(BUZZER_PIN,HIGH);
+  digitalWrite(BUZZER_PIN, HIGH);
   delay(200);
-  digitalWrite(BUZZER_PIN,LOW);
+  digitalWrite(BUZZER_PIN, LOW);
   // pasivo
   //tone(BUZZER_PIN,1000,1000);
 #endif
 }
 
-void loop()
-{
+void loop() {
   delay(10);
   net_task();
 #ifndef BT_TRACE_USB
@@ -546,14 +527,14 @@ void loop()
   if (counter % 17 == 0)
     ir_read();
 #endif
-#ifdef  NUNCHUCK_CONTROL
-  if (bnunchuk)
-  {
+#ifdef NUNCHUCK_CONTROL
+  if (bnunchuk) {
     nunchuck_init(SDA_PIN, SCL_PIN);
     nunchuck_disable(nunchuck_read() == 0);
     bnunchuk = 0;
+   
   };
-  if (counter % 10  == 3)
+  if (counter % 10 == 3)
     nunchuck_read();
 #endif
 

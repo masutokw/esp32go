@@ -16,7 +16,6 @@
 #define IR_PIN 15
 #define SDA_PIN 21
 #define SCL_PIN 22
-//#define STEP_FOCUS
 #define BUZZER_PIN 26
 #define TMC_DRIVERS
 //#define FYSECT_BRD
@@ -32,7 +31,7 @@
 #define ALT_RES 19
 #define CLOCK_OUT_FOCUS E_STEP 
 #define DIR_OUT_FOCUS E_DIR
-#define STEP_FOCUS
+//#define STEP_FOCUS
 #define TMC_DRIVERS
 #else
 #define CLOCK_OUT_FOCUS  13 

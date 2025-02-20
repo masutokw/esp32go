@@ -17,17 +17,13 @@
 #endif
 #ifdef TMC_DRIVERS
 #include <TMCStepper.h>
-#if TMC_TYPE == TMC2209Stepper
-TMC2209Stepper driver_ra = TMC2209Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE, TMC_DRIVER_RA_ADDRESS);
-TMC2209Stepper driver_dec = TMC2209Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE, TMC_DRIVER_DEC_ADDRESS);
-TMC2209Stepper driver_z = TMC2209Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE, TMC_DRIVER_Z_ADDRESS);
-TMC2209Stepper driver_e = TMC2209Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE, TMC_DRIVER_E_ADDRESS);
-#else
-TMC2208Stepper driver_ra = TMC2208Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE);
-TMC2208Stepper driver_dec = TMC2208Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE);
-TMC2208Stepper driver_z = TMC2208Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE);
-TMC2208Stepper driver_e = TMC2208Stepper(&TMC_SERIAL_PORT, TMC_R_SENSE);
-#endif
+
+TMC_DEVICE driver_ra = TMC_DEVICE(&TMC_SERIAL_PORT, TMC_R_SENSE TMC_DRIVER_RA_ADDRESS);
+TMC_DEVICE driver_dec = TMC_DEVICE(&TMC_SERIAL_PORT, TMC_R_SENSE TMC_DRIVER_DEC_ADDRESS);
+TMC_DEVICE driver_z = TMC_DEVICE(&TMC_SERIAL_PORT, TMC_R_SENSE TMC_DRIVER_Z_ADDRESS);
+TMC_DEVICE driver_e = TMC_DEVICE(&TMC_SERIAL_PORT, TMC_R_SENSE TMC_DRIVER_E_ADDRESS);
+
+
 #endif
 volatile int stepcounter1, stepcounter2;
 uint64_t volatile period_az, period_alt;
@@ -60,8 +56,8 @@ extern long sdt_millis;
 #if __has_include("wifipass.h")
 #include "wifipass.h"  //comment wifipass.h and uncomment for your  wifi parameters
 #else
-const char *ssid = "MyWIFI";
-const char *password = "Mypassword";
+const char* ssid = "MyWIFI";
+const char* password = "Mypassword";
 #endif
 extern volatile int state;
 extern stepper focus_motor;
@@ -358,14 +354,7 @@ void setup() {
 #ifdef TMC_DRIVERS
   Serial2.begin(115200, SERIAL_8N1, TMC_SERIAL_RX_PIN, TMC_SERIAL_TX_PIN);
   delay(500);
- driver_ra.begin();
-  driver_ra.en_spreadCycle(0);
-  driver_ra.intpol(1);
-  driver_ra.mstep_reg_select(1);
-  driver_ra.toff(5);
-  driver_ra.microsteps(16);
-  driver_ra.rms_current(1000);
-  /*driver_ra.begin();
+  driver_ra.begin();
   driver_dec.begin();
   driver_z.begin();
   driver_e.begin();
@@ -374,9 +363,8 @@ void setup() {
   driver_dec.toff(5);
   driver_z.toff(5);
   driver_e.toff(5);
-
-
-  tmc_init();*/
+  tmc_init();
+  
 #endif
 
 #ifdef OLED_DISPLAY
@@ -532,7 +520,6 @@ void loop() {
     nunchuck_init(SDA_PIN, SCL_PIN);
     nunchuck_disable(nunchuck_read() == 0);
     bnunchuk = 0;
-   
   };
   if (counter % 10 == 3)
     nunchuck_read();

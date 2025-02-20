@@ -96,7 +96,7 @@ void handleConfig(void) {
       snprintf(msg, 42, "Config Saved at %s ", ctime(&now));
     }
   }
-//First  page chunk
+  //First  page chunk
   snprintf(temp, 4500,
 
            "<html><style>" BUTTTEXTT TEXTT2 "</style>" AUTO_SIZE
@@ -149,7 +149,7 @@ void handleConfig(void) {
 <br>%s \
 </body></html>",
            focusmax, focuspeed_low, focuspeed, focusvolt * focusinv,
-           dcfocus == 0 ?  "checked" : "",dcfocus == 1 ?  "checked" : "",
+           dcfocus == 0 ? "checked" : "", dcfocus == 1 ? "checked" : "",
            telescope->longitude, telescope->lat, telescope->time_zone, &tzstr, ctime(&now), &msg);
   serverweb.sendContent(temp);
   serverweb.sendContent("");
@@ -631,15 +631,17 @@ void handleStarInstructions(void) {
 void handleTmc(void) {
   String msg;
   String tmc_data;
+  char temp[4000];
 
   if (serverweb.hasArg("ra_msteps") && serverweb.hasArg("dec_msteps")) {
-    tmc_data = serverweb.arg("ra_msteps") + "\n" + serverweb.arg("ra_mamps") + "\n";
-    tmc_data += serverweb.arg("dec_msteps") + "\n" + serverweb.arg("dec_mamps") + "\n";
-    tmc_data += serverweb.arg("z_msteps") + "\n" + serverweb.arg("z_mamps") + "\n";
-    tmc_data += serverweb.arg("e_msteps") + "\n" + serverweb.arg("e_mamps") + "\n";
+    snprintf(temp, 4000, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+             serverweb.arg("ra_msteps"),serverweb.arg("ra_mamps"),
+             serverweb.arg("dec_msteps"),serverweb.arg("dec_mamps"),
+             serverweb.arg("z_msteps"),serverweb.arg("z_mamps"),
+             serverweb.arg("e_msteps"),serverweb.arg("e_mamps"));
 
     File f = SPIFFS.open(TMC_FILE, "w");
-    f.println(tmc_data);
+    f.println(temp);
     f.close();
     tmc_init();
   }
@@ -669,28 +671,24 @@ void handleTmc(void) {
     e_msteps = 8;
     e_mamps = 500;
   }
-
-
-  String content = "<html><style>" BUTTTEXTT "</style>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/tmc' method='POST'><h2>ESP32go - TMC</h2>";
-  content += "<fieldset style=\"width:15%;border-radius:15px\"><legend>TMC values</legend><table style='width:200px'>";
-  content += "<tr><td>RA microsteps</td><td><input type='text' name='ra_msteps' class=\"text_red\" value='" + String(ra_msteps) + "'></td></td>";
-  content += "<td><td>RA milliAmps</td><td><input type='text' name='ra_mamps'class=\"text_red\"  value='" + String(ra_mamps) + "'></td></tr>";
-  content += "<tr><td>DEC microsteps</td><td><input type='text' name='dec_msteps' class=\"text_red\" value='" + String(dec_msteps) + "'></td></td>";
-  content += "<td><td>DEC milliAmps</td><td><input type='text' name='dec_mamps'class=\"text_red\"  value='" + String(dec_mamps) + "'></td></tr>";
-  content += "<tr><td>Focus1 microsteps</td><td><input type='text' name='z_msteps' class=\"text_red\" value='" + String(z_msteps) + "'></td></td>";
-  content += "<td><td>Focus1 milliAmps</td><td><input type='text' name='z_mamps'class=\"text_red\"  value='" + String(z_mamps) + "'></td></tr>";
-  content += "<tr><td>Focus2 microsteps</td><td><input type='text' name='e_msteps' class=\"text_red\" value='" + String(e_msteps) + "'></td></td>";
-  content += "<td><td>Focus2 milliAmps</td><td><input type='text' name='e_mamps'class=\"text_red\"  value='" + String(e_mamps) + "'></td></tr>";
-
-  content += "</table>";
-
-  content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Save'></fieldset></form>" + msg + "<br>";
-  content += "<button onclick=\"location.href='/'\"class=\"button_red\" type=\"button\">Back</button> <br>";
-
-  content += "</body></html>";
-
-
-  serverweb.send(200, "text/html", content);
+  snprintf(temp, 4000,
+           "<html><style>" BUTTTEXTT "</style>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\">\
+<form action='/tmc' method='POST'><h2>ESP32go - TMC</h2>\
+<fieldset style=\"width:15%;border-radius:15px\"><legend>TMC values</legend><table style='width:200px'>\
+<tr><td>RA microsteps</td><td><input type='text' name='ra_msteps' class=\"text_red\" value='%d'></td></td>\
+<td><td>RA milliAmps</td><td><input type='text' name='ra_mamps'class=\"text_red\"  value='%d'></td></tr>\
+<tr><td>DEC microsteps</td><td><input type='text' name='dec_msteps' class=\"text_red\" value='%d'></td></td>\
+<td><td>DEC milliAmps</td><td><input type='text' name='dec_mamps'class=\"text_red\"  value='%d'></td></tr>\
+<tr><td>Focus1 microsteps</td><td><input type='text' name='z_msteps' class=\"text_red\" value='%d'></td></td>\
+<td><td>Focus1 milliAmps</td><td><input type='text' name='z_mamps'class=\"text_red\"  value='%d'></td></tr>\
+<tr><td>Focus2 microsteps</td><td><input type='text' name='e_msteps' class=\"text_red\" value='%d'></td></td>\
+<td><td>Focus2 milliAmps</td><td><input type='text' name='e_mamps'class=\"text_red\"  value='%d'></td></tr>\
+</table>\
+<input type='submit' name='SUBMIT'  class=\"button_red\" value='Save'></fieldset></form> %s <br>\
+<button onclick=\"location.href='/'\"class=\"button_red\" type=\"button\">Back</button> <br>\
+</body></html>",
+           ra_msteps,ra_mamps,dec_msteps,dec_mamps,z_msteps,z_mamps,e_msteps,e_mamps,msg);
+  serverweb.send(200, "text/html", temp);
 }
 
 void initwebserver(void) {

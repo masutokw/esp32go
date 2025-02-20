@@ -5,7 +5,7 @@
 
 #ifdef TMC_DRIVERS
 
-extern TMC_TYPE driver_ra, driver_dec, driver_z, driver_e;
+extern TMC_DEVICE driver_ra, driver_dec, driver_z, driver_e;
 
 #endif
 void tmc_init(void)
@@ -38,6 +38,7 @@ void tmc_init(void)
     e_mamps=100;
   }
 #ifdef TMC_DRIVERS
+ 
   driver_ra.microsteps(ra_msteps);
   driver_dec.microsteps(dec_msteps);
   driver_z.microsteps(z_msteps);

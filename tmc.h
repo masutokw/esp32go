@@ -19,8 +19,8 @@
 #define TMC_TYPE 9
 #if ( TMC_TYPE == 9 )
 #define TMC_DEVICE TMC2209Stepper
-#define TMC_DRIVER_RA_ADDRESS  ,0b11 // TMC2209 Driver address according to MS1 and MS2 (MS1 jumper ON)
-#define TMC_DRIVER_DEC_ADDRESS ,0b01 // TMC2209 Driver address according to MS1 and MS2 (MS1 and MS2 jumpers ON)
+#define TMC_DRIVER_RA_ADDRESS  ,0b01 // TMC2209 Driver address according to MS1 and MS2 (MS1 jumper ON)
+#define TMC_DRIVER_DEC_ADDRESS ,0b11 // TMC2209 Driver address according to MS1 and MS2 (MS1 and MS2 jumpers ON)
 #define TMC_DRIVER_Z_ADDRESS ,0b00 // TMC2209 Driver address according to MS1 and MS2 (no jumper)
 #define TMC_DRIVER_E_ADDRESS ,0b10 // TMC2209 Driver address according to MS1 and MS2 (MS2 jumper ON)
 #else

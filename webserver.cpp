@@ -537,10 +537,7 @@ void handleMonitor(void) {
            telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
            altbackcounter, clients_connected, focus_motor.position,
            (telescope->azmotor->slewing || telescope->altmotor->slewing) ? 1 : 0,
-           telescope->is_tracking, &buffra, &buffdec, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times);  //
-
-
-
+           telescope->is_tracking, &buffra, &buffdec, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times);
   serverweb.send(200, "text/html", page);
 }
 
@@ -627,18 +624,17 @@ void handleStarInstructions(void) {
    <script>location=\"/Align\";</script>\
    </noframes></html>");
 }
-
 void handleTmc(void) {
-  String msg;
-  String tmc_data;
-  char temp[4000];
+  char temp[4500];
 
   if (serverweb.hasArg("ra_msteps") && serverweb.hasArg("dec_msteps")) {
-    snprintf(temp, 4000, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
-             serverweb.arg("ra_msteps"),serverweb.arg("ra_mamps"),
-             serverweb.arg("dec_msteps"),serverweb.arg("dec_mamps"),
-             serverweb.arg("z_msteps"),serverweb.arg("z_mamps"),
-             serverweb.arg("e_msteps"),serverweb.arg("e_mamps"));
+    snprintf(temp, 4000, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+             serverweb.arg("ra_msteps"), serverweb.arg("ra_mamps"), serverweb.arg("ra_t"),
+             serverweb.arg("dec_msteps"), serverweb.arg("dec_mamps"), serverweb.arg("de_t"),
+             serverweb.arg("z_msteps"), serverweb.arg("z_mamps"), serverweb.arg("z_t"),
+             serverweb.arg("e_msteps"), serverweb.arg("e_mamps"), serverweb.arg("e_t"),
+             String(serverweb.hasArg("cycle")));
+
 
     File f = SPIFFS.open(TMC_FILE, "w");
     f.println(temp);
@@ -646,20 +642,24 @@ void handleTmc(void) {
     tmc_init();
   }
 
-  int ra_msteps, ra_mamps, dec_msteps, dec_mamps, z_msteps, z_mamps, e_msteps, e_mamps;
-
+  int ra_msteps, ra_mamps, dec_msteps, dec_mamps, z_msteps, z_mamps, e_msteps, e_mamps, cycle;
+  int ra_pwmtrigger, dec_pwmtrigger, z_pwmtrigger, e_pwmtrigger;
   if (SPIFFS.exists(TMC_FILE)) {
     File f = SPIFFS.open(TMC_FILE, "r");
 
     ra_msteps = f.readStringUntil('\n').toInt();
     ra_mamps = f.readStringUntil('\n').toInt();
+    ra_pwmtrigger = f.readStringUntil('\n').toInt();
     dec_msteps = f.readStringUntil('\n').toInt();
     dec_mamps = f.readStringUntil('\n').toInt();
+    dec_pwmtrigger = f.readStringUntil('\n').toInt();
     z_msteps = f.readStringUntil('\n').toInt();
     z_mamps = f.readStringUntil('\n').toInt();
+    z_pwmtrigger = f.readStringUntil('\n').toInt();
     e_msteps = f.readStringUntil('\n').toInt();
     e_mamps = f.readStringUntil('\n').toInt();
-
+    e_pwmtrigger = f.readStringUntil('\n').toInt();
+    cycle = f.readStringUntil('\n').toInt();
     f.close();
   } else {
     ra_msteps = 32;
@@ -670,26 +670,43 @@ void handleTmc(void) {
     z_mamps = 500;
     e_msteps = 8;
     e_mamps = 500;
+    cycle = 1;
+    ra_pwmtrigger = dec_pwmtrigger = z_pwmtrigger = e_pwmtrigger = 0;
   }
-  snprintf(temp, 4000,
-           "<html><style>" BUTTTEXTT "</style>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\">\
+  snprintf(temp, 4500,
+           "<html><style>" BUTTTEXTT TEXTT3 "</style>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\">\
 <form action='/tmc' method='POST'><h2>ESP32go - TMC</h2>\
 <fieldset style=\"width:15%;border-radius:15px\"><legend>TMC values</legend><table style='width:200px'>\
-<tr><td>RA microsteps</td><td><input type='text' name='ra_msteps' class=\"text_red\" value='%d'></td></td>\
-<td><td>RA milliAmps</td><td><input type='text' name='ra_mamps'class=\"text_red\"  value='%d'></td></tr>\
-<tr><td>DEC microsteps</td><td><input type='text' name='dec_msteps' class=\"text_red\" value='%d'></td></td>\
-<td><td>DEC milliAmps</td><td><input type='text' name='dec_mamps'class=\"text_red\"  value='%d'></td></tr>\
-<tr><td>Focus1 microsteps</td><td><input type='text' name='z_msteps' class=\"text_red\" value='%d'></td></td>\
-<td><td>Focus1 milliAmps</td><td><input type='text' name='z_mamps'class=\"text_red\"  value='%d'></td></tr>\
-<tr><td>Focus2 microsteps</td><td><input type='text' name='e_msteps' class=\"text_red\" value='%d'></td></td>\
-<td><td>Focus2 milliAmps</td><td><input type='text' name='e_mamps'class=\"text_red\"  value='%d'></td></tr>\
+<tr><th>Motor </th><th>MicroSteps</th><th>mAmps</th><th>Trigger</th></tr>\
+<tr><td>RA</td>\
+<td><input type='number' name='ra_msteps' class=\"text_red\" value='%d'></td>\
+<td><input type='number' name='ra_mamps'class=\"text_red\"  value='%d'></td>\
+<td><input type='number' name='ra_t'class=\"text_red\"  value='%d'></td></tr>\
+<tr><td>DEC</td>\
+<td><input type='number' name='dec_msteps' class=\"text_red\" value='%d'></td>\
+<td><input type='number' name='dec_mamps'class=\"text_red\"  value='%d'></td>\
+<td><input type='number' name='de_t'class=\"text_red\"  value='%d'></td></tr>\
+<tr><td>Focus1</td>\
+<td><input type='number' name='z_msteps' class=\"text_red\" value='%d'></td>\
+<td><input type='number' name='z_mamps'class=\"text_red\"  value='%d'></td>\
+<td><input type='number' name='z_t'class=\"text_red\"  value='%d'></td></tr>\
+<tr><td>Focus2</td>\
+<td><input type='number' name='e_msteps' class=\"text_red\" value='%d'></td>\
+<td><input type='number' name='e_mamps'class=\"text_red\"  value='%d'></td>\
+<td><input type='number' name='e_t'class=\"text_red\"  value='%d'></td>\
+</tr>\
+<tr><td>Stcycle</td><td><input type='checkbox' name='cycle' value='1'  %s></td></tr>\
 </table>\
-<input type='submit' name='SUBMIT'  class=\"button_red\" value='Save'></fieldset></form> %s <br>\
+<input type='submit' name='SUBMIT'  class=\"button_red\" value='Save'></fieldset></form><br>\
 <button onclick=\"location.href='/'\"class=\"button_red\" type=\"button\">Back</button> <br>\
 </body></html>",
-           ra_msteps,ra_mamps,dec_msteps,dec_mamps,z_msteps,z_mamps,e_msteps,e_mamps,msg);
+           ra_msteps, ra_mamps, ra_pwmtrigger,
+           dec_msteps, dec_mamps, dec_pwmtrigger,
+           z_msteps, z_mamps, z_pwmtrigger,
+           e_msteps, e_mamps, e_pwmtrigger, cycle ? "checked" : "");
   serverweb.send(200, "text/html", temp);
 }
+
 
 void initwebserver(void) {
   serverweb.on("/park", handlePark);

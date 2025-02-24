@@ -56,6 +56,7 @@
 #define ENABLE_ALT 23
 #define AZ_RES 16
 #define ALT_RES 19
+#define ESP32_38
 #endif
 #endif
 //optional

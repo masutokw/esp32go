@@ -358,7 +358,9 @@ void setup() {
   driver_dec.begin();
   driver_z.begin();
   driver_e.begin();
-
+  driver_z.pwm_autoscale();
+ //  driver_z.sel_a(0);
+  driver_z.TPWMTHRS(100);
   driver_ra.toff(5);
   driver_dec.toff(5);
   driver_z.toff(5);
@@ -412,8 +414,14 @@ void setup() {
   pinMode(CLOCK_OUT_ALT, OUTPUT);
   pinMode(DIR_OUT_AZ, OUTPUT);
   pinMode(DIR_OUT_ALT, OUTPUT);
+#ifdef ESP32_38 
+#ifndef TMC_DRIVERS
   pinMode(AZ_RES, OUTPUT);
   pinMode(ALT_RES, OUTPUT);
+  digitalWrite(AZ_RES, 1);
+  digitalWrite(ALT_RES, 1);
+#endif
+#endif
   //pinMode(PWM_A, OUTPUT);
   //pinMode(PWM_B, OUTPUT);
   pinMode(AIN_1, OUTPUT);
@@ -428,8 +436,7 @@ void setup() {
   digitalWrite(BIN_2, 0);
   digitalWrite(ENABLE_AZ, EN_DRIVER);
   digitalWrite(ENABLE_ALT, EN_DRIVER);
-  digitalWrite(AZ_RES, 1);
-  digitalWrite(ALT_RES, 1);
+  
 #ifdef STEP_FOCUS
   pinMode(CLOCK_OUT_FOCUS, OUTPUT);
   pinMode(DIR_OUT_FOCUS, OUTPUT);

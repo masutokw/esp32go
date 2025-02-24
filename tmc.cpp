@@ -45,9 +45,9 @@ void tmc_init(void) {
 #ifdef TMC_DRIVERS
 
   tmc_cmd(driver_ra, ra_msteps,ra_mamps,1,cycle,ra_pwmtrigger);
-  tmc_cmd(driver_dec, dec_msteps,dec_mamps,1,cycle,dec_pwmtrigger);
-  tmc_cmd(driver_z, z_msteps, z_mamps,1, cycle,z_pwmtrigger);
-  tmc_cmd(driver_e, e_msteps,e_mamps,1,cycle,e_pwmtrigger);
+ // tmc_cmd(driver_dec, dec_msteps,dec_mamps,1,cycle,dec_pwmtrigger);
+  //tmc_cmd(driver_z, z_msteps, z_mamps,1, cycle,z_pwmtrigger);
+ // tmc_cmd(driver_e, e_msteps,e_mamps,1,cycle,e_pwmtrigger);
 
 
 #endif

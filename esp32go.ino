@@ -358,9 +358,7 @@ void setup() {
   driver_dec.begin();
   driver_z.begin();
   driver_e.begin();
-  driver_z.pwm_autoscale();
- //  driver_z.sel_a(0);
-  driver_z.TPWMTHRS(100);
+  driver_ra.pwm_autoscale();
   driver_ra.toff(5);
   driver_dec.toff(5);
   driver_z.toff(5);

@@ -8,13 +8,13 @@
 //
 
 #define TMC_SERIAL_PORT Serial2
-//#ifndef ESP32_38
-////#define TMC_SERIAL_TX_PIN 15 // FYSETC Z-MIN pin, ESP32 GPIO 15
-//#define TMC_SERIAL_RX_PIN 35 // not really used, but needed
-//#else
+#ifndef ESP32_38
+#define TMC_SERIAL_TX_PIN 15 // FYSETC Z-MIN pin, ESP32 GPIO 15
+#define TMC_SERIAL_RX_PIN 35 // not really used, but needed
+#else
 #define TMC_SERIAL_TX_PIN 19 // for esp32 38 pin
 #define TMC_SERIAL_RX_PIN 16 //used
-//#endif
+#endif
 #define TMC_R_SENSE 0.11f 
 #define TMC_TYPE 9
 #if ( TMC_TYPE == 9 )

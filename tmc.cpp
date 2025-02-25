@@ -58,6 +58,6 @@ void tmc_cmd(TMC_DEVICE& tmc, uint16_t res, uint16_t current, uint8_t pol, uint8
   if (current > 0) tmc.rms_current(current);
   if (pol < 2) tmc.intpol(pol);
   if (spread < 2) tmc.en_spreadCycle(spread);
-  if (pwmTrigger < 1000) driver_z.TPWMTHRS(pwmTrigger);
+  if (pwmTrigger < 1000) tmc.TPWMTHRS(pwmTrigger);
 #endif
 }

@@ -358,7 +358,7 @@ void setup() {
   driver_dec.begin();
   driver_z.begin();
   driver_e.begin();
-  driver_ra.pwm_autoscale();
+ // driver_ra.pwm_autoscale();
   driver_ra.toff(5);
   driver_dec.toff(5);
   driver_z.toff(5);

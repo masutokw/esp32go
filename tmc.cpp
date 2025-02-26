@@ -45,9 +45,12 @@ void tmc_init(void) {
 #ifdef TMC_DRIVERS
 
   tmc_cmd(driver_ra, ra_msteps,ra_mamps,1,cycle,ra_pwmtrigger);
- // tmc_cmd(driver_dec, dec_msteps,dec_mamps,1,cycle,dec_pwmtrigger);
-  //tmc_cmd(driver_z, z_msteps, z_mamps,1, cycle,z_pwmtrigger);
- // tmc_cmd(driver_e, e_msteps,e_mamps,1,cycle,e_pwmtrigger);
+  delay(50);
+  tmc_cmd(driver_dec, dec_msteps,dec_mamps,1,cycle,dec_pwmtrigger); 
+  delay(50);
+  tmc_cmd(driver_z, z_msteps, z_mamps,1, cycle,z_pwmtrigger);
+  delay(50);
+  tmc_cmd(driver_e, e_msteps,e_mamps,1,cycle,e_pwmtrigger);
 
 
 #endif
@@ -58,6 +61,6 @@ void tmc_cmd(TMC_DEVICE& tmc, uint16_t res, uint16_t current, uint8_t pol, uint8
   if (current > 0) tmc.rms_current(current);
   if (pol < 2) tmc.intpol(pol);
   if (spread < 2) tmc.en_spreadCycle(spread);
-  if (pwmTrigger < 1000) tmc.TPWMTHRS(pwmTrigger);
+  if (true) tmc.TPWMTHRS(pwmTrigger);
 #endif
 }

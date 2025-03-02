@@ -25,7 +25,7 @@ char tmessage[300];
 extern c_star st_now, st_target, st_current;
 extern char volatile sync_target;
 extern stepper focus_motor;
-extern int  focusmax,focuspeed;
+extern int  focusmax,focuspeed,dcfocus;
 extern int  focuspeed_low,focusvolt,focusinv;
 struct _telescope_
 {   long dec_target,ra_target;
@@ -68,7 +68,7 @@ void appcmd(char cmd)
 void conf(void)
 {
 	
-	sprintf(tmessage,"%d\r\n%d\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.4f\r\n%.6f\r\n%.6f\r\n%d\r\n%d\r\n%d\r\n%d\r\n%.0f\r\n%.0f\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n",
+	sprintf(tmessage,"%d\r\n%d\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.4f\r\n%.6f\r\n%.6f\r\n%d\r\n%d\r\n%d\r\n%d\r\n%.0f\r\n%.0f\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n",
           telescope->azmotor->maxcounter, telescope->altmotor->maxcounter,
           telescope->rate[0][0], telescope->rate[1][0], telescope->rate[2][0], telescope->rate[3][0],
           telescope->rate[0][1], telescope->rate[1][1], telescope->rate[2][1], telescope->rate[3][1],
@@ -78,8 +78,8 @@ void conf(void)
 		 telescope->azmotor->acceleration / SEC_TO_RAD, telescope->altmotor->acceleration / SEC_TO_RAD,
 		 telescope->azmotor->backlash, telescope->altmotor->backlash,
 		  telescope->mount_mode ,telescope->track, telescope->autoflip, telescope->azmotor->cw,
-		  telescope->altmotor->cw, focusvolt * focusinv,  telescope->azmotor->active, telescope->altmotor->active
-		 );
+		  telescope->altmotor->cw, focusvolt * focusinv,  telescope->azmotor->active, telescope->altmotor->active,
+		  dcfocus);
 		  readconfig(telescope);
 			 
 		

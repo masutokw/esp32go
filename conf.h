@@ -17,7 +17,8 @@
 #define SDA_PIN 21
 #define SCL_PIN 22
 #define BUZZER_PIN 26
-#define TMC_DRIVERS
+//#define TMC_DRIVERS
+//#define STEP_FOCUS
 //#define FYSECT_BRD
 #ifdef FYSECT_BRD
 #define CLOCK_OUT_AZ X_STEP
@@ -43,7 +44,7 @@
 #define DIR_OUT_AZ 2
 #define CLOCK_OUT_ALT 5
 #define DIR_OUT_ALT 18
-#define ENABLE_AZ 16
+#define ENABLE_AZ  16
 #define ENABLE_ALT 23
 #define AZ_RES 17
 #define ALT_RES 19
@@ -142,8 +143,8 @@
 
 
 //On slow pulse detect stepper driver as DRV8825 comment out
-#define AZ_P_DELAY 23
-#define ALT_P_DELAY 23
+//#define AZ_P_DELAY 23
+//#define ALT_P_DELAY 23
 // Use NCP as default position for EQ mount
 //#define NCP_HOME
 // Retry NTP connection up to 3 trimes to get network time before mount init

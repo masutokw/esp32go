@@ -9,6 +9,7 @@
 #include "taki.h"
 #include "tb6612.h"
 #include "focus.h"
+#include "tmc.h"
 #include "esp32-hal-ledc.h"
 //Comment out undesired Feature at conf.h
 #define FORMAT_SPIFFS_IF_FAILED true
@@ -17,14 +18,8 @@
 #endif
 #ifdef TMC_DRIVERS
 #include <TMCStepper.h>
-
-TMC_DEVICE driver_ra = TMC_DEVICE(&TMC_SERIAL_PORT, TMC_R_SENSE TMC_DRIVER_RA_ADDRESS);
-TMC_DEVICE driver_dec = TMC_DEVICE(&TMC_SERIAL_PORT, TMC_R_SENSE TMC_DRIVER_DEC_ADDRESS);
-TMC_DEVICE driver_z = TMC_DEVICE(&TMC_SERIAL_PORT, TMC_R_SENSE TMC_DRIVER_Z_ADDRESS);
-TMC_DEVICE driver_e = TMC_DEVICE(&TMC_SERIAL_PORT, TMC_R_SENSE TMC_DRIVER_E_ADDRESS);
-
-
-#endif
+//extern TMC_DEVICE driver_ra, driver_dec, driver_z, driver_e;
+#endif 
 volatile int stepcounter1, stepcounter2;
 uint64_t volatile period_az, period_alt;
 int volatile azcounter, altcounter, azbackcounter, altbackcounter;
@@ -352,18 +347,9 @@ void setup() {
 
   //start UART and the server
 #ifdef TMC_DRIVERS
-  Serial2.begin(115200, SERIAL_8N1, TMC_SERIAL_RX_PIN, TMC_SERIAL_TX_PIN);
-  delay(500);
-  driver_ra.begin();
-  driver_dec.begin();
-  driver_z.begin();
-  driver_e.begin();
- // driver_ra.pwm_autoscale();
-  driver_ra.toff(5);
-  driver_dec.toff(5);
-  driver_z.toff(5);
-  driver_e.toff(5);
-  tmc_init();
+ 
+tmc_boot();
+// tmcinit();
   
 #endif
 

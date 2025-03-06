@@ -40,6 +40,7 @@ mount;
 extern long sdt_millis;
 extern mount_t *telescope;
 void conf(void);
+void conf_tmc(void);
 void lxprintsite(void)
 {
     sprintf(tmessage,"Site Name#");APPEND;
@@ -58,17 +59,19 @@ void appcmd(char cmd)
   case 'j':sprintf(tmessage,"%f",telescope->rate[0][1]);
     break;
   case 'A':conf();
- 
   break;
+  case 'T':conf_tmc();
+   break;
   
 }
 
 
 }
+void conf_tmc(void){;}
 void conf(void)
 {
 	
-	sprintf(tmessage,"%d\r\n%d\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.4f\r\n%.6f\r\n%.6f\r\n%d\r\n%d\r\n%d\r\n%d\r\n%.0f\r\n%.0f\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n",
+	sprintf(tmessage,"%d\r\n%d\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.4f\r\n%.6f\r\n%.6f\r\n%d\r\n%d\r\n%d\r\n%d\r\n%.0f\r\n%.0f\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n#\r\n",
           telescope->azmotor->maxcounter, telescope->altmotor->maxcounter,
           telescope->rate[0][0], telescope->rate[1][0], telescope->rate[2][0], telescope->rate[3][0],
           telescope->rate[0][1], telescope->rate[1][1], telescope->rate[2][1], telescope->rate[3][1],
@@ -315,6 +318,7 @@ long command( char *str )
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);break;
 						}
 						}
 	action nunchuk {setnunchuk(fc);}
@@ -388,7 +392,7 @@ long command( char *str )
 		
 #app commands
 		cgfsend=[zagjA]@storecmd %cmd_app;
-		cgfwrite=[snw]@markinput extend* %writeconf ;
+		cgfwrite=[snwt]@markinput extend* %writeconf ;
 		Appcmd= 'c'(cgfsend | cgfwrite);
 		
 		

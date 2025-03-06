@@ -6,6 +6,7 @@
 #include "nunchuck.h"
 #include "tb6612.h"
 #include "encoder.h"
+#include "tmc.h"
 #ifdef IR_CONTROL
 extern uint32_t truecode, lasti;
 extern byte cmd_map[];
@@ -626,40 +627,50 @@ void handleStarInstructions(void) {
 }
 void handleTmc(void) {
   char temp[4500];
-
+  char msg[43];
+  time_t now;
+  now = time(nullptr);
+   snprintf(msg, 42, "TMC %s ", ctime(&now));
   if (serverweb.hasArg("ra_msteps") && serverweb.hasArg("dec_msteps")) {
-    snprintf(temp, 4000, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
-             serverweb.arg("ra_msteps"), serverweb.arg("ra_mamps"), serverweb.arg("ra_t"),
-             serverweb.arg("dec_msteps"), serverweb.arg("dec_mamps"), serverweb.arg("de_t"),
-             serverweb.arg("z_msteps"), serverweb.arg("z_mamps"), serverweb.arg("z_t"),
-             serverweb.arg("e_msteps"), serverweb.arg("e_mamps"), serverweb.arg("e_t"),
-             String(serverweb.hasArg("cycle")));
-
-
+    snprintf(temp, 4500, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n#\n",
+             serverweb.arg("ra_msteps"), serverweb.arg("ra_mamps"), serverweb.arg("ra_t"), String(serverweb.hasArg("ra_spread")), String(serverweb.hasArg("ra_pol")),
+             serverweb.arg("dec_msteps"), serverweb.arg("dec_mamps"), serverweb.arg("de_t"),  String(serverweb.hasArg("de_spread")), String(serverweb.hasArg("de_pol")),
+             serverweb.arg("z_msteps"), serverweb.arg("z_mamps"), serverweb.arg("z_t"),String(serverweb.hasArg("z_spread")), String(serverweb.hasArg("z_pol")),
+             serverweb.arg("e_msteps"), serverweb.arg("e_mamps"), serverweb.arg("e_t"),  String(serverweb.hasArg("e_spread")) , String(serverweb.hasArg("e_pol")));
+   
     File f = SPIFFS.open(TMC_FILE, "w");
     f.println(temp);
     f.close();
-    tmc_init();
+    tmcinit();
+     snprintf(msg, 42, "TMC Saved at %s ", ctime(&now));
   }
 
-  int ra_msteps, ra_mamps, dec_msteps, dec_mamps, z_msteps, z_mamps, e_msteps, e_mamps, cycle;
-  int ra_pwmtrigger, dec_pwmtrigger, z_pwmtrigger, e_pwmtrigger;
+  int ra_msteps, ra_mamps, dec_msteps, dec_mamps, z_msteps, z_mamps, e_msteps, e_mamps;
+  int ra_pwmtrigger, dec_pwmtrigger, z_pwmtrigger, e_pwmtrigger, ra_spread, de_spread, z_spread, e_spread;
+  int  ra_pol, de_pol, z_pol, e_pol;
   if (SPIFFS.exists(TMC_FILE)) {
     File f = SPIFFS.open(TMC_FILE, "r");
-
     ra_msteps = f.readStringUntil('\n').toInt();
     ra_mamps = f.readStringUntil('\n').toInt();
     ra_pwmtrigger = f.readStringUntil('\n').toInt();
+    ra_spread = f.readStringUntil('\n').toInt();
+    ra_pol=f.readStringUntil('\n').toInt();
     dec_msteps = f.readStringUntil('\n').toInt();
     dec_mamps = f.readStringUntil('\n').toInt();
     dec_pwmtrigger = f.readStringUntil('\n').toInt();
+    de_spread = f.readStringUntil('\n').toInt();
+    de_pol=f.readStringUntil('\n').toInt();
     z_msteps = f.readStringUntil('\n').toInt();
     z_mamps = f.readStringUntil('\n').toInt();
     z_pwmtrigger = f.readStringUntil('\n').toInt();
+    z_spread = f.readStringUntil('\n').toInt();
+    z_pol=f.readStringUntil('\n').toInt();
     e_msteps = f.readStringUntil('\n').toInt();
     e_mamps = f.readStringUntil('\n').toInt();
     e_pwmtrigger = f.readStringUntil('\n').toInt();
-    cycle = f.readStringUntil('\n').toInt();
+    e_spread = f.readStringUntil('\n').toInt();
+    z_pol=f.readStringUntil('\n').toInt();
+
     f.close();
   } else {
     ra_msteps = 32;
@@ -670,40 +681,57 @@ void handleTmc(void) {
     z_mamps = 500;
     e_msteps = 8;
     e_mamps = 500;
-    cycle = 1;
+    ra_spread = de_spread = z_spread = e_spread =0;
+    ra_pol= de_pol = z_pol = e_pol=1;
     ra_pwmtrigger = dec_pwmtrigger = z_pwmtrigger = e_pwmtrigger = 0;
   }
   snprintf(temp, 4500,
            "<html><style>" BUTTTEXTT TEXTT3 "</style>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\">\
 <form action='/tmc' method='POST'><h2>ESP32go - TMC</h2>\
 <fieldset style=\"width:15%;border-radius:15px\"><legend>TMC values</legend><table style='width:200px'>\
-<tr><th>Motor </th><th>MicroSteps</th><th>mAmps</th><th>Trigger</th></tr>\
-<tr><td>RA</td>\
+<tr><th>TMC</th> <th>RA </th><th>Dec</th><th>F1  </th><th>F2  </th></tr>\
+<tr><td>Msteps</td>\
 <td><input type='number' name='ra_msteps' class=\"text_red\" value='%d'></td>\
-<td><input type='number' name='ra_mamps'class=\"text_red\"  value='%d'></td>\
-<td><input type='number' name='ra_t'class=\"text_red\"  value='%d'></td></tr>\
-<tr><td>DEC</td>\
 <td><input type='number' name='dec_msteps' class=\"text_red\" value='%d'></td>\
-<td><input type='number' name='dec_mamps'class=\"text_red\"  value='%d'></td>\
-<td><input type='number' name='de_t'class=\"text_red\"  value='%d'></td></tr>\
-<tr><td>Focus1</td>\
 <td><input type='number' name='z_msteps' class=\"text_red\" value='%d'></td>\
-<td><input type='number' name='z_mamps'class=\"text_red\"  value='%d'></td>\
-<td><input type='number' name='z_t'class=\"text_red\"  value='%d'></td></tr>\
-<tr><td>Focus2</td>\
 <td><input type='number' name='e_msteps' class=\"text_red\" value='%d'></td>\
-<td><input type='number' name='e_mamps'class=\"text_red\"  value='%d'></td>\
-<td><input type='number' name='e_t'class=\"text_red\"  value='%d'></td>\
 </tr>\
-<tr><td>Stcycle</td><td><input type='checkbox' name='cycle' value='1'  %s></td></tr>\
+<tr><td>mAmps</td>\
+<td><input type='number' name='ra_mamps'class=\"text_red\"  value='%d'></td>\
+<td><input type='number' name='dec_mamps'class=\"text_red\"  value='%d'></td>\
+<td><input type='number' name='z_mamps'class=\"text_red\"  value='%d'></td>\
+<td><input type='number' name='e_mamps'class=\"text_red\"  value='%d'></td>\
+</tr>\
+<tr><td>Trigger</td>\
+<td><input type='number' name='ra_t'class=\"text_red\"  value='%d'></td>\
+<td><input type='number' name='de_t'class=\"text_red\"  value='%d'></td>\
+<td><input type='number' name='z_t'class=\"text_red\"  value='%d'></td>\
+<td><input type='number' name='e_t'class=\"text_red\"  value='%d'></td></tr>\
+</tr>\
+<tr><td>Stcycle</td>\
+<td><input type='checkbox' name='ra_spread' value='1' %s></ td>\
+<td><input type='checkbox' name='de_spread' value='1' %s></ td>\
+<td><input type='checkbox' name='z_spread' value='1' %s></ td>\
+<td><input type='checkbox' name='e_spread' value='1' %s></ td>\
+</tr>\
+<tr><td>Interpol</td>\
+<td><input type = 'checkbox' name='ra_pol' value='1' %s></ td>\
+<td><input type = 'checkbox' name='de_pol' value='1' %s></ td>\
+<td><input type = 'checkbox' name='z_pol' value='1' %s></ td>\
+<td><input type = 'checkbox' name='e_pol' value='1' %s></ td>\
+</tr>\
 </table>\
-<input type='submit' name='SUBMIT'  class=\"button_red\" value='Save'></fieldset></form><br>\
+<input type='submit' name='SUBMIT'  class=\"button_red\" value='Save'></fieldset></form>%s<br>\
 <button onclick=\"location.href='/'\"class=\"button_red\" type=\"button\">Back</button> <br>\
 </body></html>",
-           ra_msteps, ra_mamps, ra_pwmtrigger,
-           dec_msteps, dec_mamps, dec_pwmtrigger,
-           z_msteps, z_mamps, z_pwmtrigger,
-           e_msteps, e_mamps, e_pwmtrigger, cycle ? "checked" : "");
+           ra_msteps, dec_msteps, z_msteps, e_msteps,
+           ra_mamps, dec_mamps, z_mamps, e_mamps,
+           ra_pwmtrigger, dec_pwmtrigger, z_pwmtrigger, e_pwmtrigger,
+           ra_spread ? "checked" : "", de_spread ? "checked" : "",
+           z_spread ? "checked" : "", e_spread ? "checked" : "",
+           ra_pol ? "checked" : "", de_pol ? "checked" : "",
+           z_pol ? "checked" : "", e_pol ? "checked" : "",msg);
+          
   serverweb.send(200, "text/html", temp);
 }
 

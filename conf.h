@@ -7,7 +7,7 @@
 #include "BluetoothSerial.h"
 #include "sntp.h"
 #include "fysetc.h"
-#include "tmc.h"
+//#include "tmc.h"
 //#define   RTC_IC RTC_DS3231
 //#define   RTC_IC RTC_DS1307
 #define WEB_INTERFACE
@@ -17,7 +17,7 @@
 #define SDA_PIN 21
 #define SCL_PIN 22
 #define BUZZER_PIN 26
-//#define TMC_DRIVERS
+#define TMC_DRIVERS
 //#define STEP_FOCUS
 //#define FYSECT_BRD
 #ifdef FYSECT_BRD
@@ -32,7 +32,7 @@
 #define ALT_RES 19
 #define CLOCK_OUT_FOCUS E_STEP 
 #define DIR_OUT_FOCUS E_DIR
-//#define STEP_FOCUS
+#define STEP_FOCUS
 #define TMC_DRIVERS
 #else
 #define CLOCK_OUT_FOCUS  13 
@@ -143,8 +143,8 @@
 
 
 //On slow pulse detect stepper driver as DRV8825 comment out
-//#define AZ_P_DELAY 23
-//#define ALT_P_DELAY 23
+#define AZ_P_DELAY 23
+#define ALT_P_DELAY 23
 // Use NCP as default position for EQ mount
 //#define NCP_HOME
 // Retry NTP connection up to 3 trimes to get network time before mount init

@@ -20,7 +20,7 @@
 #ifdef NUNCHUCK_CONTROL
 #include "nunchuck.h"
 #endif
-
+#include "tmc.h"
 char response [200];
 //char tmessage[50];
 char tmessage[300];
@@ -41,8 +41,8 @@ struct _telescope_
 mount;
 extern long sdt_millis;
 extern mount_t *telescope;
+void conf_tmc(const char *filename);
 void conf(void);
-void conf_tmc(void);
 void lxprintsite(void)
 {
     sprintf(tmessage,"Site Name#");APPEND;
@@ -62,14 +62,19 @@ void appcmd(char cmd)
     break;
   case 'A':conf();
   break;
-  case 'T':conf_tmc();
+  case 'T':conf_tmc(TMC_FILE);
    break;
   
 }
 
 
 }
-void conf_tmc(void){;}
+void conf_tmc(const char *filename){
+File f = SPIFFS.open(filename,"r");
+  if (!f) exit;
+     f.read((uint8_t *)tmessage,f.size()+1);
+	 f.close();   
+   }
 void conf(void)
 {
 	
@@ -222,7 +227,7 @@ static const int command_error = 0;
 static const int command_en_main = 311;
 
 
-#line 217 "command.rl"
+#line 222 "command.rl"
 
 
 
@@ -241,19 +246,19 @@ static const int command_en_main = 311;
 	switch ( cs )
 	{
 tr19:
-#line 296 "command.rl"
+#line 301 "command.rl"
 	{;}
 	goto st311;
 tr20:
-#line 294 "command.rl"
+#line 299 "command.rl"
 	{telescope->track=0;telescope->azmotor->targetspeed=0.0;}
 	goto st311;
 tr21:
-#line 295 "command.rl"
+#line 300 "command.rl"
 	{telescope->track=1;}
 	goto st311;
 tr23:
-#line 255 "command.rl"
+#line 260 "command.rl"
 	{if (telescope->mount_mode)
 						align_sync_all(telescope,mount.ra_target,mount.dec_target);
 						else
@@ -262,218 +267,218 @@ tr23:
 						}
 	goto st311;
 tr25:
-#line 297 "command.rl"
+#line 302 "command.rl"
 	{if ((telescope->azmotor->slewing ||(telescope->altmotor->slewing))&&!(telescope->parked)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
 	goto st311;
 tr34:
-#line 282 "command.rl"
+#line 287 "command.rl"
 	{gotofocuser(focus_motor.max_steps,focuspeed_low);}
 	goto st311;
 tr36:
-#line 280 "command.rl"
+#line 285 "command.rl"
 	{gotofocuser(focus_motor.max_steps,focuspeed);}
 	goto st311;
 tr37:
-#line 281 "command.rl"
+#line 286 "command.rl"
 	{gotofocuser(0,focuspeed_low);}
 	goto st311;
 tr39:
-#line 279 "command.rl"
+#line 284 "command.rl"
 	{gotofocuser(0,focuspeed);}
 	goto st311;
 tr47:
-#line 284 "command.rl"
+#line 289 "command.rl"
 	{gotofocuser(focus_counter);}
 	goto st311;
 tr48:
-#line 288 "command.rl"
+#line 293 "command.rl"
 	{sprintf(tmessage,"%d#",focus_motor.state<stop);APPEND;}
 	goto st311;
 tr58:
-#line 286 "command.rl"
+#line 291 "command.rl"
 	{focus_motor.position=focus_motor.target=focus_counter;}
 	goto st311;
 tr66:
-#line 283 "command.rl"
+#line 288 "command.rl"
 	{gotofocuser(focus_motor.position+(focus_counter*neg));}
 	goto st311;
 tr67:
-#line 285 "command.rl"
+#line 290 "command.rl"
 	{stopfocuser();}
 	goto st311;
 tr68:
-#line 287 "command.rl"
+#line 292 "command.rl"
 	{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
 	goto st311;
 tr88:
-#line 245 "command.rl"
+#line 250 "command.rl"
 	{lxprintde1(tmessage, st_current.alt); APPEND;}
 	goto st311;
 tr89:
-#line 248 "command.rl"
+#line 253 "command.rl"
 	{lxprintdate1(tmessage);APPEND;}
 	goto st311;
 tr90:
-#line 242 "command.rl"
+#line 247 "command.rl"
 	{if (telescope->mount_mode) lxprintde1(tmessage, st_current.dec);
 							else mount_lxde_str(tmessage,telescope); APPEND;}
 	goto st311;
 tr91:
-#line 275 "command.rl"
+#line 280 "command.rl"
 	{lxprintGMT_offset(tmessage,telescope->time_zone );APPEND}
 	goto st311;
 tr92:
-#line 300 "command.rl"
+#line 305 "command.rl"
 	{sprintf(tmessage,"%s#", telescope->is_tracking ? "1":"0");APPEND;}
 	goto st311;
 tr93:
-#line 262 "command.rl"
+#line 267 "command.rl"
 	{ lxprinttime1(tmessage);APPEND;}
 	goto st311;
 tr94:
-#line 249 "command.rl"
+#line 254 "command.rl"
 	{ lxprintsite();}
 	goto st311;
 tr95:
-#line 240 "command.rl"
+#line 245 "command.rl"
 	{if (telescope->mount_mode) lxprintra1(tmessage, st_current.ra);
 							else mount_lxra_str(tmessage,telescope); APPEND;}
 	goto st311;
 tr96:
-#line 263 "command.rl"
+#line 268 "command.rl"
 	{ lxprintra(tmessage, sidereal_timeGMT(telescope->longitude,telescope->time_zone) * 15.0 * DEG_TO_RAD);APPEND;strcat(response,"#");}
 	goto st311;
 tr97:
-#line 278 "command.rl"
+#line 283 "command.rl"
 	{sprintf(tmessage,"50.0#");APPEND;}
 	goto st311;
 tr103:
-#line 301 "command.rl"
+#line 306 "command.rl"
 	{sprintf(tmessage,"012 24 2000#") ;APPEND;}
 	goto st311;
 tr104:
-#line 305 "command.rl"
+#line 310 "command.rl"
 	{sprintf(tmessage,"43Eg#") ;APPEND;}
 	goto st311;
 tr105:
-#line 302 "command.rl"
+#line 307 "command.rl"
 	{sprintf(tmessage,"01.0#") ;APPEND;}
 	goto st311;
 tr106:
-#line 303 "command.rl"
+#line 308 "command.rl"
 	{ sprintf(tmessage,"esp32go#") ;APPEND;}
 	goto st311;
 tr107:
-#line 304 "command.rl"
+#line 309 "command.rl"
 	{sprintf(tmessage,"00:00:00#") ;APPEND;}
 	goto st311;
 tr108:
-#line 244 "command.rl"
+#line 249 "command.rl"
 	{ lxprintaz1(tmessage, st_current.az); APPEND;}
 	goto st311;
 tr109:
-#line 240 "command.rl"
+#line 245 "command.rl"
 	{if (telescope->mount_mode) lxprintra1(tmessage, st_current.ra);
 							else mount_lxra_str(tmessage,telescope); APPEND;}
-#line 242 "command.rl"
+#line 247 "command.rl"
 	{if (telescope->mount_mode) lxprintde1(tmessage, st_current.dec);
 							else mount_lxde_str(tmessage,telescope); APPEND;}
-#line 244 "command.rl"
+#line 249 "command.rl"
 	{ lxprintaz1(tmessage, st_current.az); APPEND;}
-#line 245 "command.rl"
+#line 250 "command.rl"
 	{lxprintde1(tmessage, st_current.alt); APPEND;}
-#line 300 "command.rl"
+#line 305 "command.rl"
 	{sprintf(tmessage,"%s#", telescope->is_tracking ? "1":"0");APPEND;}
 	goto st311;
 tr110:
-#line 277 "command.rl"
+#line 282 "command.rl"
 	{sprintf(tmessage,"24#");APPEND;}
 	goto st311;
 tr111:
-#line 247 "command.rl"
+#line 252 "command.rl"
 	{lxprintde1(tmessage, st_target.dec); APPEND;}
 	goto st311;
 tr112:
-#line 251 "command.rl"
+#line 256 "command.rl"
 	{lxprintlong1(tmessage,telescope->longitude);APPEND;}
 	goto st311;
 tr113:
-#line 299 "command.rl"
+#line 304 "command.rl"
 	{sprintf(tmessage, telescope->is_tracking ? "1":"0");APPEND;}
 	goto st311;
 tr114:
-#line 246 "command.rl"
+#line 251 "command.rl"
 	{ lxprintra1(tmessage, st_target.ra); APPEND;}
 	goto st311;
 tr115:
-#line 252 "command.rl"
+#line 257 "command.rl"
 	{lxprintlat1(tmessage,telescope->lat);APPEND;}
 	goto st311;
 tr121:
-#line 306 "command.rl"
+#line 311 "command.rl"
 	{setwifipad(ip3,ip2);}
 	goto st311;
 tr128:
-#line 234 "command.rl"
+#line 239 "command.rl"
 	{if (telescope->mount_mode)
 					{goto_ra_dec(telescope,mount.ra_target*15.0*SEC_TO_RAD,mount.dec_target*SEC_TO_RAD);}
 					 else mount_slew(telescope);
 					 sprintf(tmessage,"0");APPEND;}
 	goto st311;
 tr129:
-#line 232 "command.rl"
+#line 237 "command.rl"
 	{mount_move(telescope,stcmd);}
 	goto st311;
 tr135:
-#line 233 "command.rl"
+#line 238 "command.rl"
 	{pulse_guide(telescope,stcmd,pulse);}
 	goto st311;
 tr136:
-#line 238 "command.rl"
+#line 243 "command.rl"
 	{mount_stop(telescope,stcmd);}
 	goto st311;
 tr139:
-#line 239 "command.rl"
+#line 244 "command.rl"
 	{select_rate(telescope,stcmd); }
 	goto st311;
 tr155:
-#line 271 "command.rl"
+#line 276 "command.rl"
 	{set_date(min,deg,sec);}
 	goto st311;
 tr160:
-#line 273 "command.rl"
+#line 278 "command.rl"
 	{ telescope->time_zone=-deg*neg;}
-#line 250 "command.rl"
+#line 255 "command.rl"
 	{sprintf(tmessage,"1");APPEND;deg=sec=min=0;}
 	goto st311;
 tr173:
-#line 276 "command.rl"
+#line 281 "command.rl"
 	{set_time(deg,min,sec);}
 	goto st311;
 tr183:
-#line 264 "command.rl"
+#line 269 "command.rl"
 	{set_cmd_exe(stcmd,(neg*(deg )));
                              sprintf(tmessage,"1");APPEND;deg=sec=min=0;
                             }
 	goto st311;
 tr204:
-#line 307 "command.rl"
+#line 312 "command.rl"
 	{appcmd(stcmd);APPEND;}
 	goto st311;
 tr426:
-#line 289 "command.rl"
+#line 294 "command.rl"
 	{mount_goto_home(telescope);}
 	goto st311;
 tr433:
-#line 292 "command.rl"
+#line 297 "command.rl"
 	{sprintf(tmessage,"%s#",(telescope->autoflip? "1" : "0"));APPEND;}
 	goto st311;
 tr434:
-#line 290 "command.rl"
+#line 295 "command.rl"
 	{mount_home_set(telescope);}
 	goto st311;
 tr435:
-#line 291 "command.rl"
+#line 296 "command.rl"
 	{sprintf(tmessage,"%s#",(get_pierside(telescope)? "WEST" : "EAST"));APPEND;}
 	goto st311;
 st311:
@@ -491,7 +496,7 @@ st0:
 cs = 0;
 	goto _out;
 tr440:
-#line 272 "command.rl"
+#line 277 "command.rl"
 	{if (telescope->mount_mode==ALTAZ) sprintf(tmessage,"A");else if (telescope->track) sprintf(tmessage,"P"); else sprintf(tmessage,"L"); APPEND; }
 	goto st1;
 st1:
@@ -641,7 +646,7 @@ case 16:
 	}
 	goto st0;
 tr41:
-#line 231 "command.rl"
+#line 236 "command.rl"
 	{ neg=-1;}
 	goto st17;
 st17:
@@ -653,7 +658,7 @@ case 17:
 		goto tr42;
 	goto st0;
 tr42:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st18;
 st18:
@@ -665,7 +670,7 @@ case 18:
 		goto tr43;
 	goto st0;
 tr43:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st19;
 st19:
@@ -677,7 +682,7 @@ case 19:
 		goto tr44;
 	goto st0;
 tr44:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st20;
 st20:
@@ -689,7 +694,7 @@ case 20:
 		goto tr45;
 	goto st0;
 tr45:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st21;
 st21:
@@ -701,7 +706,7 @@ case 21:
 		goto tr46;
 	goto st0;
 tr46:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st22;
 st22:
@@ -743,7 +748,7 @@ case 26:
 	}
 	goto st0;
 tr52:
-#line 231 "command.rl"
+#line 236 "command.rl"
 	{ neg=-1;}
 	goto st27;
 st27:
@@ -755,7 +760,7 @@ case 27:
 		goto tr53;
 	goto st0;
 tr53:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st28;
 st28:
@@ -767,7 +772,7 @@ case 28:
 		goto tr54;
 	goto st0;
 tr54:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st29;
 st29:
@@ -779,7 +784,7 @@ case 29:
 		goto tr55;
 	goto st0;
 tr55:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st30;
 st30:
@@ -791,7 +796,7 @@ case 30:
 		goto tr56;
 	goto st0;
 tr56:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st31;
 st31:
@@ -803,7 +808,7 @@ case 31:
 		goto tr57;
 	goto st0;
 tr57:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st32;
 st32:
@@ -824,7 +829,7 @@ case 33:
 	}
 	goto st0;
 tr60:
-#line 231 "command.rl"
+#line 236 "command.rl"
 	{ neg=-1;}
 	goto st34;
 st34:
@@ -836,7 +841,7 @@ case 34:
 		goto tr61;
 	goto st0;
 tr61:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st35;
 st35:
@@ -848,7 +853,7 @@ case 35:
 		goto tr62;
 	goto st0;
 tr62:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st36;
 st36:
@@ -860,7 +865,7 @@ case 36:
 		goto tr63;
 	goto st0;
 tr63:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st37;
 st37:
@@ -872,7 +877,7 @@ case 37:
 		goto tr64;
 	goto st0;
 tr64:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st38;
 st38:
@@ -884,7 +889,7 @@ case 38:
 		goto tr65;
 	goto st0;
 tr65:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st39;
 st39:
@@ -1123,7 +1128,7 @@ case 68:
 		goto tr117;
 	goto st0;
 tr117:
-#line 228 "command.rl"
+#line 233 "command.rl"
 	{ADD_DIGIT(ip3,(*p));}
 	goto st69;
 st69:
@@ -1144,7 +1149,7 @@ case 70:
 		goto tr120;
 	goto st0;
 tr120:
-#line 229 "command.rl"
+#line 234 "command.rl"
 	{ADD_DIGIT(ip2,(*p));}
 	goto st71;
 st71:
@@ -1158,7 +1163,7 @@ case 71:
 		goto tr122;
 	goto st0;
 tr122:
-#line 229 "command.rl"
+#line 234 "command.rl"
 	{ADD_DIGIT(ip2,(*p));}
 	goto st72;
 st72:
@@ -1172,7 +1177,7 @@ case 72:
 		goto tr123;
 	goto st0;
 tr123:
-#line 229 "command.rl"
+#line 234 "command.rl"
 	{ADD_DIGIT(ip2,(*p));}
 	goto st73;
 st73:
@@ -1184,7 +1189,7 @@ case 73:
 		goto tr121;
 	goto st0;
 tr119:
-#line 228 "command.rl"
+#line 233 "command.rl"
 	{ADD_DIGIT(ip3,(*p));}
 	goto st74;
 st74:
@@ -1198,7 +1203,7 @@ case 74:
 		goto tr124;
 	goto st0;
 tr124:
-#line 228 "command.rl"
+#line 233 "command.rl"
 	{ADD_DIGIT(ip3,(*p));}
 	goto st75;
 st75:
@@ -1231,7 +1236,7 @@ case 77:
 		goto tr128;
 	goto st0;
 tr126:
-#line 269 "command.rl"
+#line 274 "command.rl"
 	{stcmd=(*p);}
 	goto st78;
 st78:
@@ -1254,7 +1259,7 @@ case 79:
 	}
 	goto st0;
 tr130:
-#line 269 "command.rl"
+#line 274 "command.rl"
 	{stcmd=(*p);}
 	goto st80;
 st80:
@@ -1266,7 +1271,7 @@ case 80:
 		goto tr131;
 	goto st0;
 tr131:
-#line 227 "command.rl"
+#line 232 "command.rl"
 	{ADD_DIGIT(pulse,(*p));}
 	goto st81;
 st81:
@@ -1278,7 +1283,7 @@ case 81:
 		goto tr132;
 	goto st0;
 tr132:
-#line 227 "command.rl"
+#line 232 "command.rl"
 	{ADD_DIGIT(pulse,(*p));}
 	goto st82;
 st82:
@@ -1290,7 +1295,7 @@ case 82:
 		goto tr133;
 	goto st0;
 tr133:
-#line 227 "command.rl"
+#line 232 "command.rl"
 	{ADD_DIGIT(pulse,(*p));}
 	goto st83;
 st83:
@@ -1302,7 +1307,7 @@ case 83:
 		goto tr134;
 	goto st0;
 tr134:
-#line 227 "command.rl"
+#line 232 "command.rl"
 	{ADD_DIGIT(pulse,(*p));}
 	goto st84;
 st84:
@@ -1326,7 +1331,7 @@ case 85:
 	}
 	goto st0;
 tr137:
-#line 269 "command.rl"
+#line 274 "command.rl"
 	{stcmd=(*p);}
 	goto st86;
 st86:
@@ -1349,7 +1354,7 @@ case 87:
 	}
 	goto st0;
 tr138:
-#line 269 "command.rl"
+#line 274 "command.rl"
 	{stcmd=(*p);}
 	goto st88;
 st88:
@@ -1406,7 +1411,7 @@ case 92:
 		goto tr147;
 	goto st0;
 tr147:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st93;
 st93:
@@ -1418,7 +1423,7 @@ case 93:
 		goto tr148;
 	goto st0;
 tr148:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st94;
 st94:
@@ -1437,7 +1442,7 @@ case 95:
 		goto tr150;
 	goto st0;
 tr150:
-#line 225 "command.rl"
+#line 230 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st96;
 st96:
@@ -1449,7 +1454,7 @@ case 96:
 		goto tr151;
 	goto st0;
 tr151:
-#line 225 "command.rl"
+#line 230 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st97;
 st97:
@@ -1468,7 +1473,7 @@ case 98:
 		goto tr153;
 	goto st0;
 tr153:
-#line 226 "command.rl"
+#line 231 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
 	goto st99;
 st99:
@@ -1480,7 +1485,7 @@ case 99:
 		goto tr154;
 	goto st0;
 tr154:
-#line 226 "command.rl"
+#line 231 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
 	goto st100;
 st100:
@@ -1513,7 +1518,7 @@ case 102:
 	}
 	goto st0;
 tr158:
-#line 231 "command.rl"
+#line 236 "command.rl"
 	{ neg=-1;}
 	goto st103;
 st103:
@@ -1525,7 +1530,7 @@ case 103:
 		goto tr159;
 	goto st0;
 tr159:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st104;
 st104:
@@ -1556,7 +1561,7 @@ case 106:
 		goto tr160;
 	goto st0;
 tr162:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st107;
 st107:
@@ -1590,7 +1595,7 @@ case 109:
 		goto tr165;
 	goto st0;
 tr165:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st110;
 st110:
@@ -1602,7 +1607,7 @@ case 110:
 		goto tr166;
 	goto st0;
 tr166:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st111;
 st111:
@@ -1621,7 +1626,7 @@ case 112:
 		goto tr168;
 	goto st0;
 tr168:
-#line 225 "command.rl"
+#line 230 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st113;
 st113:
@@ -1633,7 +1638,7 @@ case 113:
 		goto tr169;
 	goto st0;
 tr169:
-#line 225 "command.rl"
+#line 230 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st114;
 st114:
@@ -1652,7 +1657,7 @@ case 115:
 		goto tr171;
 	goto st0;
 tr171:
-#line 226 "command.rl"
+#line 231 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
 	goto st116;
 st116:
@@ -1664,7 +1669,7 @@ case 116:
 		goto tr172;
 	goto st0;
 tr172:
-#line 226 "command.rl"
+#line 231 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
 	goto st117;
 st117:
@@ -1676,7 +1681,7 @@ case 117:
 		goto tr173;
 	goto st0;
 tr144:
-#line 269 "command.rl"
+#line 274 "command.rl"
 	{stcmd=(*p);}
 	goto st118;
 st118:
@@ -1700,7 +1705,7 @@ case 119:
 		goto tr175;
 	goto st0;
 tr175:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st120;
 st120:
@@ -1712,7 +1717,7 @@ case 120:
 		goto tr176;
 	goto st0;
 tr176:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st121;
 st121:
@@ -1733,7 +1738,7 @@ case 122:
 		goto tr178;
 	goto st0;
 tr178:
-#line 225 "command.rl"
+#line 230 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st123;
 st123:
@@ -1745,9 +1750,9 @@ case 123:
 		goto tr179;
 	goto st0;
 tr179:
-#line 225 "command.rl"
+#line 230 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
-#line 267 "command.rl"
+#line 272 "command.rl"
 	{deg=deg*3600+min*60;}
 	goto st124;
 st124:
@@ -1769,7 +1774,7 @@ case 125:
 		goto tr182;
 	goto st0;
 tr182:
-#line 261 "command.rl"
+#line 266 "command.rl"
 	{deg+=((*p)-'0')*6;}
 	goto st126;
 st126:
@@ -1788,7 +1793,7 @@ case 127:
 		goto tr184;
 	goto st0;
 tr184:
-#line 226 "command.rl"
+#line 231 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
 	goto st128;
 st128:
@@ -1800,9 +1805,9 @@ case 128:
 		goto tr185;
 	goto st0;
 tr185:
-#line 226 "command.rl"
+#line 231 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
-#line 268 "command.rl"
+#line 273 "command.rl"
 	{deg+=sec;}
 	goto st129;
 st129:
@@ -1845,7 +1850,7 @@ case 132:
 	}
 	goto st0;
 tr145:
-#line 269 "command.rl"
+#line 274 "command.rl"
 	{stcmd=(*p);}
 	goto st133;
 st133:
@@ -1880,7 +1885,7 @@ case 134:
 		goto st135;
 	goto st0;
 tr192:
-#line 231 "command.rl"
+#line 236 "command.rl"
 	{ neg=-1;}
 	goto st135;
 st135:
@@ -1892,7 +1897,7 @@ case 135:
 		goto tr193;
 	goto st0;
 tr193:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st136;
 st136:
@@ -1923,7 +1928,7 @@ case 137:
 		goto tr196;
 	goto st0;
 tr196:
-#line 225 "command.rl"
+#line 230 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st138;
 st138:
@@ -1935,9 +1940,9 @@ case 138:
 		goto tr197;
 	goto st0;
 tr197:
-#line 225 "command.rl"
+#line 230 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
-#line 267 "command.rl"
+#line 272 "command.rl"
 	{deg=deg*3600+min*60;}
 	goto st139;
 st139:
@@ -1949,7 +1954,7 @@ case 139:
 		goto tr198;
 	goto st127;
 tr198:
-#line 264 "command.rl"
+#line 269 "command.rl"
 	{set_cmd_exe(stcmd,(neg*(deg )));
                              sprintf(tmessage,"1");APPEND;deg=sec=min=0;
                             }
@@ -1968,7 +1973,7 @@ case 312:
 		goto tr184;
 	goto st0;
 tr195:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st140;
 st140:
@@ -1992,7 +1997,7 @@ case 140:
 		goto st137;
 	goto st0;
 tr199:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st141;
 st141:
@@ -2020,7 +2025,7 @@ case 142:
 		goto tr200;
 	goto st0;
 tr200:
-#line 308 "command.rl"
+#line 313 "command.rl"
 	{if (((*p)>='0')&&((*p)<'3'))telescope->smode=(*p)-'0';
 						else if (((*p)=='3')&&(telescope->mount_mode>EQ)){
 							 telescope->is_tracking = FALSE;
@@ -2032,15 +2037,15 @@ tr200:
 		}
 	goto st143;
 tr436:
-#line 325 "command.rl"
+#line 330 "command.rl"
 	{setflipmode((*p));}
 	goto st143;
 tr438:
-#line 324 "command.rl"
+#line 329 "command.rl"
 	{setnunchuk((*p));}
 	goto st143;
 tr439:
-#line 293 "command.rl"
+#line 298 "command.rl"
 	{meridianflip(telescope,(*p)=='w');}
 	goto st143;
 st143:
@@ -2057,6 +2062,7 @@ st144:
 case 144:
 	switch( (*p) ) {
 		case 65: goto tr202;
+		case 84: goto tr202;
 		case 97: goto tr202;
 		case 103: goto tr202;
 		case 106: goto tr202;
@@ -2068,19 +2074,19 @@ case 144:
 		goto tr203;
 	goto st0;
 tr202:
-#line 269 "command.rl"
+#line 274 "command.rl"
 	{stcmd=(*p);}
 	goto st145;
 st145:
 	if ( ++p == pe )
 		goto _test_eof145;
 case 145:
-#line 1655 "command.cpp"
+#line 1656 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr204;
 	goto st0;
 tr407:
-#line 308 "command.rl"
+#line 313 "command.rl"
 	{if (((*p)>='0')&&((*p)<'3'))telescope->smode=(*p)-'0';
 						else if (((*p)=='3')&&(telescope->mount_mode>EQ)){
 							 telescope->is_tracking = FALSE;
@@ -2092,696 +2098,696 @@ tr407:
 		}
 	goto st146;
 tr203:
-#line 270 "command.rl"
+#line 275 "command.rl"
 	{stcmd=(*p);mark=p;mark++;}
 	goto st146;
 tr421:
-#line 325 "command.rl"
+#line 330 "command.rl"
 	{setflipmode((*p));}
 	goto st146;
 tr423:
-#line 324 "command.rl"
+#line 329 "command.rl"
 	{setnunchuk((*p));}
 	goto st146;
 tr424:
-#line 293 "command.rl"
+#line 298 "command.rl"
 	{meridianflip(telescope,(*p)=='w');}
 	goto st146;
 st146:
 	if ( ++p == pe )
 		goto _test_eof146;
 case 146:
-#line 1685 "command.cpp"
+#line 1686 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	goto st146;
 tr206:
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr225:
-#line 296 "command.rl"
+#line 301 "command.rl"
 	{;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr226:
-#line 294 "command.rl"
+#line 299 "command.rl"
 	{telescope->track=0;telescope->azmotor->targetspeed=0.0;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr227:
-#line 295 "command.rl"
+#line 300 "command.rl"
 	{telescope->track=1;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr229:
-#line 255 "command.rl"
+#line 260 "command.rl"
 	{if (telescope->mount_mode)
 						align_sync_all(telescope,mount.ra_target,mount.dec_target);
 						else
 						{sync_eq(telescope);telescope->altmotor->slewing= telescope->azmotor->slewing=FALSE;}
 						sprintf(tmessage,"sync#");APPEND;
 						}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr231:
-#line 297 "command.rl"
+#line 302 "command.rl"
 	{if ((telescope->azmotor->slewing ||(telescope->altmotor->slewing))&&!(telescope->parked)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr240:
-#line 282 "command.rl"
+#line 287 "command.rl"
 	{gotofocuser(focus_motor.max_steps,focuspeed_low);}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr242:
-#line 280 "command.rl"
+#line 285 "command.rl"
 	{gotofocuser(focus_motor.max_steps,focuspeed);}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr243:
-#line 281 "command.rl"
+#line 286 "command.rl"
 	{gotofocuser(0,focuspeed_low);}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr245:
-#line 279 "command.rl"
+#line 284 "command.rl"
 	{gotofocuser(0,focuspeed);}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr253:
-#line 284 "command.rl"
+#line 289 "command.rl"
 	{gotofocuser(focus_counter);}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr254:
-#line 288 "command.rl"
+#line 293 "command.rl"
 	{sprintf(tmessage,"%d#",focus_motor.state<stop);APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr264:
-#line 286 "command.rl"
+#line 291 "command.rl"
 	{focus_motor.position=focus_motor.target=focus_counter;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr272:
-#line 283 "command.rl"
+#line 288 "command.rl"
 	{gotofocuser(focus_motor.position+(focus_counter*neg));}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr273:
-#line 285 "command.rl"
+#line 290 "command.rl"
 	{stopfocuser();}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr274:
-#line 287 "command.rl"
+#line 292 "command.rl"
 	{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr294:
-#line 245 "command.rl"
+#line 250 "command.rl"
 	{lxprintde1(tmessage, st_current.alt); APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr295:
-#line 248 "command.rl"
+#line 253 "command.rl"
 	{lxprintdate1(tmessage);APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr296:
-#line 242 "command.rl"
+#line 247 "command.rl"
 	{if (telescope->mount_mode) lxprintde1(tmessage, st_current.dec);
 							else mount_lxde_str(tmessage,telescope); APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr297:
-#line 275 "command.rl"
+#line 280 "command.rl"
 	{lxprintGMT_offset(tmessage,telescope->time_zone );APPEND}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr298:
-#line 300 "command.rl"
+#line 305 "command.rl"
 	{sprintf(tmessage,"%s#", telescope->is_tracking ? "1":"0");APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr299:
-#line 262 "command.rl"
+#line 267 "command.rl"
 	{ lxprinttime1(tmessage);APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr300:
-#line 249 "command.rl"
+#line 254 "command.rl"
 	{ lxprintsite();}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr301:
-#line 240 "command.rl"
+#line 245 "command.rl"
 	{if (telescope->mount_mode) lxprintra1(tmessage, st_current.ra);
 							else mount_lxra_str(tmessage,telescope); APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr302:
-#line 263 "command.rl"
+#line 268 "command.rl"
 	{ lxprintra(tmessage, sidereal_timeGMT(telescope->longitude,telescope->time_zone) * 15.0 * DEG_TO_RAD);APPEND;strcat(response,"#");}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr303:
-#line 278 "command.rl"
+#line 283 "command.rl"
 	{sprintf(tmessage,"50.0#");APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr309:
-#line 301 "command.rl"
+#line 306 "command.rl"
 	{sprintf(tmessage,"012 24 2000#") ;APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr310:
-#line 305 "command.rl"
+#line 310 "command.rl"
 	{sprintf(tmessage,"43Eg#") ;APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr311:
-#line 302 "command.rl"
+#line 307 "command.rl"
 	{sprintf(tmessage,"01.0#") ;APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr312:
-#line 303 "command.rl"
+#line 308 "command.rl"
 	{ sprintf(tmessage,"esp32go#") ;APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr313:
-#line 304 "command.rl"
+#line 309 "command.rl"
 	{sprintf(tmessage,"00:00:00#") ;APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr314:
-#line 244 "command.rl"
+#line 249 "command.rl"
 	{ lxprintaz1(tmessage, st_current.az); APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr315:
-#line 240 "command.rl"
+#line 245 "command.rl"
 	{if (telescope->mount_mode) lxprintra1(tmessage, st_current.ra);
 							else mount_lxra_str(tmessage,telescope); APPEND;}
-#line 242 "command.rl"
+#line 247 "command.rl"
 	{if (telescope->mount_mode) lxprintde1(tmessage, st_current.dec);
 							else mount_lxde_str(tmessage,telescope); APPEND;}
-#line 244 "command.rl"
+#line 249 "command.rl"
 	{ lxprintaz1(tmessage, st_current.az); APPEND;}
-#line 245 "command.rl"
+#line 250 "command.rl"
 	{lxprintde1(tmessage, st_current.alt); APPEND;}
-#line 300 "command.rl"
+#line 305 "command.rl"
 	{sprintf(tmessage,"%s#", telescope->is_tracking ? "1":"0");APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr316:
-#line 277 "command.rl"
+#line 282 "command.rl"
 	{sprintf(tmessage,"24#");APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr317:
-#line 247 "command.rl"
+#line 252 "command.rl"
 	{lxprintde1(tmessage, st_target.dec); APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr318:
-#line 251 "command.rl"
+#line 256 "command.rl"
 	{lxprintlong1(tmessage,telescope->longitude);APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr319:
-#line 299 "command.rl"
+#line 304 "command.rl"
 	{sprintf(tmessage, telescope->is_tracking ? "1":"0");APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr320:
-#line 246 "command.rl"
+#line 251 "command.rl"
 	{ lxprintra1(tmessage, st_target.ra); APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr321:
-#line 252 "command.rl"
+#line 257 "command.rl"
 	{lxprintlat1(tmessage,telescope->lat);APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr327:
-#line 306 "command.rl"
+#line 311 "command.rl"
 	{setwifipad(ip3,ip2);}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr334:
-#line 234 "command.rl"
+#line 239 "command.rl"
 	{if (telescope->mount_mode)
 					{goto_ra_dec(telescope,mount.ra_target*15.0*SEC_TO_RAD,mount.dec_target*SEC_TO_RAD);}
 					 else mount_slew(telescope);
 					 sprintf(tmessage,"0");APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr335:
-#line 232 "command.rl"
+#line 237 "command.rl"
 	{mount_move(telescope,stcmd);}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr341:
-#line 233 "command.rl"
+#line 238 "command.rl"
 	{pulse_guide(telescope,stcmd,pulse);}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr342:
-#line 238 "command.rl"
+#line 243 "command.rl"
 	{mount_stop(telescope,stcmd);}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr345:
-#line 239 "command.rl"
+#line 244 "command.rl"
 	{select_rate(telescope,stcmd); }
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr361:
-#line 271 "command.rl"
+#line 276 "command.rl"
 	{set_date(min,deg,sec);}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr366:
-#line 273 "command.rl"
+#line 278 "command.rl"
 	{ telescope->time_zone=-deg*neg;}
-#line 250 "command.rl"
+#line 255 "command.rl"
 	{sprintf(tmessage,"1");APPEND;deg=sec=min=0;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr379:
-#line 276 "command.rl"
+#line 281 "command.rl"
 	{set_time(deg,min,sec);}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr389:
-#line 264 "command.rl"
+#line 269 "command.rl"
 	{set_cmd_exe(stcmd,(neg*(deg )));
                              sprintf(tmessage,"1");APPEND;deg=sec=min=0;
                             }
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr409:
-#line 307 "command.rl"
+#line 312 "command.rl"
 	{appcmd(stcmd);APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr411:
-#line 289 "command.rl"
+#line 294 "command.rl"
 	{mount_goto_home(telescope);}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr418:
-#line 292 "command.rl"
+#line 297 "command.rl"
 	{sprintf(tmessage,"%s#",(telescope->autoflip? "1" : "0"));APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr419:
-#line 290 "command.rl"
+#line 295 "command.rl"
 	{mount_home_set(telescope);}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
 tr420:
-#line 291 "command.rl"
+#line 296 "command.rl"
 	{sprintf(tmessage,"%s#",(get_pierside(telescope)? "WEST" : "EAST"));APPEND;}
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st313;
@@ -2789,7 +2795,7 @@ st313:
 	if ( ++p == pe )
 		goto _test_eof313;
 case 313:
-#line 2250 "command.cpp"
+#line 2251 "command.cpp"
 	switch( (*p) ) {
 		case 6: goto tr442;
 		case 35: goto tr206;
@@ -2797,14 +2803,14 @@ case 313:
 	}
 	goto st146;
 tr442:
-#line 272 "command.rl"
+#line 277 "command.rl"
 	{if (telescope->mount_mode==ALTAZ) sprintf(tmessage,"A");else if (telescope->track) sprintf(tmessage,"P"); else sprintf(tmessage,"L"); APPEND; }
 	goto st147;
 st147:
 	if ( ++p == pe )
 		goto _test_eof147;
 case 147:
-#line 2263 "command.cpp"
+#line 2264 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr206;
 		case 58: goto st148;
@@ -2955,84 +2961,84 @@ case 162:
 	}
 	goto st146;
 tr247:
-#line 231 "command.rl"
+#line 236 "command.rl"
 	{ neg=-1;}
 	goto st163;
 st163:
 	if ( ++p == pe )
 		goto _test_eof163;
 case 163:
-#line 2419 "command.cpp"
+#line 2420 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr248;
 	goto st146;
 tr248:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st164;
 st164:
 	if ( ++p == pe )
 		goto _test_eof164;
 case 164:
-#line 2431 "command.cpp"
+#line 2432 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr249;
 	goto st146;
 tr249:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st165;
 st165:
 	if ( ++p == pe )
 		goto _test_eof165;
 case 165:
-#line 2443 "command.cpp"
+#line 2444 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr250;
 	goto st146;
 tr250:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st166;
 st166:
 	if ( ++p == pe )
 		goto _test_eof166;
 case 166:
-#line 2455 "command.cpp"
+#line 2456 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr251;
 	goto st146;
 tr251:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st167;
 st167:
 	if ( ++p == pe )
 		goto _test_eof167;
 case 167:
-#line 2467 "command.cpp"
+#line 2468 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr252;
 	goto st146;
 tr252:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st168;
 st168:
 	if ( ++p == pe )
 		goto _test_eof168;
 case 168:
-#line 2479 "command.cpp"
+#line 2480 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr253;
 	goto st146;
@@ -3072,84 +3078,84 @@ case 172:
 	}
 	goto st146;
 tr258:
-#line 231 "command.rl"
+#line 236 "command.rl"
 	{ neg=-1;}
 	goto st173;
 st173:
 	if ( ++p == pe )
 		goto _test_eof173;
 case 173:
-#line 2524 "command.cpp"
+#line 2525 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr259;
 	goto st146;
 tr259:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st174;
 st174:
 	if ( ++p == pe )
 		goto _test_eof174;
 case 174:
-#line 2536 "command.cpp"
+#line 2537 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr260;
 	goto st146;
 tr260:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st175;
 st175:
 	if ( ++p == pe )
 		goto _test_eof175;
 case 175:
-#line 2548 "command.cpp"
+#line 2549 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr261;
 	goto st146;
 tr261:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st176;
 st176:
 	if ( ++p == pe )
 		goto _test_eof176;
 case 176:
-#line 2560 "command.cpp"
+#line 2561 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr262;
 	goto st146;
 tr262:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st177;
 st177:
 	if ( ++p == pe )
 		goto _test_eof177;
 case 177:
-#line 2572 "command.cpp"
+#line 2573 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr263;
 	goto st146;
 tr263:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st178;
 st178:
 	if ( ++p == pe )
 		goto _test_eof178;
 case 178:
-#line 2584 "command.cpp"
+#line 2585 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr264;
 	goto st146;
@@ -3164,84 +3170,84 @@ case 179:
 	}
 	goto st146;
 tr266:
-#line 231 "command.rl"
+#line 236 "command.rl"
 	{ neg=-1;}
 	goto st180;
 st180:
 	if ( ++p == pe )
 		goto _test_eof180;
 case 180:
-#line 2604 "command.cpp"
+#line 2605 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr267;
 	goto st146;
 tr267:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st181;
 st181:
 	if ( ++p == pe )
 		goto _test_eof181;
 case 181:
-#line 2616 "command.cpp"
+#line 2617 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr268;
 	goto st146;
 tr268:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st182;
 st182:
 	if ( ++p == pe )
 		goto _test_eof182;
 case 182:
-#line 2628 "command.cpp"
+#line 2629 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr269;
 	goto st146;
 tr269:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st183;
 st183:
 	if ( ++p == pe )
 		goto _test_eof183;
 case 183:
-#line 2640 "command.cpp"
+#line 2641 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr270;
 	goto st146;
 tr270:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st184;
 st184:
 	if ( ++p == pe )
 		goto _test_eof184;
 case 184:
-#line 2652 "command.cpp"
+#line 2653 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr271;
 	goto st146;
 tr271:
-#line 230 "command.rl"
+#line 235 "command.rl"
 	{ADD_DIGIT(focus_counter,(*p));}
 	goto st185;
 st185:
 	if ( ++p == pe )
 		goto _test_eof185;
 case 185:
-#line 2664 "command.cpp"
+#line 2665 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr272;
 	goto st146;
@@ -3479,14 +3485,14 @@ case 214:
 		goto tr323;
 	goto st146;
 tr323:
-#line 228 "command.rl"
+#line 233 "command.rl"
 	{ADD_DIGIT(ip3,(*p));}
 	goto st215;
 st215:
 	if ( ++p == pe )
 		goto _test_eof215;
 case 215:
-#line 2907 "command.cpp"
+#line 2908 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr206;
 		case 46: goto st216;
@@ -3504,54 +3510,54 @@ case 216:
 		goto tr326;
 	goto st146;
 tr326:
-#line 229 "command.rl"
+#line 234 "command.rl"
 	{ADD_DIGIT(ip2,(*p));}
 	goto st217;
 st217:
 	if ( ++p == pe )
 		goto _test_eof217;
 case 217:
-#line 2930 "command.cpp"
+#line 2931 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr327;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr328;
 	goto st146;
 tr328:
-#line 229 "command.rl"
+#line 234 "command.rl"
 	{ADD_DIGIT(ip2,(*p));}
 	goto st218;
 st218:
 	if ( ++p == pe )
 		goto _test_eof218;
 case 218:
-#line 2942 "command.cpp"
+#line 2943 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr327;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr329;
 	goto st146;
 tr329:
-#line 229 "command.rl"
+#line 234 "command.rl"
 	{ADD_DIGIT(ip2,(*p));}
 	goto st219;
 st219:
 	if ( ++p == pe )
 		goto _test_eof219;
 case 219:
-#line 2954 "command.cpp"
+#line 2955 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr327;
 	goto st146;
 tr325:
-#line 228 "command.rl"
+#line 233 "command.rl"
 	{ADD_DIGIT(ip3,(*p));}
 	goto st220;
 st220:
 	if ( ++p == pe )
 		goto _test_eof220;
 case 220:
-#line 2964 "command.cpp"
+#line 2965 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr206;
 		case 46: goto st216;
@@ -3560,14 +3566,14 @@ case 220:
 		goto tr330;
 	goto st146;
 tr330:
-#line 228 "command.rl"
+#line 233 "command.rl"
 	{ADD_DIGIT(ip3,(*p));}
 	goto st221;
 st221:
 	if ( ++p == pe )
 		goto _test_eof221;
 case 221:
-#line 2978 "command.cpp"
+#line 2979 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr206;
 		case 46: goto st216;
@@ -3596,14 +3602,14 @@ case 223:
 		goto tr334;
 	goto st146;
 tr332:
-#line 269 "command.rl"
+#line 274 "command.rl"
 	{stcmd=(*p);}
 	goto st224;
 st224:
 	if ( ++p == pe )
 		goto _test_eof224;
 case 224:
-#line 3012 "command.cpp"
+#line 3013 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr335;
 	goto st146;
@@ -3620,70 +3626,70 @@ case 225:
 	}
 	goto st146;
 tr336:
-#line 269 "command.rl"
+#line 274 "command.rl"
 	{stcmd=(*p);}
 	goto st226;
 st226:
 	if ( ++p == pe )
 		goto _test_eof226;
 case 226:
-#line 3034 "command.cpp"
+#line 3035 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr337;
 	goto st146;
 tr337:
-#line 227 "command.rl"
+#line 232 "command.rl"
 	{ADD_DIGIT(pulse,(*p));}
 	goto st227;
 st227:
 	if ( ++p == pe )
 		goto _test_eof227;
 case 227:
-#line 3046 "command.cpp"
+#line 3047 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr338;
 	goto st146;
 tr338:
-#line 227 "command.rl"
+#line 232 "command.rl"
 	{ADD_DIGIT(pulse,(*p));}
 	goto st228;
 st228:
 	if ( ++p == pe )
 		goto _test_eof228;
 case 228:
-#line 3058 "command.cpp"
+#line 3059 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr339;
 	goto st146;
 tr339:
-#line 227 "command.rl"
+#line 232 "command.rl"
 	{ADD_DIGIT(pulse,(*p));}
 	goto st229;
 st229:
 	if ( ++p == pe )
 		goto _test_eof229;
 case 229:
-#line 3070 "command.cpp"
+#line 3071 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr340;
 	goto st146;
 tr340:
-#line 227 "command.rl"
+#line 232 "command.rl"
 	{ADD_DIGIT(pulse,(*p));}
 	goto st230;
 st230:
 	if ( ++p == pe )
 		goto _test_eof230;
 case 230:
-#line 3082 "command.cpp"
+#line 3083 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr341;
 	goto st146;
@@ -3700,14 +3706,14 @@ case 231:
 	}
 	goto st146;
 tr343:
-#line 269 "command.rl"
+#line 274 "command.rl"
 	{stcmd=(*p);}
 	goto st232;
 st232:
 	if ( ++p == pe )
 		goto _test_eof232;
 case 232:
-#line 3104 "command.cpp"
+#line 3105 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr342;
 	goto st146;
@@ -3724,14 +3730,14 @@ case 233:
 	}
 	goto st146;
 tr344:
-#line 269 "command.rl"
+#line 274 "command.rl"
 	{stcmd=(*p);}
 	goto st234;
 st234:
 	if ( ++p == pe )
 		goto _test_eof234;
 case 234:
-#line 3126 "command.cpp"
+#line 3127 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr345;
 	if ( 48 <= (*p) && (*p) <= 52 )
@@ -3786,28 +3792,28 @@ case 238:
 		goto tr353;
 	goto st146;
 tr353:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st239;
 st239:
 	if ( ++p == pe )
 		goto _test_eof239;
 case 239:
-#line 3186 "command.cpp"
+#line 3187 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr354;
 	goto st146;
 tr354:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st240;
 st240:
 	if ( ++p == pe )
 		goto _test_eof240;
 case 240:
-#line 3198 "command.cpp"
+#line 3199 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr206;
 		case 47: goto st241;
@@ -3823,28 +3829,28 @@ case 241:
 		goto tr356;
 	goto st146;
 tr356:
-#line 225 "command.rl"
+#line 230 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st242;
 st242:
 	if ( ++p == pe )
 		goto _test_eof242;
 case 242:
-#line 3219 "command.cpp"
+#line 3220 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr357;
 	goto st146;
 tr357:
-#line 225 "command.rl"
+#line 230 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st243;
 st243:
 	if ( ++p == pe )
 		goto _test_eof243;
 case 243:
-#line 3231 "command.cpp"
+#line 3232 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr206;
 		case 47: goto st244;
@@ -3860,28 +3866,28 @@ case 244:
 		goto tr359;
 	goto st146;
 tr359:
-#line 226 "command.rl"
+#line 231 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
 	goto st245;
 st245:
 	if ( ++p == pe )
 		goto _test_eof245;
 case 245:
-#line 3252 "command.cpp"
+#line 3253 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr360;
 	goto st146;
 tr360:
-#line 226 "command.rl"
+#line 231 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
 	goto st246;
 st246:
 	if ( ++p == pe )
 		goto _test_eof246;
 case 246:
-#line 3264 "command.cpp"
+#line 3265 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr361;
 	goto st146;
@@ -3909,28 +3915,28 @@ case 248:
 	}
 	goto st146;
 tr364:
-#line 231 "command.rl"
+#line 236 "command.rl"
 	{ neg=-1;}
 	goto st249;
 st249:
 	if ( ++p == pe )
 		goto _test_eof249;
 case 249:
-#line 3297 "command.cpp"
+#line 3298 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr365;
 	goto st146;
 tr365:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st250;
 st250:
 	if ( ++p == pe )
 		goto _test_eof250;
 case 250:
-#line 3309 "command.cpp"
+#line 3310 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr366;
 		case 44: goto st251;
@@ -3956,14 +3962,14 @@ case 252:
 		goto tr366;
 	goto st146;
 tr368:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st253;
 st253:
 	if ( ++p == pe )
 		goto _test_eof253;
 case 253:
-#line 3340 "command.cpp"
+#line 3341 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr366;
 		case 44: goto st251;
@@ -3994,28 +4000,28 @@ case 255:
 		goto tr371;
 	goto st146;
 tr371:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st256;
 st256:
 	if ( ++p == pe )
 		goto _test_eof256;
 case 256:
-#line 3376 "command.cpp"
+#line 3377 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr372;
 	goto st146;
 tr372:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st257;
 st257:
 	if ( ++p == pe )
 		goto _test_eof257;
 case 257:
-#line 3388 "command.cpp"
+#line 3389 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr206;
 		case 58: goto st258;
@@ -4031,28 +4037,28 @@ case 258:
 		goto tr374;
 	goto st146;
 tr374:
-#line 225 "command.rl"
+#line 230 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st259;
 st259:
 	if ( ++p == pe )
 		goto _test_eof259;
 case 259:
-#line 3409 "command.cpp"
+#line 3410 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr375;
 	goto st146;
 tr375:
-#line 225 "command.rl"
+#line 230 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st260;
 st260:
 	if ( ++p == pe )
 		goto _test_eof260;
 case 260:
-#line 3421 "command.cpp"
+#line 3422 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr206;
 		case 58: goto st261;
@@ -4068,40 +4074,40 @@ case 261:
 		goto tr377;
 	goto st146;
 tr377:
-#line 226 "command.rl"
+#line 231 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
 	goto st262;
 st262:
 	if ( ++p == pe )
 		goto _test_eof262;
 case 262:
-#line 3442 "command.cpp"
+#line 3443 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr378;
 	goto st146;
 tr378:
-#line 226 "command.rl"
+#line 231 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
 	goto st263;
 st263:
 	if ( ++p == pe )
 		goto _test_eof263;
 case 263:
-#line 3454 "command.cpp"
+#line 3455 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr379;
 	goto st146;
 tr350:
-#line 269 "command.rl"
+#line 274 "command.rl"
 	{stcmd=(*p);}
 	goto st264;
 st264:
 	if ( ++p == pe )
 		goto _test_eof264;
 case 264:
-#line 3464 "command.cpp"
+#line 3465 "command.cpp"
 	switch( (*p) ) {
 		case 32: goto st265;
 		case 35: goto tr206;
@@ -4122,28 +4128,28 @@ case 265:
 		goto tr381;
 	goto st146;
 tr381:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st266;
 st266:
 	if ( ++p == pe )
 		goto _test_eof266;
 case 266:
-#line 3490 "command.cpp"
+#line 3491 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr382;
 	goto st146;
 tr382:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st267;
 st267:
 	if ( ++p == pe )
 		goto _test_eof267;
 case 267:
-#line 3502 "command.cpp"
+#line 3503 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr206;
 		case 47: goto st268;
@@ -4160,30 +4166,30 @@ case 268:
 		goto tr384;
 	goto st146;
 tr384:
-#line 225 "command.rl"
+#line 230 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st269;
 st269:
 	if ( ++p == pe )
 		goto _test_eof269;
 case 269:
-#line 3524 "command.cpp"
+#line 3525 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr385;
 	goto st146;
 tr385:
-#line 225 "command.rl"
+#line 230 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
-#line 267 "command.rl"
+#line 272 "command.rl"
 	{deg=deg*3600+min*60;}
 	goto st270;
 st270:
 	if ( ++p == pe )
 		goto _test_eof270;
 case 270:
-#line 3537 "command.cpp"
+#line 3538 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr206;
 		case 46: goto st271;
@@ -4201,14 +4207,14 @@ case 271:
 		goto tr388;
 	goto st146;
 tr388:
-#line 261 "command.rl"
+#line 266 "command.rl"
 	{deg+=((*p)-'0')*6;}
 	goto st272;
 st272:
 	if ( ++p == pe )
 		goto _test_eof272;
 case 272:
-#line 3560 "command.cpp"
+#line 3561 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr389;
 	goto st146;
@@ -4222,30 +4228,30 @@ case 273:
 		goto tr390;
 	goto st146;
 tr390:
-#line 226 "command.rl"
+#line 231 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
 	goto st274;
 st274:
 	if ( ++p == pe )
 		goto _test_eof274;
 case 274:
-#line 3579 "command.cpp"
+#line 3580 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr391;
 	goto st146;
 tr391:
-#line 226 "command.rl"
+#line 231 "command.rl"
 	{ADD_DIGIT(sec,(*p)); }
-#line 268 "command.rl"
+#line 273 "command.rl"
 	{deg+=sec;}
 	goto st275;
 st275:
 	if ( ++p == pe )
 		goto _test_eof275;
 case 275:
-#line 3592 "command.cpp"
+#line 3593 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr389;
 		case 44: goto st276;
@@ -4283,14 +4289,14 @@ case 278:
 	}
 	goto st146;
 tr351:
-#line 269 "command.rl"
+#line 274 "command.rl"
 	{stcmd=(*p);}
 	goto st279;
 st279:
 	if ( ++p == pe )
 		goto _test_eof279;
 case 279:
-#line 3635 "command.cpp"
+#line 3636 "command.cpp"
 	switch( (*p) ) {
 		case 32: goto st280;
 		case 35: goto tr206;
@@ -4320,28 +4326,28 @@ case 280:
 		goto st281;
 	goto st146;
 tr398:
-#line 231 "command.rl"
+#line 236 "command.rl"
 	{ neg=-1;}
 	goto st281;
 st281:
 	if ( ++p == pe )
 		goto _test_eof281;
 case 281:
-#line 3670 "command.cpp"
+#line 3671 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr399;
 	goto st146;
 tr399:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st282;
 st282:
 	if ( ++p == pe )
 		goto _test_eof282;
 case 282:
-#line 3682 "command.cpp"
+#line 3683 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr401;
 	if ( (*p) < 58 ) {
@@ -4369,44 +4375,44 @@ case 283:
 		goto tr403;
 	goto st146;
 tr403:
-#line 225 "command.rl"
+#line 230 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
 	goto st284;
 st284:
 	if ( ++p == pe )
 		goto _test_eof284;
 case 284:
-#line 3715 "command.cpp"
+#line 3716 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr404;
 	goto st146;
 tr404:
-#line 225 "command.rl"
+#line 230 "command.rl"
 	{ADD_DIGIT(min,(*p)); }
-#line 267 "command.rl"
+#line 272 "command.rl"
 	{deg=deg*3600+min*60;}
 	goto st285;
 st285:
 	if ( ++p == pe )
 		goto _test_eof285;
 case 285:
-#line 3728 "command.cpp"
+#line 3729 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr405;
 	goto st273;
 tr405:
-#line 264 "command.rl"
+#line 269 "command.rl"
 	{set_cmd_exe(stcmd,(neg*(deg )));
                              sprintf(tmessage,"1");APPEND;deg=sec=min=0;
                             }
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st314;
@@ -4414,7 +4420,7 @@ st314:
 	if ( ++p == pe )
 		goto _test_eof314;
 case 314:
-#line 3747 "command.cpp"
+#line 3748 "command.cpp"
 	switch( (*p) ) {
 		case 6: goto tr442;
 		case 35: goto tr206;
@@ -4424,12 +4430,12 @@ case 314:
 		goto tr390;
 	goto st146;
 tr401:
-#line 317 "command.rl"
+#line 322 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	goto st315;
@@ -4437,7 +4443,7 @@ st315:
 	if ( ++p == pe )
 		goto _test_eof315;
 case 315:
-#line 3768 "command.cpp"
+#line 3769 "command.cpp"
 	switch( (*p) ) {
 		case 6: goto tr442;
 		case 35: goto tr206;
@@ -4447,14 +4453,14 @@ case 315:
 		goto tr403;
 	goto st146;
 tr402:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st286;
 st286:
 	if ( ++p == pe )
 		goto _test_eof286;
 case 286:
-#line 3783 "command.cpp"
+#line 3784 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr401;
 	if ( (*p) < 58 ) {
@@ -4473,14 +4479,14 @@ case 286:
 		goto st283;
 	goto st146;
 tr406:
-#line 224 "command.rl"
+#line 229 "command.rl"
 	{ADD_DIGIT(deg,(*p)); }
 	goto st287;
 st287:
 	if ( ++p == pe )
 		goto _test_eof287;
 case 287:
-#line 3807 "command.cpp"
+#line 3808 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr401;
 	if ( (*p) < 58 ) {
@@ -4511,6 +4517,7 @@ case 289:
 	switch( (*p) ) {
 		case 35: goto tr206;
 		case 65: goto tr408;
+		case 84: goto tr408;
 		case 97: goto tr408;
 		case 103: goto tr408;
 		case 106: goto tr408;
@@ -4522,14 +4529,14 @@ case 289:
 		goto tr203;
 	goto st146;
 tr408:
-#line 269 "command.rl"
+#line 274 "command.rl"
 	{stcmd=(*p);}
 	goto st290;
 st290:
 	if ( ++p == pe )
 		goto _test_eof290;
 case 290:
-#line 3854 "command.cpp"
+#line 3856 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr409;
 	goto st146;
@@ -5020,7 +5027,7 @@ case 310:
 	_out: {}
 	}
 
-#line 408 "command.rl"
+#line 413 "command.rl"
 
 
 //---------------------------------------------------------------------------------------------------------------------

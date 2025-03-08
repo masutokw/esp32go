@@ -16,6 +16,22 @@ tmcmotor_t tmcmotors[4] = { { 16, 1000, 1, 0, 0b01, 0 },
                             { 8, 400, 1, 0, 0b10, 0 } };
 tmc_enum_t tmc = RA;
 #endif
+bool tmc_readcnf(tmcmotor_t tm[]) {
+  
+  if (SPIFFS.exists(TMC_FILE)) {
+    File f = SPIFFS.open(TMC_FILE, "r");
+    for (uint8_t tmc = 0; tmc <= 3; tmc++) {
+      tm[tmc].msteps = f.readStringUntil('\n').toInt();
+      tm[tmc].mamps = f.readStringUntil('\n').toInt();
+      tm[tmc].sp_trigger = f.readStringUntil('\n').toInt();
+      tm[tmc].spread = f.readStringUntil('\n').toInt();
+      tm[tmc].pol = f.readStringUntil('\n').toInt();
+    }
+    f.close(); 
+    return true;
+  }
+  return false;
+}
 void tmc_boot(void) {
 
 #ifdef TMC_DRIVERS
@@ -38,7 +54,7 @@ void tmc_boot(void) {
 
 void tmcinit(void) {
 
-  if (SPIFFS.exists(TMC_FILE)) {
+ /* if (SPIFFS.exists(TMC_FILE)) {
     File f = SPIFFS.open(TMC_FILE, "r");
     for (uint8_t tmc = 0; tmc <= 3; tmc++) {
       tmcmotors[tmc].msteps = f.readStringUntil('\n').toInt();
@@ -48,8 +64,8 @@ void tmcinit(void) {
       tmcmotors[tmc].pol = f.readStringUntil('\n').toInt();
     }
     f.close();
-  }
-
+  } */
+ tmc_readcnf(tmcmotors);
 #ifdef TMC_DRIVERS
 
 

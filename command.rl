@@ -18,7 +18,7 @@
 #ifdef NUNCHUCK_CONTROL
 #include "nunchuck.h"
 #endif
-
+#include "tmc.h"
 char response [200];
 //char tmessage[50];
 char tmessage[300];
@@ -39,8 +39,8 @@ struct _telescope_
 mount;
 extern long sdt_millis;
 extern mount_t *telescope;
+void conf_tmc(const char *filename);
 void conf(void);
-void conf_tmc(void);
 void lxprintsite(void)
 {
     sprintf(tmessage,"Site Name#");APPEND;
@@ -60,14 +60,19 @@ void appcmd(char cmd)
     break;
   case 'A':conf();
   break;
-  case 'T':conf_tmc();
+  case 'T':conf_tmc(TMC_FILE);
    break;
   
 }
 
 
 }
-void conf_tmc(void){;}
+void conf_tmc(const char *filename){
+File f = SPIFFS.open(filename,"r");
+  if (!f) exit;
+     f.read((uint8_t *)tmessage,f.size()+1);
+	 f.close();   
+   }
 void conf(void)
 {
 	
@@ -318,7 +323,7 @@ long command( char *str )
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						}
 						}
 	action nunchuk {setnunchuk(fc);}
@@ -391,7 +396,7 @@ long command( char *str )
         Autostar='GV'('D'%a_date | 'N'%a_number | 'P'%a_product | 'T'%a_time | 'F'%a_firm) ;
 		
 #app commands
-		cgfsend=[zagjA]@storecmd %cmd_app;
+		cgfsend=[zagjAT]@storecmd %cmd_app;
 		cgfwrite=[snwt]@markinput extend* %writeconf ;
 		Appcmd= 'c'(cgfsend | cgfwrite);
 		

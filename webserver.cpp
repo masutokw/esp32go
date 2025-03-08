@@ -16,11 +16,13 @@ const String codes[31] = { "EAST", "WEST", "NORTH", "SOUTH", "OK", "FOCUS_F", "F
 #ifdef PAD
 #include "pad.h"
 extern bool pad_enabled;
+
 #endif
 #ifdef RTC_IC
 #include "RTClib.h"
 extern RTC_IC rtc;
 #endif
+extern tmcmotor_t tmcmotors[4];
 extern int clients_connected;
 extern uint64_t period_alt;
 extern char sync_target;
@@ -630,61 +632,22 @@ void handleTmc(void) {
   char msg[43];
   time_t now;
   now = time(nullptr);
-   snprintf(msg, 42, "TMC %s ", ctime(&now));
+  snprintf(msg, 42, "TMC %s ", ctime(&now));
   if (serverweb.hasArg("ra_msteps") && serverweb.hasArg("dec_msteps")) {
     snprintf(temp, 4500, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n#\n",
              serverweb.arg("ra_msteps"), serverweb.arg("ra_mamps"), serverweb.arg("ra_t"), String(serverweb.hasArg("ra_spread")), String(serverweb.hasArg("ra_pol")),
-             serverweb.arg("dec_msteps"), serverweb.arg("dec_mamps"), serverweb.arg("de_t"),  String(serverweb.hasArg("de_spread")), String(serverweb.hasArg("de_pol")),
-             serverweb.arg("z_msteps"), serverweb.arg("z_mamps"), serverweb.arg("z_t"),String(serverweb.hasArg("z_spread")), String(serverweb.hasArg("z_pol")),
-             serverweb.arg("e_msteps"), serverweb.arg("e_mamps"), serverweb.arg("e_t"),  String(serverweb.hasArg("e_spread")) , String(serverweb.hasArg("e_pol")));
-   
+             serverweb.arg("dec_msteps"), serverweb.arg("dec_mamps"), serverweb.arg("de_t"), String(serverweb.hasArg("de_spread")), String(serverweb.hasArg("de_pol")),
+             serverweb.arg("z_msteps"), serverweb.arg("z_mamps"), serverweb.arg("z_t"), String(serverweb.hasArg("z_spread")), String(serverweb.hasArg("z_pol")),
+             serverweb.arg("e_msteps"), serverweb.arg("e_mamps"), serverweb.arg("e_t"), String(serverweb.hasArg("e_spread")), String(serverweb.hasArg("e_pol")));
+
     File f = SPIFFS.open(TMC_FILE, "w");
     f.println(temp);
     f.close();
     tmcinit();
-     snprintf(msg, 42, "TMC Saved at %s ", ctime(&now));
+    snprintf(msg, 42, "TMC Saved at %s ", ctime(&now));
   }
+  tmc_readcnf(tmcmotors);
 
-  int ra_msteps, ra_mamps, dec_msteps, dec_mamps, z_msteps, z_mamps, e_msteps, e_mamps;
-  int ra_pwmtrigger, dec_pwmtrigger, z_pwmtrigger, e_pwmtrigger, ra_spread, de_spread, z_spread, e_spread;
-  int  ra_pol, de_pol, z_pol, e_pol;
-  if (SPIFFS.exists(TMC_FILE)) {
-    File f = SPIFFS.open(TMC_FILE, "r");
-    ra_msteps = f.readStringUntil('\n').toInt();
-    ra_mamps = f.readStringUntil('\n').toInt();
-    ra_pwmtrigger = f.readStringUntil('\n').toInt();
-    ra_spread = f.readStringUntil('\n').toInt();
-    ra_pol=f.readStringUntil('\n').toInt();
-    dec_msteps = f.readStringUntil('\n').toInt();
-    dec_mamps = f.readStringUntil('\n').toInt();
-    dec_pwmtrigger = f.readStringUntil('\n').toInt();
-    de_spread = f.readStringUntil('\n').toInt();
-    de_pol=f.readStringUntil('\n').toInt();
-    z_msteps = f.readStringUntil('\n').toInt();
-    z_mamps = f.readStringUntil('\n').toInt();
-    z_pwmtrigger = f.readStringUntil('\n').toInt();
-    z_spread = f.readStringUntil('\n').toInt();
-    z_pol=f.readStringUntil('\n').toInt();
-    e_msteps = f.readStringUntil('\n').toInt();
-    e_mamps = f.readStringUntil('\n').toInt();
-    e_pwmtrigger = f.readStringUntil('\n').toInt();
-    e_spread = f.readStringUntil('\n').toInt();
-    z_pol=f.readStringUntil('\n').toInt();
-
-    f.close();
-  } else {
-    ra_msteps = 32;
-    ra_mamps = 1000;
-    dec_msteps = 32;
-    dec_mamps = 1000;
-    z_msteps = 8;
-    z_mamps = 500;
-    e_msteps = 8;
-    e_mamps = 500;
-    ra_spread = de_spread = z_spread = e_spread =0;
-    ra_pol= de_pol = z_pol = e_pol=1;
-    ra_pwmtrigger = dec_pwmtrigger = z_pwmtrigger = e_pwmtrigger = 0;
-  }
   snprintf(temp, 4500,
            "<html><style>" BUTTTEXTT TEXTT3 "</style>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\">\
 <form action='/tmc' method='POST'><h2>ESP32go - TMC</h2>\
@@ -724,14 +687,15 @@ void handleTmc(void) {
 <input type='submit' name='SUBMIT'  class=\"button_red\" value='Save'></fieldset></form>%s<br>\
 <button onclick=\"location.href='/'\"class=\"button_red\" type=\"button\">Back</button> <br>\
 </body></html>",
-           ra_msteps, dec_msteps, z_msteps, e_msteps,
-           ra_mamps, dec_mamps, z_mamps, e_mamps,
-           ra_pwmtrigger, dec_pwmtrigger, z_pwmtrigger, e_pwmtrigger,
-           ra_spread ? "checked" : "", de_spread ? "checked" : "",
-           z_spread ? "checked" : "", e_spread ? "checked" : "",
-           ra_pol ? "checked" : "", de_pol ? "checked" : "",
-           z_pol ? "checked" : "", e_pol ? "checked" : "",msg);
-          
+           tmcmotors[RA].msteps, tmcmotors[DE].msteps, tmcmotors[F1].msteps, tmcmotors[F2].msteps,
+           tmcmotors[RA].mamps, tmcmotors[DE].mamps, tmcmotors[F1].mamps, tmcmotors[F2].mamps,
+           tmcmotors[RA].sp_trigger, tmcmotors[DE].sp_trigger, tmcmotors[F1].sp_trigger, tmcmotors[F2].sp_trigger,
+           tmcmotors[RA].spread ? "checked" : "", tmcmotors[DE].spread ? "checked" : "",
+           tmcmotors[F1].spread ? "checked" : "", tmcmotors[F2].spread ? "checked" : "",
+           tmcmotors[RA].pol ? "checked" : "", tmcmotors[DE].pol ? "checked" : "",
+           tmcmotors[F1].pol ? "checked" : "", tmcmotors[F2].pol ? "checked" : "",
+           msg);
+
   serverweb.send(200, "text/html", temp);
 }
 

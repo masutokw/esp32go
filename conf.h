@@ -143,8 +143,8 @@
 
 
 //On slow pulse detect stepper driver as DRV8825 comment out
-#define AZ_P_DELAY 23
-#define ALT_P_DELAY 23
+//#define AZ_P_DELAY 23
+//#define ALT_P_DELAY 23
 // Use NCP as default position for EQ mount
 //#define NCP_HOME
 // Retry NTP connection up to 3 trimes to get network time before mount init

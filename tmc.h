@@ -42,9 +42,9 @@ typedef struct{
    uint32_t sp_trigger;
   
 }tmcmotor_t;
+bool tmc_readcnf(tmcmotor_t tm[]);
 void tmc_boot(void);
 void tmcinit(void);
-void tmc_init(void);
 void tmc_cmd(TMC_DEVICE& tmc, uint16_t res, uint16_t current, uint8_t pol, uint8_t spread,uint32_t cycleTrigger);
 //void tmc_cmd(tmcmotor_t tmcindex);
 void tmc_cmd (tmcmotor_t tmcindex,TMC_DEVICE& tmc);

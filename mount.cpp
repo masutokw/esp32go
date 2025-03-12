@@ -509,6 +509,7 @@ void mount_park(mount_t *mt)
   mt->altmotor->slewing = mt->azmotor->slewing = mt->is_tracking = FALSE;
   mt->altmotor->targetspeed = 0.0;
   mt->azmotor->targetspeed = 0.0;
+  mt->parked=true;
   File f = SPIFFS.open("/savedpos", "w");
   f.println(azcounter);
   f.println(altcounter);

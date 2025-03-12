@@ -491,7 +491,7 @@ tmc_boot();
 }
 
 void loop() {
-  delay(10);
+  delay(1);
   net_task();
 #ifndef BT_TRACE_USB
   bttask();

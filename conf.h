@@ -35,8 +35,8 @@
 #define STEP_FOCUS
 #define TMC_DRIVERS
 #else
-#define CLOCK_OUT_FOCUS  13 
-#define DIR_OUT_FOCUS 12
+#define CLOCK_OUT_FOCUS  12 
+#define DIR_OUT_FOCUS 13
 #define ENABLE_FOCUS 14
 #define PROTO
 #ifdef PROTO

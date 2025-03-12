@@ -8,14 +8,14 @@ TMC_DEVICE driver_ra = TMC_DEVICE(&TMC_SERIAL_PORT, TMC_R_SENSE TMC_DRIVER_RA_AD
 TMC_DEVICE driver_dec = TMC_DEVICE(&TMC_SERIAL_PORT, TMC_R_SENSE TMC_DRIVER_DEC_ADDRESS);
 TMC_DEVICE driver_z = TMC_DEVICE(&TMC_SERIAL_PORT, TMC_R_SENSE TMC_DRIVER_Z_ADDRESS);
 TMC_DEVICE driver_e = TMC_DEVICE(&TMC_SERIAL_PORT, TMC_R_SENSE TMC_DRIVER_E_ADDRESS);
-
+#endif
 
 tmcmotor_t tmcmotors[4] = { { 16, 1000, 1, 0, 0b01, 0 },
                             { 16, 1000, 1, 0, 0b11, 0 },
                             { 8, 400, 1, 0, 0b00, 0 },
                             { 8, 400, 1, 0, 0b10, 0 } };
 tmc_enum_t tmc = RA;
-#endif
+
 bool tmc_readcnf(tmcmotor_t tm[]) {
   
   if (SPIFFS.exists(TMC_FILE)) {

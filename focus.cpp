@@ -1,5 +1,6 @@
 #include "focus.h"
 #include "tb6612.h"
+#define GOTO_FOCUS_PERIOD 2000
 int  focuspeed = 7;
 int  focuspeed_low = 20;
 int focusspd_current = 0;
@@ -15,7 +16,7 @@ void setfocuserspeed(motor_t* mt, int speed)
 
 void gotofocuser(int pos) {
   if(dcfocus!=1)
-    move_to(&focus_motor, pos);
+    move_to(&focus_motor, pos,GOTO_FOCUS_PERIOD);
   else
     if (pos == focus_motor.max_steps) move_to(1); else if (pos == 0) move_to(-1); else move_to (0);
 

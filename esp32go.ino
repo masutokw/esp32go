@@ -19,7 +19,7 @@
 #ifdef TMC_DRIVERS
 #include <TMCStepper.h>
 //extern TMC_DEVICE driver_ra, driver_dec, driver_z, driver_e;
-#endif 
+#endif
 volatile int stepcounter1, stepcounter2;
 uint64_t volatile period_az, period_alt;
 int volatile azcounter, altcounter, azbackcounter, altbackcounter;
@@ -30,6 +30,7 @@ int encb;
 String a;
 hw_timer_t* timer_az = NULL;
 hw_timer_t* timer_alt = NULL;
+hw_timer_t* timer_focus = NULL;
 #ifdef OTA
 #include <ArduinoOTA.h>
 #include "OTA_helper.hpp"
@@ -68,12 +69,13 @@ bool bnunchuk = 0;
 char buff[512] = "Waiting for connection..";
 const char* pin = "0000";
 extern char response[200];
+extern char tzstr[50];
 byte otab = 0;
 mount_t* telescope;
 c_star volatile st_now, st_target, st_current, st_1, st_2;
 String ssi;
 String pwd;
-Ticker speed_control_tckr, counters_poll_tkr, focuser_tckr;
+Ticker speed_control_tckr, counters_poll_tkr;
 extern long command(char* str);
 time_t now;
 time_t init_time;
@@ -84,6 +86,7 @@ bool NTP_Sync = false;
 void timeavailable(struct timeval* t) {
   //Serial.println("Got time adjustment from NTP!");
   NTP_Sync = true;
+  telescope->time_zone = getoffset();
 #ifdef RTC_IC
   rtc.adjust(DateTime(time(nullptr)));
 #endif
@@ -347,10 +350,10 @@ void setup() {
 
   //start UART and the server
 #ifdef TMC_DRIVERS
- 
-tmc_boot();
-// tmcinit();
-  
+
+  tmc_boot();
+  // tmcinit();
+
 #endif
 
 #ifdef OLED_DISPLAY
@@ -364,12 +367,22 @@ tmc_boot();
   readconfig(telescope);
   httpUpdater.setup(&serverweb);
   sntp_set_time_sync_notification_cb(timeavailable);
-  config_NTP(telescope->time_zone, 0);
+  f = SPIFFS.open(IANA_FILE, "r");
+  if (!f) {
+    config_NTP(telescope->time_zone, 0);
+  } else {
+    String s = f.readStringUntil('\n');
+    s.toCharArray(tzstr, s.length() + 1);
+    config_NTP(telescope->time_zone, tzstr);
+  }
+  f.close();
+
   if (WiFi.status() == WL_CONNECTED) {
     int cn = 0;
     now = time(nullptr);
 
-    while ((now < EPOCH_1_1_2023) && (cn++) < 5) {
+    // while ((now < EPOCH_1_1_2023) && (cn++) < 5) {
+    while (!NTP_Sync && (cn++) < 5) {
       delay(500);
       now = time(nullptr);
     }
@@ -398,7 +411,7 @@ tmc_boot();
   pinMode(CLOCK_OUT_ALT, OUTPUT);
   pinMode(DIR_OUT_AZ, OUTPUT);
   pinMode(DIR_OUT_ALT, OUTPUT);
-#ifdef ESP32_38 
+#ifdef ESP32_38
 #ifndef TMC_DRIVERS
   pinMode(AZ_RES, OUTPUT);
   pinMode(ALT_RES, OUTPUT);
@@ -420,37 +433,40 @@ tmc_boot();
   digitalWrite(BIN_2, 0);
   digitalWrite(ENABLE_AZ, EN_DRIVER);
   digitalWrite(ENABLE_ALT, EN_DRIVER);
-  
+
 #ifdef STEP_FOCUS
   pinMode(CLOCK_OUT_FOCUS, OUTPUT);
   pinMode(DIR_OUT_FOCUS, OUTPUT);
   pinMode(ENABLE_FOCUS, OUTPUT);
-  digitalWrite(ENABLE_FOCUS, EN_DRIVER);
+  digitalWrite(ENABLE_FOCUS, DEN_DRIVER);
 #endif
   // Use 1st timer of 4 (counted from zero).
   // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
   // info).
   timer_alt = timerBegin(TIMER_ALT, 80, true);
   timer_az = timerBegin(TIMER_AZ, 80, true);
+  timer_focus = timerBegin(TIMER_FOCUS, 80, true);
 
   // Attach onTimer function to our timer.
   timerAttachInterrupt(timer_az, &onTimer_az, false);
   timerAttachInterrupt(timer_alt, &onTimer_alt, false);
+  timerAttachInterrupt(timer_focus, &dostep, false);
 
   timerAlarmWrite(timer_az, 100000, true);
   timerAlarmWrite(timer_alt, 100000, true);
-
+  timerAlarmWrite(timer_focus, 100000, true);
   // Start an alarm
   timerAlarmEnable(timer_az);
   timerAlarmEnable(timer_alt);
+  timerAlarmDisable(timer_focus);
   pinMode(0, INPUT_PULLUP);
   attachInterrupt(0, nunchuk_reset, FALLING);
 
-  //move_to(&focus_motor,focus_motor.position);
+  move_to(&focus_motor, focus_motor.position, 2000);
   stopfocuser();
-  WA_O;
-  WB_O;
-  focuser_tckr.detach();
+  // WA_O;
+  // WB_O;
+  // focuser_tckr.detach();
   if (telescope->mount_mode == EQ) telescope->azmotor->targetspeed = telescope->track_speed;
 
 #ifdef PAD
@@ -491,7 +507,7 @@ tmc_boot();
 }
 
 void loop() {
-  delay(1);
+  delay(10);
   net_task();
 #ifndef BT_TRACE_USB
   bttask();

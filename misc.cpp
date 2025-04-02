@@ -219,12 +219,12 @@ void setclock (int year, int month, int day, int hour, int min, int sec, int gmt
   settimeofday(&tv, nullptr);
 
 }
-/*
-void config_NTP(int zone, int dls)
+
+void config_NTP(int zone,  char* tzstr)
 {
   char tx[10];
   //  configTime(0, 0,  "pool.ntp.org");
-  if (zone) {
+  if (false) {
   //  sprintf(tx, "<%+03d>%d", -zone, zone);
    sprintf(tx, "<%+03d>%d", zone, -zone);
     configTzTime(tx, "pool.ntp.org");
@@ -237,7 +237,7 @@ void config_NTP(int zone, int dls)
 
   tzset();
 
-}*/
+}
 
 
   void config_NTP(int zone, int dls)

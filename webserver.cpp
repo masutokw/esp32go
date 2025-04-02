@@ -81,7 +81,9 @@ void handleConfig(void) {
              serverweb.arg("FOCUSMAX"), serverweb.arg("FOCUSPEEDLOW"), serverweb.arg("FOCUSPEED"),
              serverweb.arg("RAMP"), serverweb.arg("RAMPA"), serverweb.arg("BACK_AZ"), serverweb.arg("BACK_ALT"),
              serverweb.arg("MOUNT"), serverweb.arg("TRACK"), serverweb.arg("AUTOFLIP"), String(serverweb.hasArg("INVAZ")),
-             String(serverweb.hasArg("INVALT")), serverweb.arg("PWR_DIR"), String(serverweb.hasArg("ACTAZ")), String(serverweb.hasArg("ACTALT")), serverweb.arg("DC_FOCUS"));
+             String(serverweb.hasArg("INVALT")), serverweb.arg("PWR_DIR"), String(serverweb.hasArg("ACTAZ")), String(serverweb.hasArg("ACTALT")),
+             serverweb.arg("DC_FOCUS"));
+    //,serverweb.arg("IANA"));
 
     /*  String temp = serverweb.arg("SLEW");
       telescope->rate[3][0] = temp.toFloat();
@@ -131,6 +133,7 @@ void handleConfig(void) {
            telescope->autoflip ? "checked" : "", telescope->azmotor->cw ? "checked" : "", telescope->altmotor->cw ? "checked" : "", telescope->azmotor->active ? "checked" : "", telescope->altmotor->active ? "checked" : "");
   serverweb.setContentLength(CONTENT_LENGTH_UNKNOWN);
   serverweb.send(200, "text/html", temp);
+  delay(50);
   //Second  page chunk
   snprintf(temp, 4500,
            "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Focuser</legend>\
@@ -145,15 +148,14 @@ void handleConfig(void) {
 <fieldset style=\"width:15% ; border-radius:15px\"> <legend>Geodata</legend>\
 <table style='width:250px'><tr><td>Longitude:</td><td><input type='number' step='any' name='LONGITUDE' class=\"text_red\" value='%.4f'></td></tr>\
 <tr><td>Latitude:</td><td><input type='number'step='any'  name='LATITUDE' class=\"text_red\"  value='%.4f'></td></tr>\
-<tr><td>GMT offset:</td><td><input type='number'step='1' name='TIMEZONE' class=\"text_red\" value='%d'></td></tr>\
- <tr><td>TZ IANA<input type='text' name='IANA' class=\"text_red2\" value='%s'></td></tr> </table>\
+<tr><td>GMT offset:</td><td><input type='number'step='1' name='TIMEZONE' class=\"text_red\" value='%d'></td></tr></table>\
 </fieldset></form><br>\
 <br>Load Time : %s \
 <br>%s \
 </body></html>",
            focusmax, focuspeed_low, focuspeed, focusvolt * focusinv,
            dcfocus == 0 ? "checked" : "", dcfocus == 1 ? "checked" : "",
-           telescope->longitude, telescope->lat, telescope->time_zone, &tzstr, ctime(&now), &msg);
+           telescope->longitude, telescope->lat, telescope->time_zone, ctime(&now), &msg);
   serverweb.sendContent(temp);
   serverweb.sendContent("");
 }
@@ -596,7 +598,7 @@ void handleMain(void) {
   content += "<table style='width:250px'>";
   content += "<button onclick=\"location.href='/time'\" class=\"button_red\" type=\"button\">Sync Date/Time</button><button onclick=\"location.href='/monitor'\" class=\"button_red\" type=\"button\">Monitor Counters</button></table></fieldset>";
 
-  content += "<br>Loaded at Time :" + String(ctime(&now)) + String(NTP_Sync ? "NTP OK" : "RTC") + "<br></body></html>";
+  content += "<br>Loaded at Time :" + String(ctime(&now)) + String(NTP_Sync ? "NTP OK" : "RTC") + " Offset:" + String(getoffset()) + "<br></body></html>";
   serverweb.send(200, "text/html", content);
 }
 
@@ -698,6 +700,33 @@ void handleTmc(void) {
 
   serverweb.send(200, "text/html", temp);
 }
+void handleIana(void) {
+  if (serverweb.hasArg("IANA")) {
+    String net = serverweb.arg("IANA");
+    net.toCharArray(tzstr, net.length()+1);
+    File f = SPIFFS.open(IANA_FILE, "w");
+    if (!f) {
+      net = ("file open failed");
+    } else
+      f.println(net);
+    f.close();
+  }
+
+  String content = "<html><head><style>" BUTT TEXTT2 "</style>" AUTO_SIZE "</head><body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>IANA</h2><br>";
+  content += "<form action='/iana' method='POST'>";
+  content += "<table style='width:200px'><tr><td><input type='text' name='IANA' class=\"text_red2\" value='" + String(tzstr) + "'></td><td>";
+  content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Set zone'></tr></form></table>";
+  content += "<button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Home</button><br>";
+
+
+
+  content += "</body></html>";
+  serverweb.send(200, "text/html", content);
+  //  timerAlarmDisable(timer_alt);
+  //  timerAlarmEnable(timer_alt);
+}
+
+
 
 
 void initwebserver(void) {
@@ -725,6 +754,7 @@ void initwebserver(void) {
   serverweb.on("/starinstructions", handleStarInstructions);
   serverweb.on("/instructions", handleInstructions);
   serverweb.on("/tmc", handleTmc);
+  serverweb.on("/iana", handleIana);
   serverweb.onNotFound([]() {
     if (!handleFileRead(serverweb.uri()))
       serverweb.send(404, "text/plain", "FileNotFound");

@@ -31,6 +31,7 @@ void lxprintlong1(char *message,double ang);
 void lxprintlat1(char *message,double ang);
 void lxprinttime1(char *message);
 void lxprintdate1(char *message);
+void config_NTP(int zone, char* tzstr);
 void config_NTP(int zone,int dls );
 void lxprintGMT_offset(char *message,double offset );
 void setclock (int year,int month,int day,int hour,int min,int sec,int gmt);

@@ -17,9 +17,13 @@
 #define SDA_PIN 21
 #define SCL_PIN 22
 #define BUZZER_PIN 26
-#define TMC_DRIVERS
-//#define STEP_FOCUS
-//#define FYSECT_BRD
+///-------------------------------------------------------------
+//#define TMC_DRIVERS   //uncomment if using tmc driver
+//#define STEP_FOCUS   // uncomment when using 3d driver for focuser //comment when tb6612
+//#define M_STEP         //uncomment when TB6612 microsteppig 
+//#define FYSECT_BRD   //uncommnet for FYSECT 3D-printer board
+#define PROTO  //uncomment for not Angel´s board
+//-----------------------------------------------
 #ifdef FYSECT_BRD
 #define CLOCK_OUT_AZ X_STEP
 #define DIR_OUT_AZ X_DIR
@@ -38,7 +42,7 @@
 #define CLOCK_OUT_FOCUS  12 
 #define DIR_OUT_FOCUS 13
 #define ENABLE_FOCUS 14
-#define PROTO
+
 #ifdef PROTO
 #define CLOCK_OUT_AZ 4
 #define DIR_OUT_AZ 2
@@ -136,15 +140,17 @@
 #ifdef IR_CONTROL
 #define TIMER_AZ 0
 #define TIMER_ALT 1
+#define TIMER_FOCUS 3
 #else
 #define TIMER_AZ 3
 #define TIMER_ALT 2
+#define TIMER_FOCUS 0
 #endif
 
 
 //On slow pulse detect stepper driver as DRV8825 comment out
-//#define AZ_P_DELAY 23
-//#define ALT_P_DELAY 23
+#define AZ_P_DELAY 23
+#define ALT_P_DELAY 23
 // Use NCP as default position for EQ mount
 //#define NCP_HOME
 // Retry NTP connection up to 3 trimes to get network time before mount init
@@ -159,9 +165,9 @@
 #define NETWORK_FILE "/network.config"
 #define IR_FILE "/remote.config"
 #define TMC_FILE "/tmc.config"
+#define IANA_FILE "/iana.config"
 #define SSID_AP  "ESP32go"
 #define PASS_AP  "boquerones"
-//#define M_STEP
 #define TZ_SPAIN "CET-1CEST,M3.5.0,M10.5.0/3"
 //selected rate at boot 0:guide,1:center,2:find,3:slew.
 #define I_SELECT_RATE 3

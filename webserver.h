@@ -36,7 +36,7 @@
 #define TEXTT  ".text_red {text-align: right;height:20px; width:90px; background-color:black;color: "  TEXT_COL " ;border:0}"
 
 #define TEXTT1  ".text_red {text-align: right;height:20px; width:45px; background-color:black;color:"  TEXT_COL ";border:1}"
-#define TEXTT2  ".text_red2 {text-align: right;height:20px; width:190px; background-color:black;color: "  TEXT_COL " ;border:0}"
+#define TEXTT2  ".text_red2 {text-align: right;height:20px; width:200px; background-color:black;color: "  TEXT_COL " ;border:0}"
 #define TEXTT3  ".text_red {text-align: right;height:20px; width:60px; background-color:black;color:"  TEXT_COL ";border:1}"
 #define BUTTTEXTT  BUTT TEXTT
 //#define DCRADIO " "

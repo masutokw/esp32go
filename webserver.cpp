@@ -519,8 +519,8 @@ void handleMonitor(void) {
   if (encb) enc = read_raw_encoder();
 #endif
 #if defined RTC_NVRAM && RTC_NVRAM > 0
-rtc.readnvram((uint8_t *)&azcount, 4, 0);
-rtc.readnvram((uint8_t *)&altcount, 4, 4);
+rtc.readnvram((uint8_t *)&azcount, 4, RTC_NVADDR);
+rtc.readnvram((uint8_t *)&altcount, 4, RTC_NVADDR+4);
 #endif
 
 

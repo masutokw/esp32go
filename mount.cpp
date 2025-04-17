@@ -686,8 +686,8 @@ void load_saved_pos(void) {
     focus_motor.position = focus_motor.target = s.toInt();
     f.close();
 #if defined RTC_NVRAM && RTC_NVRAM > 0
-    rtc.readnvram((uint8_t *)&azcounter, 4, 0);
-    rtc.readnvram((uint8_t *)&altcounter, 4, 4);
+    rtc.readnvram((uint8_t *)&azcounter, 4,RTC_NVADDR);
+    rtc.readnvram((uint8_t *)&altcounter, 4, RTC_NVADDR+4);
 #endif
 
   } else

@@ -545,8 +545,8 @@ void loop() {
 #endif
 #if defined RTC_NVRAM && RTC_NVRAM > 0
   if (((counter % (RTC_NVRAM * 100) )== 0)&& telescope->is_tracking) {
-    rtc.writenvram(0, (uint8_t*)&azcounter, 4);
-    rtc.writenvram(4, (uint8_t*)&altcounter, 4);
+    rtc.writenvram(RTC_NVADDR, (uint8_t*)&azcounter, 4);
+    rtc.writenvram(RTC_NVADDR+4, (uint8_t*)&altcounter, 4);
   }
 #endif
   //step_out(stepcounter++ % 8);

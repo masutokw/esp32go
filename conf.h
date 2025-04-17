@@ -11,6 +11,7 @@
 //#define   RTC_IC RTC_DS3231
 #define   RTC_IC RTC_DS1307
 #define   RTC_NVRAM 2   //writing nvram interval in seconds (only when tracking),if 0 disables.
+#define RTC_NVADDR 0x00  //0x7 for
 #define WEB_INTERFACE
 //#define ENCODER
 #define BT_NAME "ESP32go_BT"

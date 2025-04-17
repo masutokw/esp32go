@@ -519,7 +519,7 @@ void loop() {
   now = time(nullptr);
   serverweb.handleClient();
 #ifdef IR_CONTROL
-  if (counter % 17 == 0)
+  if (counter % 6 == 0)
     ir_read();
 #endif
 #ifdef NUNCHUCK_CONTROL
@@ -533,7 +533,7 @@ void loop() {
 #endif
 
 #ifdef OLED_DISPLAY
-  oledDisplay();
+   if ((counter % 100) == 75) oledDisplay();
 #endif
 #ifdef PAD
   doEvent();
@@ -542,6 +542,12 @@ void loop() {
 #ifdef OTA
   if ((counter % 10 == 0) && (otab))
     ArduinoOTA.handle();
+#endif
+#if defined RTC_NVRAM && RTC_NVRAM > 0
+  if (((counter % (RTC_NVRAM * 100) )== 0)&& telescope->is_tracking) {
+    rtc.writenvram(0, (uint8_t*)&azcounter, 4);
+    rtc.writenvram(4, (uint8_t*)&altcounter, 4);
+  }
 #endif
   //step_out(stepcounter++ % 8);
   counter++;

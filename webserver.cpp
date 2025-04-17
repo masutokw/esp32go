@@ -508,7 +508,8 @@ void handleMonitor(void) {
   char times[300];
   time_t now = time(nullptr);
   time_t t = time(NULL);
-  int fg;
+  int fg,azcount,altcount;
+
   fg = getoffset();
   sprintf(times, "UTC:%s  %d", asctime(gmtime(&t)), fg);
 
@@ -516,6 +517,10 @@ void handleMonitor(void) {
   int enc = 0;
 #ifdef ENCODER
   if (encb) enc = read_raw_encoder();
+#endif
+#if defined RTC_NVRAM && RTC_NVRAM > 0
+rtc.readnvram((uint8_t *)&azcount, 4, 0);
+rtc.readnvram((uint8_t *)&altcount, 4, 4);
 #endif
 
 
@@ -537,12 +542,12 @@ void handleMonitor(void) {
 <br>RA: %s<br>De: %s  \
 <br>PEC:%d  %d<br>\
 <br>WifiPAD IP : X.X%d.%d<br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>\
- Date %s <br> %s \
+ Date %s <br> %s <br> NVRAM %d %d\
 </body></html>",
            telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
            altbackcounter, clients_connected, focus_motor.position,
            (telescope->azmotor->slewing || telescope->altmotor->slewing) ? 1 : 0,
-           telescope->is_tracking, &buffra, &buffdec, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times);
+           telescope->is_tracking, &buffra, &buffdec, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times,azcount,altcount);
   serverweb.send(200, "text/html", page);
 }
 

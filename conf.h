@@ -9,7 +9,8 @@
 #include "fysetc.h"
 //#include "tmc.h"
 //#define   RTC_IC RTC_DS3231
-//#define   RTC_IC RTC_DS1307
+#define   RTC_IC RTC_DS1307
+#define   RTC_NVRAM 2   //writing nvram interval in seconds (only when tracking),if 0 disables.
 #define WEB_INTERFACE
 //#define ENCODER
 #define BT_NAME "ESP32go_BT"
@@ -18,8 +19,8 @@
 #define SCL_PIN 22
 #define BUZZER_PIN 26
 ///-------------------------------------------------------------
-//#define TMC_DRIVERS   //uncomment if using tmc driver
-//#define STEP_FOCUS   // uncomment when using 3d driver for focuser //comment when tb6612
+#define TMC_DRIVERS   //uncomment if using tmc driver
+#define STEP_FOCUS   // uncomment when using 3d driver for focuser //comment when tb6612
 //#define M_STEP         //uncomment when TB6612 microsteppig 
 //#define FYSECT_BRD   //uncommnet for FYSECT 3D-printer board
 #define PROTO  //uncomment for not Angel´s board

@@ -11,7 +11,11 @@
 //#define   RTC_IC RTC_DS3231
 #define   RTC_IC RTC_DS1307
 #define   RTC_NVRAM 2   //writing nvram interval in seconds (only when tracking),if 0 disables.
+#if RTC_IC==RTC_DS3231
+#define RTC_NVADDR 0x07
+#else
 #define RTC_NVADDR 0x00  //0x7 for
+#endif
 #define WEB_INTERFACE
 //#define ENCODER
 #define BT_NAME "ESP32go_BT"
@@ -33,13 +37,14 @@
 #define DIR_OUT_ALT Y_DIR
 #define ENABLE_AZ MOTOR_EN
 #define ENABLE_ALT MOTOR_EN
-#define ENABLE_FOCUS MOTOR_EN
+#define ENABLE_FOCUS 13 // MOTOR_EN    // ---> TEMPORARY PATCH
 #define AZ_RES 17
 #define ALT_RES 19
 #define CLOCK_OUT_FOCUS E_STEP 
 #define DIR_OUT_FOCUS E_DIR
 #define STEP_FOCUS
 #define TMC_DRIVERS
+#define BUZZER_PIN 13
 #else
 #define CLOCK_OUT_FOCUS  12 
 #define DIR_OUT_FOCUS 13

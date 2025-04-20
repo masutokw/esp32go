@@ -8,11 +8,12 @@
 #include "sntp.h"
 #include "fysetc.h"
 //#include "tmc.h"
-//#define   RTC_IC RTC_DS3231
-#define   RTC_IC RTC_DS1307
+#define   RTC_IC RTC_DS3231
+//#define   RTC_IC RTC_DS1307
 #define   RTC_NVRAM 2   //writing nvram interval in seconds (only when tracking),if 0 disables.
 #if RTC_IC==RTC_DS3231
 #define RTC_NVADDR 0x07
+#define RTC_ADDRESS 0x68
 #else
 #define RTC_NVADDR 0x00  //0x7 for
 #endif

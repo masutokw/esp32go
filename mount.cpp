@@ -673,7 +673,7 @@ void set_track_speed(mount_t *mt, int index) {
 }
 
 void load_saved_pos(void) {
-
+  int zcount[2];
   File f;
   if (SPIFFS.exists("/savedpos")) {
     String s;
@@ -686,23 +686,20 @@ void load_saved_pos(void) {
     focus_motor.position = focus_motor.target = s.toInt();
     f.close();
 #if defined RTC_NVRAM && RTC_NVRAM > 0
-#if RTC_IC==RTC_DS3231
-    uint8_t RTC_ADDRESS = 0x68;
-    byte buf[7];
-    int ri = 0;
-    for(ri = 0; ri <= 6; ri++)
-    {
-      Wire.beginTransmission(RTC_ADDRESS);
-      Wire.write(RTC_NVADDR+ri);
-      Wire.endTransmission();
-      Wire.requestFrom(RTC_ADDRESS,(uint8_t) 1);
-      buf[ri] = Wire.read();
-    }
-    azcounter = (((uint8_t) buf[3]) << 24) | (((uint8_t) buf[2]) << 16) | (((uint8_t) buf[1]) << 8) | (((uint8_t) buf[0]) << 0);
-    altcounter = (((uint8_t) buf[6]) << 16) | (((uint8_t) buf[5]) << 8) | (((uint8_t) buf[4]) << 0);
+#if RTC_IC == RTC_DS3231
+
+    int i = 0;
+    uint8_t *bufy = (uint8_t *)&zcount;
+    Wire.beginTransmission(RTC_ADDRESS);
+    Wire.write(RTC_NVADDR);
+    Wire.endTransmission();
+    Wire.requestFrom((uint8_t)RTC_ADDRESS, (uint8_t)7);
+    while (Wire.available()) bufy[i++] = Wire.read();
+    azcounter = zcount[0];
+    altcounter = zcount[1];
 #else
     rtc.readnvram((uint8_t *)&azcounter, 4, RTC_NVADDR);
-    rtc.readnvram((uint8_t *)&altcounter, 4, RTC_NVADDR+4);
+    rtc.readnvram((uint8_t *)&altcounter, 4, RTC_NVADDR + 4);
 #endif
 #endif
 

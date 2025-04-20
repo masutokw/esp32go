@@ -507,6 +507,7 @@ void setup() {
 }
 
 void loop() {
+  int zcount[2];
   delay(10);
   net_task();
 #ifndef BT_TRACE_USB
@@ -533,7 +534,7 @@ void loop() {
 #endif
 
 #ifdef OLED_DISPLAY
-   if ((counter % 100) == 75) oledDisplay();
+  if ((counter % 100) == 75) oledDisplay();
 #endif
 #ifdef PAD
   doEvent();
@@ -544,29 +545,18 @@ void loop() {
     ArduinoOTA.handle();
 #endif
 #if defined RTC_NVRAM && RTC_NVRAM > 0
-  if (((counter % (RTC_NVRAM * 100) )== 0)&& telescope->is_tracking) {
-#if RTC_IC==RTC_DS3231
-    uint8_t RTC_ADDRESS = 0x68;
-    byte buf[7];
-    int ri = 0;
-    buf[0] = (byte) (azcounter);
-    buf[1] = (byte) (azcounter >> 8);
-    buf[2] = (byte) (azcounter >> 16);
-    buf[3] = (byte) (azcounter >> 24);
+  if (((counter % (RTC_NVRAM * 100)) == 0) && telescope->is_tracking) {
+#if RTC_IC == RTC_DS3231
+    zcount[0] = azcounter;
+    zcount[1] = altcounter;
+    Wire.beginTransmission(RTC_ADDRESS);
+    Wire.write(RTC_NVADDR);
+    Wire.write((uint8_t*)zcount, (uint8_t )7);
+    Wire.endTransmission();
 
-    buf[4] = (byte) (altcounter);
-    buf[5] = (byte) (altcounter >> 8);
-    buf[6] = (byte) (altcounter >> 16);
-    for(ri = 0; ri <= 6; ri++)
-    {
-      Wire.beginTransmission(RTC_ADDRESS);
-      Wire.write(RTC_NVADDR + ri);
-      Wire.write(buf[ri]);
-      Wire.endTransmission();
-    }
 #else
     rtc.writenvram(RTC_NVADDR, (uint8_t*)&azcounter, 4);
-    rtc.writenvram(RTC_NVADDR+4, (uint8_t*)&altcounter, 4);
+    rtc.writenvram(RTC_NVADDR + 4, (uint8_t*)&altcounter, 4);
 #endif
   }
 #endif

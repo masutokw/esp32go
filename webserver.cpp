@@ -508,8 +508,8 @@ void handleMonitor(void) {
   char times[300];
   time_t now = time(nullptr);
   time_t t = time(NULL);
-  int fg,azcount,altcount;
-
+  int fg, azcount, altcount;
+  int zcount[2];
   fg = getoffset();
   sprintf(times, "UTC:%s  %d", asctime(gmtime(&t)), fg);
 
@@ -519,23 +519,18 @@ void handleMonitor(void) {
   if (encb) enc = read_raw_encoder();
 #endif
 #if defined RTC_NVRAM && RTC_NVRAM > 0
-#if RTC_IC==RTC_DS3231
-    uint8_t RTC_ADDRESS = 0x68;
-    byte buf[7];
-    int ri = 0;
-    for(ri = 0; ri <= 6; ri++)
-    {
-      Wire.beginTransmission(RTC_ADDRESS);
-      Wire.write(RTC_NVADDR+ri);
-      Wire.endTransmission();
-      Wire.requestFrom(RTC_ADDRESS,(uint8_t) 1);
-      buf[ri] = Wire.read();
-    }
-    azcount = (((uint8_t) buf[3]) << 24) | (((uint8_t) buf[2]) << 16) | (((uint8_t) buf[1]) << 8) | (((uint8_t) buf[0]) << 0);
-    altcount = (((uint8_t) buf[6]) << 16) | (((uint8_t) buf[5]) << 8) | (((uint8_t) buf[4]) << 0);
-#else
-rtc.readnvram((uint8_t *)&azcount, 4, RTC_NVADDR);
-rtc.readnvram((uint8_t *)&altcount, 4, RTC_NVADDR+4);
+#if RTC_IC == RTC_DS3231
+ // uint8_t RTC_ADDRESS = 0x68;
+  int i = 0;
+  uint8_t* bufy = (uint8_t*)&zcount;
+  Wire.beginTransmission(RTC_ADDRESS);
+  Wire.write(RTC_NVADDR);
+  Wire.endTransmission();
+  Wire.requestFrom( (uint8_t) RTC_ADDRESS, (uint8_t)7);
+  while (Wire.available()) bufy[i++] = Wire.read();
+ #else
+  rtc.readnvram((uint8_t*)&zcount[0], 4, RTC_NVADDR);
+  rtc.readnvram((uint8_t*)&zcount[1], 4, RTC_NVADDR + 4);
 #endif
 #endif
 
@@ -563,7 +558,7 @@ rtc.readnvram((uint8_t *)&altcount, 4, RTC_NVADDR+4);
            telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
            altbackcounter, clients_connected, focus_motor.position,
            (telescope->azmotor->slewing || telescope->altmotor->slewing) ? 1 : 0,
-           telescope->is_tracking, &buffra, &buffdec, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times,azcount,altcount);
+           telescope->is_tracking, &buffra, &buffdec, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times, zcount[0], zcount[1]);
   serverweb.send(200, "text/html", page);
 }
 
@@ -724,7 +719,7 @@ void handleTmc(void) {
 void handleIana(void) {
   if (serverweb.hasArg("IANA")) {
     String net = serverweb.arg("IANA");
-    net.toCharArray(tzstr, net.length()+1);
+    net.toCharArray(tzstr, net.length() + 1);
     File f = SPIFFS.open(IANA_FILE, "w");
     if (!f) {
       net = ("file open failed");

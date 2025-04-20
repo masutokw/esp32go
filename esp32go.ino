@@ -545,8 +545,29 @@ void loop() {
 #endif
 #if defined RTC_NVRAM && RTC_NVRAM > 0
   if (((counter % (RTC_NVRAM * 100) )== 0)&& telescope->is_tracking) {
+#if RTC_IC==RTC_DS3231
+    uint8_t RTC_ADDRESS = 0x68;
+    byte buf[7];
+    int ri = 0;
+    buf[0] = (byte) (azcounter);
+    buf[1] = (byte) (azcounter >> 8);
+    buf[2] = (byte) (azcounter >> 16);
+    buf[3] = (byte) (azcounter >> 24);
+
+    buf[4] = (byte) (altcounter);
+    buf[5] = (byte) (altcounter >> 8);
+    buf[6] = (byte) (altcounter >> 16);
+    for(ri = 0; ri <= 6; ri++)
+    {
+      Wire.beginTransmission(RTC_ADDRESS);
+      Wire.write(RTC_NVADDR + ri);
+      Wire.write(buf[ri]);
+      Wire.endTransmission();
+    }
+#else
     rtc.writenvram(RTC_NVADDR, (uint8_t*)&azcounter, 4);
     rtc.writenvram(RTC_NVADDR+4, (uint8_t*)&altcounter, 4);
+#endif
   }
 #endif
   //step_out(stepcounter++ % 8);

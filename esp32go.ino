@@ -56,8 +56,7 @@ const char* ssid = "MyWIFI";
 const char* password = "Mypassword";
 #endif
 extern volatile int state;
-extern stepper focus_motor;
-extern int8_t focusinv;
+extern stepper focus_motor,aux_motor, *pmotor;
 extern int focusvolt;
 WiFiServer server(SERVER_PORT);
 WiFiClient serverClients[MAX_SRV_CLIENTS];
@@ -284,9 +283,9 @@ void setup() {
   oled_initscr();
 #endif
 #ifdef RTC_IC
-  if (!rtc.begin())
+  if (!rtc.begin()) {
     Serial.println("Couldn't find RTC");
-  else {
+  } else {
     RTC_now = rtc.now();
     // Serial.println(RTC_now.unixtime());
     timeval tv = { RTC_now.unixtime(), 0 };
@@ -363,7 +362,9 @@ void setup() {
   server.begin();
   server.setNoDelay(true);
   telescope = create_mount();
-  init_stepper(&focus_motor);
+  init_stepper(&focus_motor,DIR_OUT_FOCUS,CLOCK_OUT_FOCUS,ENABLE_FOCUS);
+  init_stepper(&aux_motor,DIR_OUT_AUX,CLOCK_OUT_AUX,ENABLE_AUX);
+  pmotor = &focus_motor;
   readconfig(telescope);
   httpUpdater.setup(&serverweb);
   sntp_set_time_sync_notification_cb(timeavailable);
@@ -544,14 +545,14 @@ void loop() {
   if ((counter % 10 == 0) && (otab))
     ArduinoOTA.handle();
 #endif
-#if defined RTC_NVRAM && RTC_NVRAM > 0
+#if defined (RTC_IC) && defined (RTC_NVRAM) && RTC_NVRAM > 0
   if (((counter % (RTC_NVRAM * 100)) == 0) && telescope->is_tracking) {
 #if RTC_IC == RTC_DS3231
     zcount[0] = azcounter;
     zcount[1] = altcounter;
     Wire.beginTransmission(RTC_ADDRESS);
     Wire.write(RTC_NVADDR);
-    Wire.write((uint8_t*)zcount, (uint8_t )7);
+    Wire.write((uint8_t*)zcount, (uint8_t)7);
     Wire.endTransmission();
 
 #else

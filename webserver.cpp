@@ -26,9 +26,6 @@ extern tmcmotor_t tmcmotors[4];
 extern int clients_connected;
 extern uint64_t period_alt;
 extern char sync_target;
-extern int focuspeed;
-extern int focuspeed_low;
-extern int focusmax;
 extern int dcfocus;
 extern int align_star_index, encb;
 extern c_star st_1, st_2;
@@ -37,7 +34,6 @@ extern stepper focus_motor;
 extern int stepcounter1, stepcounter2;
 extern hw_timer_t* timer_az;
 extern hw_timer_t* timer_alt;
-extern int8_t focusinv;
 extern int focusvolt;
 extern int azbackcounter, altbackcounter;
 extern int wifi_pad_IP3;
@@ -153,7 +149,7 @@ void handleConfig(void) {
 <br>Load Time : %s \
 <br>%s \
 </body></html>",
-           focusmax, focuspeed_low, focuspeed, focusvolt * focusinv,
+           focus_motor.max_steps, focus_motor.speed_low, focus_motor.speed, focusvolt *  focus_motor.inv,
            dcfocus == 0 ? "checked" : "", dcfocus == 1 ? "checked" : "",
            telescope->longitude, telescope->lat, telescope->time_zone, ctime(&now), &msg);
   serverweb.sendContent(temp);
@@ -465,7 +461,7 @@ void handleFocus(void) {
   if (serverweb.hasArg("MOVE")) {
     String net = serverweb.arg("MOVE");
     focus_motor.target = net.toInt();
-    move_to(&focus_motor, focus_motor.target, focuspeed);
+    move_to(&focus_motor, focus_motor.target,focus_motor.speed);
   }
   String content = "<html><head><style>" BUTT TEXTT "</style>" AUTO_SIZE "</head><body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>Focus</h2><br>";
   content += "Estado : " + String(focus_motor.position) + "<br>" + "<form action='/focus' method='POST'>";
@@ -509,7 +505,8 @@ void handleMonitor(void) {
   time_t now = time(nullptr);
   time_t t = time(NULL);
   int fg, azcount, altcount;
-  int zcount[2];
+  int zcount[2]={0,0};
+  
   fg = getoffset();
   sprintf(times, "UTC:%s  %d", asctime(gmtime(&t)), fg);
 
@@ -518,7 +515,7 @@ void handleMonitor(void) {
 #ifdef ENCODER
   if (encb) enc = read_raw_encoder();
 #endif
-#if defined RTC_NVRAM && RTC_NVRAM > 0
+#if defined (RTC_IC) && defined (RTC_NVRAM) && RTC_NVRAM > 0
 #if RTC_IC == RTC_DS3231
  // uint8_t RTC_ADDRESS = 0x68;
   int i = 0;

@@ -8,9 +8,9 @@
 #include "sntp.h"
 #include "fysetc.h"
 //#include "tmc.h"
-#define   RTC_IC RTC_DS3231
+//#define   RTC_IC RTC_DS3231
 //#define   RTC_IC RTC_DS1307
-#define   RTC_NVRAM 2   //writing nvram interval in seconds (only when tracking),if 0 disables.
+#define   RTC_NVRAM 0   //writing nvram interval in seconds (only when tracking),if 0 disables.
 #if RTC_IC==RTC_DS3231
 #define RTC_NVADDR 0x07
 #define RTC_ADDRESS 0x68
@@ -44,12 +44,17 @@
 #define CLOCK_OUT_FOCUS E_STEP 
 #define DIR_OUT_FOCUS E_DIR
 #define STEP_FOCUS
+#define CLOCK_OUT_AUX Z_STEP
+#define DIR_OUT_AUX Z_DIR
 #define TMC_DRIVERS
 #define BUZZER_PIN 13
 #else
 #define CLOCK_OUT_FOCUS  12 
 #define DIR_OUT_FOCUS 13
 #define ENABLE_FOCUS 14
+#define CLOCK_OUT_AUX 32
+#define DIR_OUT_AUX 33
+#define ENABLE_AUX 19
 
 #ifdef PROTO
 #define CLOCK_OUT_AZ 4
@@ -60,6 +65,7 @@
 #define ENABLE_ALT 23
 #define AZ_RES 17
 #define ALT_RES 19
+
 #else
 #define CLOCK_OUT_AZ 4
 #define DIR_OUT_AZ 2

@@ -8,10 +8,6 @@ extern RTC_IC rtc;
 #endif
 extern long sdt_millis;
 extern c_star st_now, st_target, st_current, st_1, st_2;
-extern int focuspeed;
-extern int focuspeed_low;
-extern int focusmax;
-extern int8_t focusinv;
 extern int focusvolt;
 extern int dcfocus;
 extern int azcounter, altcounter;
@@ -408,11 +404,11 @@ int readconfig(mount_t *mt) {
   // if (((mt->time_zone)==0)&& (s.length()>2 ))
   //{ strcpy(tzstr,s.c_str());}
   s = f.readStringUntil('\n');
-  focusmax = focus_motor.max_steps = s.toInt();
+  focus_motor.max_steps = s.toInt();
   s = f.readStringUntil('\n');
-  focuspeed_low = s.toInt();
+  focus_motor.speed_low = s.toInt();
   s = f.readStringUntil('\n');
-  focuspeed = s.toInt();
+  focus_motor.speed = s.toInt();
   s = f.readStringUntil('\n');
   tmp = s.toFloat();
   s = f.readStringUntil('\n');
@@ -438,7 +434,7 @@ int readconfig(mount_t *mt) {
   init_motor(mt->altmotor, ALT_ID, maxcounteralt, 0, mt->prescaler, mt->maxspeed[1], tmp2, back_alt, tmpalt);
   s = f.readStringUntil('\n');
   int tmpfocus = s.toInt();
-  focusinv = (tmpfocus > 0) ? 1 : -1;
+  focus_motor.inv = (tmpfocus > 0) ? 1 : -1;
   focusvolt = abs(tmpfocus);
   ledcWrite(1, focusvolt);
   ledcWrite(2, focusvolt);
@@ -673,7 +669,7 @@ void set_track_speed(mount_t *mt, int index) {
 }
 
 void load_saved_pos(void) {
-  int zcount[2];
+  int zcount[2] = { 0, 0 };
   File f;
   if (SPIFFS.exists("/savedpos")) {
     String s;
@@ -685,7 +681,7 @@ void load_saved_pos(void) {
     s = f.readStringUntil('\n');
     focus_motor.position = focus_motor.target = s.toInt();
     f.close();
-#if defined RTC_NVRAM && RTC_NVRAM > 0
+#if  defined (RTC_IC) && defined (RTC_NVRAM) && RTC_NVRAM > 0
 #if RTC_IC == RTC_DS3231
 
     int i = 0;

@@ -24,9 +24,9 @@ char response [200];
 char tmessage[300];
 extern c_star st_now, st_target, st_current;
 extern char volatile sync_target;
-extern stepper focus_motor;
-extern int  focusmax,focuspeed,dcfocus;
-extern int  focuspeed_low,focusvolt,focusinv;
+extern stepper focus_motor,aux_motor,*pmotor;
+extern int  dcfocus;
+extern int  focusvolt;
 struct _telescope_
 {   long dec_target,ra_target;
     long alt_target,az_target;
@@ -82,11 +82,11 @@ void conf(void)
           telescope->rate[0][1], telescope->rate[1][1], telescope->rate[2][1], telescope->rate[3][1],
 		  telescope->prescaler,
           telescope->longitude, telescope->lat, telescope->time_zone,
-		  focusmax, focuspeed_low, focuspeed,
+		  focus_motor.max_steps, focus_motor.speed_low, focus_motor.speed,
 		 telescope->azmotor->acceleration / SEC_TO_RAD, telescope->altmotor->acceleration / SEC_TO_RAD,
 		 telescope->azmotor->backlash, telescope->altmotor->backlash,
 		  telescope->mount_mode ,telescope->track, telescope->autoflip, telescope->azmotor->cw,
-		  telescope->altmotor->cw, focusvolt * focusinv,  telescope->azmotor->active, telescope->altmotor->active,
+		  telescope->altmotor->cw, focusvolt * focus_motor.inv,  telescope->azmotor->active, telescope->altmotor->active,
 		  dcfocus);
 		  readconfig(telescope);
 			 
@@ -281,16 +281,17 @@ long command( char *str )
         action settime{set_time(deg,min,sec);}
 		action return_formatTime{sprintf(tmessage,"24#");APPEND;}
 		action return_tRate{sprintf(tmessage,"50.0#");APPEND;}
-		action fmove_in {gotofocuser(0,focuspeed);}
-		action fmove_out {gotofocuser(focus_motor.max_steps,focuspeed);}
-		action fmovel_in {gotofocuser(0,focuspeed_low);}
-		action fmovel_out {gotofocuser(focus_motor.max_steps,focuspeed_low);}
-		action fmove_rel {gotofocuser(focus_motor.position+(focus_counter*neg));}
+		action fmove_in {gotofocuser(0,pmotor->speed);}
+		action fmove_out {gotofocuser(pmotor->max_steps,pmotor->speed);}
+		action fmovel_in {gotofocuser(0,pmotor->speed_low);}
+		action fmovel_out {gotofocuser(pmotor->max_steps,pmotor->speed_low);}
+		action fmove_rel {gotofocuser(pmotor->position+(focus_counter*neg));}
 		action fmove_to {gotofocuser(focus_counter);}
 		action fstop {stopfocuser();}
-		action fsync_to{focus_motor.position=focus_motor.target=focus_counter;}
-		action fquery{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
-		action f_moving {sprintf(tmessage,"%d#",focus_motor.state<stop);APPEND;}
+		action select_focus {if (fc=='0') pmotor=&focus_motor; else pmotor=&aux_motor;}
+		action fsync_to{pmotor->position=pmotor->target=focus_counter;}
+		action fquery{sprintf(tmessage,"%05d#",pmotor->position);APPEND;}
+		action f_moving {sprintf(tmessage,"%d#",pmotor->state<stop);APPEND;}
 		action goto_home{mount_goto_home(telescope);}
 		action getparked{sprintf(tmessage,"%s#",(telescope->parked? "1" : "0"));APPEND;}
 		action home{mount_home_set(telescope);}
@@ -388,7 +389,8 @@ long command( char *str )
 		f_go='A'([\+]|[\-]@neg)digit{5}$getfocuscounter %fmove_to;
 		f_moving='B'%f_moving;
 		f_speed=digit;
-		Focuser='F'(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel|f_moving);
+		f_select='s'[0,1]$select_focus;
+		Focuser='F'(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel|f_moving|f_select);
 # custom
 		Park = ('pH'%home)|('hP'%goto_home)|('pS'%getpierside)|('pF'%getflip)  |(('ps')('e'|'w')@setpierside)|('pnk'('0'|'1')@nunchuk)|('pa'('0'|'1')@autoflip)|('PP'%getparked);
 		IP_PAD ='IP' ((digit$getip3){1,3} '.' (digit$getip2){1,3})%set_ip;

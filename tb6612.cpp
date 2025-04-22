@@ -2,10 +2,9 @@
 #include "tb6612.h"
 #include <Ticker.h>
 int32_t max_steps;
-stepper focus_motor, *pmotor;
+stepper focus_motor, aux_motor, *pmotor;
 //extern Ticker focuser_tckr;
-extern int8_t focusinv;
-extern int focusvolt, focusspd_current, focuspeed_low;
+extern int focusvolt, focusspd_current;
 extern hw_timer_t *timer_focus;
 #define LOG2(n) (((sizeof(unsigned int) * CHAR_BIT) - 1) - (__builtin_clz((n))))
 #define WAVE_SIZE 32
@@ -22,12 +21,13 @@ void generate_wave(int percent) {
     wave[n] = (wave_f[n * (WAVE_SIZE / MSTEPS)] * percent) / 255;
   }
 }
-void init_stepper(stepper *motor) {
+void init_stepper(stepper *motor, uint8_t dir, uint8_t step, uint8_t enable) {
   motor->max_steps = 50000;
   motor->backslash = 0;
-  motor->step_size = 0.1;
-  motor->speed = 10;
-  // motor->position = 800;
+  motor->speed = 1500;
+  motor->speed_low = 1000;
+  motor->inv = -1;
+  motor->position = 0;
   motor->target = 0;
   motor->backcounter = 0;
   motor->resolution = 0;
@@ -37,7 +37,9 @@ void init_stepper(stepper *motor) {
   motor->temperature = 25;
   motor->period = 0;
   motor->periodtemp = 0;
-  pmotor = motor;
+  motor->dir = dir;
+  motor->step = step;
+  motor->enable = enable;
 }
 
 void move_to(stepper *motor, long int target, int period) {
@@ -48,7 +50,7 @@ void move_to(stepper *motor, long int target, int period) {
   if (motor->position == target) {
 //  timerAlarmDisable(timer_focus);
 #ifdef STEP_FOCUS
-    digitalWrite(ENABLE_FOCUS, DEN_DRIVER);
+    digitalWrite(motor->enable, DEN_DRIVER);
 #else
     WA_O WB_O
 #endif
@@ -64,14 +66,14 @@ void move_to(stepper *motor, long int target, int period) {
     else if ((motor->target) > motor->position)
       motor->resolution = 1;
 #ifdef STEP_FOCUS
-    digitalWrite(ENABLE_FOCUS, EN_DRIVER);
+    digitalWrite(motor->enable, EN_DRIVER);
 #endif
 
     timerAlarmWrite(timer_focus, max(100, period), true);
     timerAlarmEnable(timer_focus);
   }
 #ifdef M_STEP
-  if (period < focuspeed_low) motor->resolution *= (MSTEPS / 4);
+  if (period < motor->speed_low) motor->resolution *= (MSTEPS / 4);
 #endif
 }
 
@@ -107,28 +109,6 @@ void move_to(int dir) {
 #endif
 //--------------------------------------------------------------------------------------------
 
-inline void step_out(uint8_t step) {
-  if (focusinv < 0) step = 7 - step;
-  switch (step) {
-    case 0:
-      WA_P WB_N break;
-    case 1:
-      WA_P WB_O break;
-    case 2:
-      WA_P WB_P break;
-    case 3:
-      WA_O WB_P break;
-    case 4:
-      WA_N WB_P break;
-    case 5:
-      WA_N WB_O break;
-    case 6:
-      WA_N WB_N break;
-    case 7:
-      WA_O WB_N break;
-    default: break;
-  }
-}
 
 void IRAM_ATTR dostep() {
   uint8_t p, s, j;
@@ -137,7 +117,7 @@ void IRAM_ATTR dostep() {
     pmotor->state = synced;
     pmotor->resolution = 0;
 #ifdef STEP_FOCUS
-    digitalWrite(ENABLE_FOCUS, DEN_DRIVER);
+    digitalWrite(pmotor->enable, DEN_DRIVER);
 #else
     WA_O WB_O
 #endif
@@ -151,13 +131,13 @@ void IRAM_ATTR dostep() {
 #ifdef STEP_FOCUS
 
     if (pmotor->resolution > 0)
-      digitalWrite(DIR_OUT_FOCUS, 1);
-    else digitalWrite(DIR_OUT_FOCUS, 0);
+      digitalWrite(pmotor->dir, 1 - pmotor->inv);
+    else digitalWrite(pmotor->dir, 0 - pmotor->inv);
     //digitalWrite(ENABLE_FOCUS, EN_DRIVER);
-    digitalWrite(CLOCK_OUT_FOCUS, 0);
+    digitalWrite(pmotor->step, 0);
     char pulse_w;
     for (pulse_w = 0; pulse_w < 10; pulse_w++) __asm__ __volatile__("nop;nop;nop;nop;nop;nop;nop;");
-    digitalWrite(CLOCK_OUT_FOCUS, 1);
+    digitalWrite(pmotor->step, 1);
 #else
 #ifdef M_STEP
     pmotor->ustep_index += pmotor->resolution;
@@ -193,7 +173,28 @@ void IRAM_ATTR dostep() {
     if (pmotor->pcounter < 0)
       pmotor->pcounter += 8;
     pmotor->pcounter %= 8;
-    step_out(pmotor->pcounter);
+    step = pmotor->pcounter if (pmotor->inv < 0) step = 7 - step;
+    switch (step) {
+      case 0:
+        WA_P WB_N break;
+      case 1:
+        WA_P WB_O break;
+      case 2:
+        WA_P WB_P break;
+      case 3:
+        WA_O WB_P break;
+      case 4:
+        WA_N WB_P break;
+      case 5:
+        WA_N WB_O break;
+      case 6:
+        WA_N WB_N break;
+      case 7:
+        WA_O WB_N break;
+      default: break;
+    }
+
+      // step_out(pmotor->pcounter);
 #endif
 #endif
   }

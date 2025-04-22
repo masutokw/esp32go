@@ -15,8 +15,8 @@ enum motor_state
 typedef struct stepper
 {   long int max_steps;
     long int backslash;
-    double step_size;
-    unsigned int speed;
+    //double step_size;
+    unsigned int speed_low, speed;
     long int position;
     long int target;
     long int backcounter;
@@ -25,14 +25,15 @@ typedef struct stepper
     short resolution;
     double temperature;
     int period,periodtemp,ustep_index;
-    uint8_t id;
+    int8_t inv;
+    uint8_t dir,step,enable;
    
     
 
 }
 stepper;
 void generate_wave(int percent);
-void init_stepper(stepper *motor);
+void init_stepper(stepper *motor,uint8_t dir,uint8_t step,uint8_t enable);
 
 void move_to(stepper *motor, long int  target,int period);
 void move_to (int dir);

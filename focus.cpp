@@ -24,9 +24,11 @@ void gotofocuser( int pos, int speed) {
   }
   else
   {
+#ifndef STEP_FOCUS
 #ifndef DRV_8833
     ledcWrite(1, speed);
     ledcWrite(2, speed);
+#endif
 #endif
     focusspd_current = speed;
     if (pos == pmotor->max_steps) move_to(1); else if (pos == 0) move_to(-1); else move_to (0);

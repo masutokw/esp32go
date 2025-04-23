@@ -273,12 +273,14 @@ void setup() {
   digitalWrite(ENABLE_AZ, DEN_DRIVER);
   digitalWrite(ENABLE_ALT, DEN_DRIVER);
   Serial.begin(BAUDRATE);
+#ifndef STEP_FOCUS
   ledcAttachPin(PWM_B, 1);  // assign RGB led pins to channels
   ledcAttachPin(PWM_A, 2);
   ledcSetup(1, 10000, 8);  // 12 kHz PWM, 8-bit resolution
   ledcSetup(2, 10000, 8);
   ledcWrite(1, focusvolt);
   ledcWrite(2, focusvolt);
+#endif
 #ifdef OLED_DISPLAY
   oled_initscr();
 #endif
@@ -420,6 +422,7 @@ void setup() {
   digitalWrite(ALT_RES, 1);
 #endif
 #endif
+#ifndef STEP_FOCUS
   //pinMode(PWM_A, OUTPUT);
   //pinMode(PWM_B, OUTPUT);
   pinMode(AIN_1, OUTPUT);
@@ -432,6 +435,7 @@ void setup() {
   digitalWrite(AIN_2, 1);
   digitalWrite(BIN_1, 1);
   digitalWrite(BIN_2, 0);
+#endif
   digitalWrite(ENABLE_AZ, EN_DRIVER);
   digitalWrite(ENABLE_ALT, EN_DRIVER);
 
@@ -440,6 +444,10 @@ void setup() {
   pinMode(DIR_OUT_FOCUS, OUTPUT);
   pinMode(ENABLE_FOCUS, OUTPUT);
   digitalWrite(ENABLE_FOCUS, DEN_DRIVER);
+  pinMode(CLOCK_OUT_AUX, OUTPUT);
+  pinMode(DIR_OUT_AUX, OUTPUT);
+  pinMode(ENABLE_AUX, OUTPUT);
+  digitalWrite(ENABLE_AUX, DEN_DRIVER);
 #endif
   // Use 1st timer of 4 (counted from zero).
   // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more
@@ -463,7 +471,13 @@ void setup() {
   pinMode(0, INPUT_PULLUP);
   attachInterrupt(0, nunchuk_reset, FALLING);
 
-  move_to(&focus_motor, focus_motor.position, 2000);
+  pmotor = &aux_motor;
+  move_to(pmotor, aux_motor.position, 2000);
+  pmotor->inv = 0;
+  stopfocuser();
+
+  pmotor = &focus_motor;
+  move_to(pmotor, focus_motor.position, 2000);
   stopfocuser();
   // WA_O;
   // WB_O;

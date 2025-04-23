@@ -436,9 +436,11 @@ int readconfig(mount_t *mt) {
   int tmpfocus = s.toInt();
   focus_motor.inv = (tmpfocus > 0) ? 1 : -1;
   focusvolt = abs(tmpfocus);
+#ifndef STEP_FOCUS
   ledcWrite(1, focusvolt);
   ledcWrite(2, focusvolt);
   generate_wave(abs(focusvolt));
+#endif
   s = f.readStringUntil('\n');
   mt->azmotor->active = s.toInt();
   s = f.readStringUntil('\n');

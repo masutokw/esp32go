@@ -26,7 +26,6 @@ extern c_star st_now, st_target, st_current;
 extern char volatile sync_target;
 extern stepper focus_motor,aux_motor,*pmotor;
 extern int  dcfocus;
-extern int  focusvolt;
 struct _telescope_
 {   long dec_target,ra_target;
     long alt_target,az_target;
@@ -57,11 +56,13 @@ void appcmd(char cmd)
   case 'g':sprintf(tmessage,"%f",telescope->rate[0][0]);
   break;
   case 'j':sprintf(tmessage,"%f",telescope->rate[0][1]);
-    break;
+  break;
   case 'A':conf();
   break;
   case 'T':conf_tmc(TMC_FILE);
-   break;
+  break;
+  case 'F':conf_tmc(AUX_FILE);
+  break;
   
 }
 
@@ -76,18 +77,17 @@ File f = SPIFFS.open(filename,"r");
 void conf(void)
 {
 	
-	sprintf(tmessage,"%d\r\n%d\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.4f\r\n%.6f\r\n%.6f\r\n%d\r\n%d\r\n%d\r\n%d\r\n%.0f\r\n%.0f\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n#\r\n",
+	sprintf(tmessage,"%d\r\n%d\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.4f\r\n%.6f\r\n%.6f\r\n%d\r\n%.0f\r\n%.0f\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n#\r\n",
           telescope->azmotor->maxcounter, telescope->altmotor->maxcounter,
           telescope->rate[0][0], telescope->rate[1][0], telescope->rate[2][0], telescope->rate[3][0],
           telescope->rate[0][1], telescope->rate[1][1], telescope->rate[2][1], telescope->rate[3][1],
 		  telescope->prescaler,
           telescope->longitude, telescope->lat, telescope->time_zone,
-		  focus_motor.max_steps, focus_motor.speed_low, focus_motor.speed,
-		 telescope->azmotor->acceleration / SEC_TO_RAD, telescope->altmotor->acceleration / SEC_TO_RAD,
+		  telescope->azmotor->acceleration / SEC_TO_RAD, telescope->altmotor->acceleration / SEC_TO_RAD,
 		 telescope->azmotor->backlash, telescope->altmotor->backlash,
 		  telescope->mount_mode ,telescope->track, telescope->autoflip, telescope->azmotor->cw,
-		  telescope->altmotor->cw, focusvolt * focus_motor.inv,  telescope->azmotor->active, telescope->altmotor->active,
-		  dcfocus);
+		  telescope->altmotor->cw,  telescope->azmotor->active, telescope->altmotor->active
+		  );
 		  readconfig(telescope);
 			 
 		
@@ -326,6 +326,7 @@ long command( char *str )
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	action nunchuk {setnunchuk(fc);}
@@ -399,8 +400,8 @@ long command( char *str )
         Autostar='GV'('D'%a_date | 'N'%a_number | 'P'%a_product | 'T'%a_time | 'F'%a_firm) ;
 		
 #app commands
-		cgfsend=[zagjAT]@storecmd %cmd_app;
-		cgfwrite=[snwt]@markinput extend* %writeconf ;
+		cgfsend=[zagjATF]@storecmd %cmd_app;
+		cgfwrite=[snwtf]@markinput extend* %writeconf ;
 		Appcmd= 'c'(cgfsend | cgfwrite);
 		
 		

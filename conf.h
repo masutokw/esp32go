@@ -38,7 +38,7 @@
 #define DIR_OUT_ALT Y_DIR
 #define ENABLE_AZ MOTOR_EN
 #define ENABLE_ALT MOTOR_EN
-#define ENABLE_FOCUS 13 // MOTOR_EN    // ---> TEMPORARY PATCH
+#define ENABLE_FOCUS 23 // MOTOR_EN    // ---> TEMPORARY PATCH
 #define AZ_RES 17
 #define ALT_RES 19
 #define CLOCK_OUT_FOCUS E_STEP 
@@ -46,6 +46,7 @@
 #define STEP_FOCUS
 #define CLOCK_OUT_AUX Z_STEP
 #define DIR_OUT_AUX Z_DIR
+#define ENABLE_FOCUS 23 // MOTOR_EN    // ---> TEMPORARY PATCH
 #define TMC_DRIVERS
 #define BUZZER_PIN 13
 #else
@@ -180,6 +181,7 @@
 #define IR_FILE "/remote.config"
 #define TMC_FILE "/tmc.config"
 #define IANA_FILE "/iana.config"
+#define AUX_FILE "/focus.config"
 #define SSID_AP  "ESP32go"
 #define PASS_AP  "boquerones"
 #define TZ_SPAIN "CET-1CEST,M3.5.0,M10.5.0/3"

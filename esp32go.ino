@@ -266,19 +266,21 @@ void serialtask(void) {
 }
 
 void setup() {
-  generate_wave(255);
+  generate_wave(127);
   delay(300);
   pinMode(ENABLE_AZ, OUTPUT);
   pinMode(ENABLE_ALT, OUTPUT);
   digitalWrite(ENABLE_AZ, DEN_DRIVER);
   digitalWrite(ENABLE_ALT, DEN_DRIVER);
   Serial.begin(BAUDRATE);
+  #ifndef STEP_FOCUS
   ledcAttachPin(PWM_B, 1);  // assign RGB led pins to channels
   ledcAttachPin(PWM_A, 2);
   ledcSetup(1, 10000, 8);  // 12 kHz PWM, 8-bit resolution
   ledcSetup(2, 10000, 8);
-  ledcWrite(1, focusvolt);
-  ledcWrite(2, focusvolt);
+  ledcWrite(1,127);
+  ledcWrite(2, 127);
+  #endif
 #ifdef OLED_DISPLAY
   oled_initscr();
 #endif
@@ -366,6 +368,7 @@ void setup() {
   init_stepper(&aux_motor,DIR_OUT_AUX,CLOCK_OUT_AUX,ENABLE_AUX);
   pmotor = &focus_motor;
   readconfig(telescope);
+  readauxconfig();
   httpUpdater.setup(&serverweb);
   sntp_set_time_sync_notification_cb(timeavailable);
   f = SPIFFS.open(IANA_FILE, "r");
@@ -440,6 +443,10 @@ void setup() {
   pinMode(DIR_OUT_FOCUS, OUTPUT);
   pinMode(ENABLE_FOCUS, OUTPUT);
   digitalWrite(ENABLE_FOCUS, DEN_DRIVER);
+  pinMode(CLOCK_OUT_AUX, OUTPUT);
+  pinMode(DIR_OUT_AUX, OUTPUT);
+  pinMode(ENABLE_AUX, OUTPUT);
+  digitalWrite(ENABLE_AUX, DEN_DRIVER);
 #endif
   // Use 1st timer of 4 (counted from zero).
   // Set 80 divider for prescaler (see ESP32 Technical Reference Manual for more

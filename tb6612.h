@@ -15,7 +15,6 @@ enum motor_state
 typedef struct stepper
 {   long int max_steps;
     long int backslash;
-    //double step_size;
     unsigned int speed_low, speed;
     long int position;
     long int target;
@@ -24,9 +23,9 @@ typedef struct stepper
     int pcounter;
     short resolution;
     double temperature;
-    int period,periodtemp,ustep_index;
+    int ustep_index;
     int8_t inv;
-    uint8_t dir,step,enable;
+    uint8_t dir,step,enable,pwm;
    
     
 

@@ -8,7 +8,7 @@ extern int focusvolt, focusspd_current;
 extern hw_timer_t *timer_focus;
 #define LOG2(n) (((sizeof(unsigned int) * CHAR_BIT) - 1) - (__builtin_clz((n))))
 #define WAVE_SIZE 32
-#define MSTEPS 16
+#define MSTEPS 8
 #define MSTEPS4 (MSTEPS * 4)
 const static uint16_t wave_f[] = { 0, 12, 25, 37, 50, 62, 74, 86, 98, 109, 121, 131, 142, 153, 163, 172, 181,
                                    190, 198, 206, 213, 220, 226, 232, 237, 241, 245, 249, 251, 252, 253, 254, 255 };
@@ -24,22 +24,22 @@ void generate_wave(int percent) {
 void init_stepper(stepper *motor, uint8_t dir, uint8_t step, uint8_t enable) {
   motor->max_steps = 50000;
   motor->backslash = 0;
-  motor->speed = 1500;
-  motor->speed_low = 1000;
-  motor->inv = -1;
+  motor->speed = 3500;
+  motor->speed_low = 15000;
+  motor->inv = 0;
   motor->position = 0;
   motor->target = 0;
   motor->backcounter = 0;
   motor->resolution = 0;
   motor->state = stop;
   motor->pcounter = 0;
-  motor->resolution;
+  motor->resolution = 1;
   motor->temperature = 25;
-  motor->period = 0;
-  motor->periodtemp = 0;
   motor->dir = dir;
   motor->step = step;
   motor->enable = enable;
+  motor->state = synced;
+  motor->pwm =127;
 }
 
 void move_to(stepper *motor, long int target, int period) {
@@ -68,13 +68,9 @@ void move_to(stepper *motor, long int target, int period) {
 #ifdef STEP_FOCUS
     digitalWrite(motor->enable, EN_DRIVER);
 #endif
-
     timerAlarmWrite(timer_focus, max(100, period), true);
     timerAlarmEnable(timer_focus);
   }
-#ifdef M_STEP
-  if (period < motor->speed_low) motor->resolution *= (MSTEPS / 4);
-#endif
 }
 
 
@@ -131,8 +127,8 @@ void IRAM_ATTR dostep() {
 #ifdef STEP_FOCUS
 
     if (pmotor->resolution > 0)
-      digitalWrite(pmotor->dir, 1 - pmotor->inv);
-    else digitalWrite(pmotor->dir, 0 - pmotor->inv);
+      digitalWrite(pmotor->dir, 1 != pmotor->inv);
+    else digitalWrite(pmotor->dir, 0 != pmotor->inv);
     //digitalWrite(ENABLE_FOCUS, EN_DRIVER);
     digitalWrite(pmotor->step, 0);
     char pulse_w;
@@ -173,7 +169,8 @@ void IRAM_ATTR dostep() {
     if (pmotor->pcounter < 0)
       pmotor->pcounter += 8;
     pmotor->pcounter %= 8;
-    step = pmotor->pcounter if (pmotor->inv < 0) step = 7 - step;
+    uint8_t step = pmotor->pcounter;
+    if (pmotor->inv) step = 7 - step;
     switch (step) {
       case 0:
         WA_P WB_N break;
@@ -193,8 +190,6 @@ void IRAM_ATTR dostep() {
         WA_O WB_N break;
       default: break;
     }
-
-      // step_out(pmotor->pcounter);
 #endif
 #endif
   }

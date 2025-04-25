@@ -28,7 +28,6 @@ extern c_star st_now, st_target, st_current;
 extern char volatile sync_target;
 extern stepper focus_motor,aux_motor,*pmotor;
 extern int  dcfocus;
-extern int  focusvolt;
 struct _telescope_
 {   long dec_target,ra_target;
     long alt_target,az_target;
@@ -59,11 +58,13 @@ void appcmd(char cmd)
   case 'g':sprintf(tmessage,"%f",telescope->rate[0][0]);
   break;
   case 'j':sprintf(tmessage,"%f",telescope->rate[0][1]);
-    break;
+  break;
   case 'A':conf();
   break;
   case 'T':conf_tmc(TMC_FILE);
-   break;
+  break;
+  case 'F':conf_tmc(AUX_FILE);
+  break;
   
 }
 
@@ -78,18 +79,17 @@ File f = SPIFFS.open(filename,"r");
 void conf(void)
 {
 	
-	sprintf(tmessage,"%d\r\n%d\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.4f\r\n%.6f\r\n%.6f\r\n%d\r\n%d\r\n%d\r\n%d\r\n%.0f\r\n%.0f\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n#\r\n",
+	sprintf(tmessage,"%d\r\n%d\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.2f\r\n%.0f\r\n%.0f\r\n%.0f\r\n%.4f\r\n%.6f\r\n%.6f\r\n%d\r\n%.0f\r\n%.0f\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n%d\r\n#\r\n",
           telescope->azmotor->maxcounter, telescope->altmotor->maxcounter,
           telescope->rate[0][0], telescope->rate[1][0], telescope->rate[2][0], telescope->rate[3][0],
           telescope->rate[0][1], telescope->rate[1][1], telescope->rate[2][1], telescope->rate[3][1],
 		  telescope->prescaler,
           telescope->longitude, telescope->lat, telescope->time_zone,
-		  focus_motor.max_steps, focus_motor.speed_low, focus_motor.speed,
-		 telescope->azmotor->acceleration / SEC_TO_RAD, telescope->altmotor->acceleration / SEC_TO_RAD,
+		  telescope->azmotor->acceleration / SEC_TO_RAD, telescope->altmotor->acceleration / SEC_TO_RAD,
 		 telescope->azmotor->backlash, telescope->altmotor->backlash,
 		  telescope->mount_mode ,telescope->track, telescope->autoflip, telescope->azmotor->cw,
-		  telescope->altmotor->cw, focusvolt * focus_motor.inv,  telescope->azmotor->active, telescope->altmotor->active,
-		  dcfocus);
+		  telescope->altmotor->cw,  telescope->azmotor->active, telescope->altmotor->active
+		  );
 		  readconfig(telescope);
 			 
 		
@@ -948,11 +948,11 @@ tr206:
 		}
 	goto st43;
 tr446:
-#line 332 "command.rl"
+#line 333 "command.rl"
 	{setflipmode((*p));}
 	goto st43;
 tr448:
-#line 331 "command.rl"
+#line 332 "command.rl"
 	{setnunchuk((*p));}
 	goto st43;
 tr449:
@@ -2097,8 +2097,10 @@ st147:
 case 147:
 	switch( (*p) ) {
 		case 65: goto tr207;
+		case 70: goto tr207;
 		case 84: goto tr207;
 		case 97: goto tr207;
+		case 102: goto tr208;
 		case 103: goto tr207;
 		case 106: goto tr207;
 		case 110: goto tr208;
@@ -2116,7 +2118,7 @@ st148:
 	if ( ++p == pe )
 		goto _test_eof148;
 case 148:
-#line 1688 "command.cpp"
+#line 1690 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr209;
 	goto st0;
@@ -2141,11 +2143,11 @@ tr208:
 	{stcmd=(*p);mark=p;mark++;}
 	goto st149;
 tr431:
-#line 332 "command.rl"
+#line 333 "command.rl"
 	{setflipmode((*p));}
 	goto st149;
 tr433:
-#line 331 "command.rl"
+#line 332 "command.rl"
 	{setnunchuk((*p));}
 	goto st149;
 tr434:
@@ -2156,7 +2158,7 @@ st149:
 	if ( ++p == pe )
 		goto _test_eof149;
 case 149:
-#line 1721 "command.cpp"
+#line 1723 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	goto st149;
@@ -2167,6 +2169,7 @@ tr211:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2179,6 +2182,7 @@ tr231:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2191,6 +2195,7 @@ tr232:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2203,6 +2208,7 @@ tr233:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2220,6 +2226,7 @@ tr235:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2232,6 +2239,7 @@ tr237:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2244,6 +2252,7 @@ tr247:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2256,6 +2265,7 @@ tr249:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2268,6 +2278,7 @@ tr250:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2280,6 +2291,7 @@ tr252:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2292,6 +2304,7 @@ tr260:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2304,6 +2317,7 @@ tr261:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2316,6 +2330,7 @@ tr271:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2328,6 +2343,7 @@ tr279:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2340,6 +2356,7 @@ tr280:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2352,6 +2369,7 @@ tr281:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2364,6 +2382,7 @@ tr302:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2376,6 +2395,7 @@ tr303:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2389,6 +2409,7 @@ tr304:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2401,6 +2422,7 @@ tr305:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2413,6 +2435,7 @@ tr306:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2425,6 +2448,7 @@ tr307:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2437,6 +2461,7 @@ tr308:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2450,6 +2475,7 @@ tr309:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2462,6 +2488,7 @@ tr310:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2474,6 +2501,7 @@ tr311:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2486,6 +2514,7 @@ tr317:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2498,6 +2527,7 @@ tr318:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2510,6 +2540,7 @@ tr319:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2522,6 +2553,7 @@ tr320:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2534,6 +2566,7 @@ tr321:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2546,6 +2579,7 @@ tr322:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2558,6 +2592,7 @@ tr323:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2570,6 +2605,7 @@ tr324:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2582,6 +2618,7 @@ tr325:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2594,6 +2631,7 @@ tr326:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2606,6 +2644,7 @@ tr327:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2618,6 +2657,7 @@ tr328:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2642,6 +2682,7 @@ tr329:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2654,6 +2695,7 @@ tr335:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2669,6 +2711,7 @@ tr342:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2681,6 +2724,7 @@ tr343:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2693,6 +2737,7 @@ tr349:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2705,6 +2750,7 @@ tr351:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2717,6 +2763,7 @@ tr352:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2729,6 +2776,7 @@ tr355:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2741,6 +2789,7 @@ tr371:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2755,6 +2804,7 @@ tr376:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2767,6 +2817,7 @@ tr389:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2781,6 +2832,7 @@ tr399:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2793,6 +2845,7 @@ tr419:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2805,6 +2858,7 @@ tr421:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2817,6 +2871,7 @@ tr428:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2829,6 +2884,7 @@ tr429:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2841,6 +2897,7 @@ tr430:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st319;
@@ -2848,7 +2905,7 @@ st319:
 	if ( ++p == pe )
 		goto _test_eof319;
 case 319:
-#line 2297 "command.cpp"
+#line 2354 "command.cpp"
 	switch( (*p) ) {
 		case 6: goto tr452;
 		case 35: goto tr211;
@@ -2863,7 +2920,7 @@ st150:
 	if ( ++p == pe )
 		goto _test_eof150;
 case 150:
-#line 2310 "command.cpp"
+#line 2367 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr211;
 		case 58: goto st151;
@@ -3023,7 +3080,7 @@ st166:
 	if ( ++p == pe )
 		goto _test_eof166;
 case 166:
-#line 2468 "command.cpp"
+#line 2525 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3037,7 +3094,7 @@ st167:
 	if ( ++p == pe )
 		goto _test_eof167;
 case 167:
-#line 2480 "command.cpp"
+#line 2537 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3051,7 +3108,7 @@ st168:
 	if ( ++p == pe )
 		goto _test_eof168;
 case 168:
-#line 2492 "command.cpp"
+#line 2549 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3065,7 +3122,7 @@ st169:
 	if ( ++p == pe )
 		goto _test_eof169;
 case 169:
-#line 2504 "command.cpp"
+#line 2561 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3079,7 +3136,7 @@ st170:
 	if ( ++p == pe )
 		goto _test_eof170;
 case 170:
-#line 2516 "command.cpp"
+#line 2573 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3093,7 +3150,7 @@ st171:
 	if ( ++p == pe )
 		goto _test_eof171;
 case 171:
-#line 2528 "command.cpp"
+#line 2585 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr260;
 	goto st149;
@@ -3140,7 +3197,7 @@ st176:
 	if ( ++p == pe )
 		goto _test_eof176;
 case 176:
-#line 2573 "command.cpp"
+#line 2630 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3154,7 +3211,7 @@ st177:
 	if ( ++p == pe )
 		goto _test_eof177;
 case 177:
-#line 2585 "command.cpp"
+#line 2642 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3168,7 +3225,7 @@ st178:
 	if ( ++p == pe )
 		goto _test_eof178;
 case 178:
-#line 2597 "command.cpp"
+#line 2654 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3182,7 +3239,7 @@ st179:
 	if ( ++p == pe )
 		goto _test_eof179;
 case 179:
-#line 2609 "command.cpp"
+#line 2666 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3196,7 +3253,7 @@ st180:
 	if ( ++p == pe )
 		goto _test_eof180;
 case 180:
-#line 2621 "command.cpp"
+#line 2678 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3210,7 +3267,7 @@ st181:
 	if ( ++p == pe )
 		goto _test_eof181;
 case 181:
-#line 2633 "command.cpp"
+#line 2690 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr271;
 	goto st149;
@@ -3232,7 +3289,7 @@ st183:
 	if ( ++p == pe )
 		goto _test_eof183;
 case 183:
-#line 2653 "command.cpp"
+#line 2710 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3246,7 +3303,7 @@ st184:
 	if ( ++p == pe )
 		goto _test_eof184;
 case 184:
-#line 2665 "command.cpp"
+#line 2722 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3260,7 +3317,7 @@ st185:
 	if ( ++p == pe )
 		goto _test_eof185;
 case 185:
-#line 2677 "command.cpp"
+#line 2734 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3274,7 +3331,7 @@ st186:
 	if ( ++p == pe )
 		goto _test_eof186;
 case 186:
-#line 2689 "command.cpp"
+#line 2746 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3288,7 +3345,7 @@ st187:
 	if ( ++p == pe )
 		goto _test_eof187;
 case 187:
-#line 2701 "command.cpp"
+#line 2758 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3302,7 +3359,7 @@ st188:
 	if ( ++p == pe )
 		goto _test_eof188;
 case 188:
-#line 2713 "command.cpp"
+#line 2770 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr279;
 	goto st149;
@@ -3558,7 +3615,7 @@ st219:
 	if ( ++p == pe )
 		goto _test_eof219;
 case 219:
-#line 2967 "command.cpp"
+#line 3024 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr211;
 		case 46: goto st220;
@@ -3583,7 +3640,7 @@ st221:
 	if ( ++p == pe )
 		goto _test_eof221;
 case 221:
-#line 2990 "command.cpp"
+#line 3047 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr335;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3597,7 +3654,7 @@ st222:
 	if ( ++p == pe )
 		goto _test_eof222;
 case 222:
-#line 3002 "command.cpp"
+#line 3059 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr335;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3611,7 +3668,7 @@ st223:
 	if ( ++p == pe )
 		goto _test_eof223;
 case 223:
-#line 3014 "command.cpp"
+#line 3071 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr335;
 	goto st149;
@@ -3623,7 +3680,7 @@ st224:
 	if ( ++p == pe )
 		goto _test_eof224;
 case 224:
-#line 3024 "command.cpp"
+#line 3081 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr211;
 		case 46: goto st220;
@@ -3639,7 +3696,7 @@ st225:
 	if ( ++p == pe )
 		goto _test_eof225;
 case 225:
-#line 3038 "command.cpp"
+#line 3095 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr211;
 		case 46: goto st220;
@@ -3675,7 +3732,7 @@ st228:
 	if ( ++p == pe )
 		goto _test_eof228;
 case 228:
-#line 3072 "command.cpp"
+#line 3129 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr343;
 	goto st149;
@@ -3699,7 +3756,7 @@ st230:
 	if ( ++p == pe )
 		goto _test_eof230;
 case 230:
-#line 3094 "command.cpp"
+#line 3151 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3713,7 +3770,7 @@ st231:
 	if ( ++p == pe )
 		goto _test_eof231;
 case 231:
-#line 3106 "command.cpp"
+#line 3163 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3727,7 +3784,7 @@ st232:
 	if ( ++p == pe )
 		goto _test_eof232;
 case 232:
-#line 3118 "command.cpp"
+#line 3175 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3741,7 +3798,7 @@ st233:
 	if ( ++p == pe )
 		goto _test_eof233;
 case 233:
-#line 3130 "command.cpp"
+#line 3187 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3755,7 +3812,7 @@ st234:
 	if ( ++p == pe )
 		goto _test_eof234;
 case 234:
-#line 3142 "command.cpp"
+#line 3199 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr349;
 	goto st149;
@@ -3795,7 +3852,7 @@ st238:
 	if ( ++p == pe )
 		goto _test_eof238;
 case 238:
-#line 3180 "command.cpp"
+#line 3237 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr352;
 	goto st149;
@@ -3819,7 +3876,7 @@ st240:
 	if ( ++p == pe )
 		goto _test_eof240;
 case 240:
-#line 3202 "command.cpp"
+#line 3259 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr355;
 	if ( 48 <= (*p) && (*p) <= 52 )
@@ -3881,7 +3938,7 @@ st245:
 	if ( ++p == pe )
 		goto _test_eof245;
 case 245:
-#line 3262 "command.cpp"
+#line 3319 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3895,7 +3952,7 @@ st246:
 	if ( ++p == pe )
 		goto _test_eof246;
 case 246:
-#line 3274 "command.cpp"
+#line 3331 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr211;
 		case 47: goto st247;
@@ -3918,7 +3975,7 @@ st248:
 	if ( ++p == pe )
 		goto _test_eof248;
 case 248:
-#line 3295 "command.cpp"
+#line 3352 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3932,7 +3989,7 @@ st249:
 	if ( ++p == pe )
 		goto _test_eof249;
 case 249:
-#line 3307 "command.cpp"
+#line 3364 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr211;
 		case 47: goto st250;
@@ -3955,7 +4012,7 @@ st251:
 	if ( ++p == pe )
 		goto _test_eof251;
 case 251:
-#line 3328 "command.cpp"
+#line 3385 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3969,7 +4026,7 @@ st252:
 	if ( ++p == pe )
 		goto _test_eof252;
 case 252:
-#line 3340 "command.cpp"
+#line 3397 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr371;
 	goto st149;
@@ -4004,7 +4061,7 @@ st255:
 	if ( ++p == pe )
 		goto _test_eof255;
 case 255:
-#line 3373 "command.cpp"
+#line 3430 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4018,7 +4075,7 @@ st256:
 	if ( ++p == pe )
 		goto _test_eof256;
 case 256:
-#line 3385 "command.cpp"
+#line 3442 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr376;
 		case 44: goto st257;
@@ -4051,7 +4108,7 @@ st259:
 	if ( ++p == pe )
 		goto _test_eof259;
 case 259:
-#line 3416 "command.cpp"
+#line 3473 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr376;
 		case 44: goto st257;
@@ -4089,7 +4146,7 @@ st262:
 	if ( ++p == pe )
 		goto _test_eof262;
 case 262:
-#line 3452 "command.cpp"
+#line 3509 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4103,7 +4160,7 @@ st263:
 	if ( ++p == pe )
 		goto _test_eof263;
 case 263:
-#line 3464 "command.cpp"
+#line 3521 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr211;
 		case 58: goto st264;
@@ -4126,7 +4183,7 @@ st265:
 	if ( ++p == pe )
 		goto _test_eof265;
 case 265:
-#line 3485 "command.cpp"
+#line 3542 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4140,7 +4197,7 @@ st266:
 	if ( ++p == pe )
 		goto _test_eof266;
 case 266:
-#line 3497 "command.cpp"
+#line 3554 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr211;
 		case 58: goto st267;
@@ -4163,7 +4220,7 @@ st268:
 	if ( ++p == pe )
 		goto _test_eof268;
 case 268:
-#line 3518 "command.cpp"
+#line 3575 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4177,7 +4234,7 @@ st269:
 	if ( ++p == pe )
 		goto _test_eof269;
 case 269:
-#line 3530 "command.cpp"
+#line 3587 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr389;
 	goto st149;
@@ -4189,7 +4246,7 @@ st270:
 	if ( ++p == pe )
 		goto _test_eof270;
 case 270:
-#line 3540 "command.cpp"
+#line 3597 "command.cpp"
 	switch( (*p) ) {
 		case 32: goto st271;
 		case 35: goto tr211;
@@ -4217,7 +4274,7 @@ st272:
 	if ( ++p == pe )
 		goto _test_eof272;
 case 272:
-#line 3566 "command.cpp"
+#line 3623 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4231,7 +4288,7 @@ st273:
 	if ( ++p == pe )
 		goto _test_eof273;
 case 273:
-#line 3578 "command.cpp"
+#line 3635 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr211;
 		case 47: goto st274;
@@ -4255,7 +4312,7 @@ st275:
 	if ( ++p == pe )
 		goto _test_eof275;
 case 275:
-#line 3600 "command.cpp"
+#line 3657 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4271,7 +4328,7 @@ st276:
 	if ( ++p == pe )
 		goto _test_eof276;
 case 276:
-#line 3613 "command.cpp"
+#line 3670 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr211;
 		case 46: goto st277;
@@ -4296,7 +4353,7 @@ st278:
 	if ( ++p == pe )
 		goto _test_eof278;
 case 278:
-#line 3636 "command.cpp"
+#line 3693 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr399;
 	goto st149;
@@ -4317,7 +4374,7 @@ st280:
 	if ( ++p == pe )
 		goto _test_eof280;
 case 280:
-#line 3655 "command.cpp"
+#line 3712 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4333,7 +4390,7 @@ st281:
 	if ( ++p == pe )
 		goto _test_eof281;
 case 281:
-#line 3668 "command.cpp"
+#line 3725 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr399;
 		case 44: goto st282;
@@ -4378,7 +4435,7 @@ st285:
 	if ( ++p == pe )
 		goto _test_eof285;
 case 285:
-#line 3711 "command.cpp"
+#line 3768 "command.cpp"
 	switch( (*p) ) {
 		case 32: goto st286;
 		case 35: goto tr211;
@@ -4415,7 +4472,7 @@ st287:
 	if ( ++p == pe )
 		goto _test_eof287;
 case 287:
-#line 3746 "command.cpp"
+#line 3803 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4429,7 +4486,7 @@ st288:
 	if ( ++p == pe )
 		goto _test_eof288;
 case 288:
-#line 3758 "command.cpp"
+#line 3815 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr411;
 	if ( (*p) < 58 ) {
@@ -4464,7 +4521,7 @@ st290:
 	if ( ++p == pe )
 		goto _test_eof290;
 case 290:
-#line 3791 "command.cpp"
+#line 3848 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4480,7 +4537,7 @@ st291:
 	if ( ++p == pe )
 		goto _test_eof291;
 case 291:
-#line 3804 "command.cpp"
+#line 3861 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr415;
 	goto st279;
@@ -4495,6 +4552,7 @@ tr415:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st320;
@@ -4502,7 +4560,7 @@ st320:
 	if ( ++p == pe )
 		goto _test_eof320;
 case 320:
-#line 3823 "command.cpp"
+#line 3881 "command.cpp"
 	switch( (*p) ) {
 		case 6: goto tr452;
 		case 35: goto tr211;
@@ -4518,6 +4576,7 @@ tr411:
 						case 'w':conf_write(mark,WIFI_FILE);break;
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
 						}
 						}
 	goto st321;
@@ -4525,7 +4584,7 @@ st321:
 	if ( ++p == pe )
 		goto _test_eof321;
 case 321:
-#line 3844 "command.cpp"
+#line 3903 "command.cpp"
 	switch( (*p) ) {
 		case 6: goto tr452;
 		case 35: goto tr211;
@@ -4542,7 +4601,7 @@ st292:
 	if ( ++p == pe )
 		goto _test_eof292;
 case 292:
-#line 3859 "command.cpp"
+#line 3918 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr411;
 	if ( (*p) < 58 ) {
@@ -4568,7 +4627,7 @@ st293:
 	if ( ++p == pe )
 		goto _test_eof293;
 case 293:
-#line 3883 "command.cpp"
+#line 3942 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr411;
 	if ( (*p) < 58 ) {
@@ -4599,8 +4658,10 @@ case 295:
 	switch( (*p) ) {
 		case 35: goto tr211;
 		case 65: goto tr418;
+		case 70: goto tr418;
 		case 84: goto tr418;
 		case 97: goto tr418;
+		case 102: goto tr208;
 		case 103: goto tr418;
 		case 106: goto tr418;
 		case 110: goto tr208;
@@ -4618,7 +4679,7 @@ st296:
 	if ( ++p == pe )
 		goto _test_eof296;
 case 296:
-#line 3931 "command.cpp"
+#line 3992 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr419;
 	goto st149;
@@ -5115,7 +5176,7 @@ case 316:
 	_out: {}
 	}
 
-#line 416 "command.rl"
+#line 417 "command.rl"
 
 
 //---------------------------------------------------------------------------------------------------------------------

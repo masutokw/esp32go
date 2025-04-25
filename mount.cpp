@@ -401,14 +401,6 @@ int readconfig(mount_t *mt) {
   mt->hmf = (mt->lat < 0) ? -1 : 1;
   s = f.readStringUntil('\n');
   mt->time_zone = s.toInt();
-  // if (((mt->time_zone)==0)&& (s.length()>2 ))
-  //{ strcpy(tzstr,s.c_str());}
-  s = f.readStringUntil('\n');
-  focus_motor.max_steps = s.toInt();
-  s = f.readStringUntil('\n');
-  focus_motor.speed_low = s.toInt();
-  s = f.readStringUntil('\n');
-  focus_motor.speed = s.toInt();
   s = f.readStringUntil('\n');
   tmp = s.toFloat();
   s = f.readStringUntil('\n');
@@ -433,20 +425,9 @@ int readconfig(mount_t *mt) {
   init_motor(mt->azmotor, AZ_ID, maxcounter, 0, mt->prescaler, mt->maxspeed[0], tmp, back_az, tmpaz);
   init_motor(mt->altmotor, ALT_ID, maxcounteralt, 0, mt->prescaler, mt->maxspeed[1], tmp2, back_alt, tmpalt);
   s = f.readStringUntil('\n');
-  int tmpfocus = s.toInt();
-  focus_motor.inv = (tmpfocus > 0) ? 1 : -1;
-  focusvolt = abs(tmpfocus);
-#ifndef STEP_FOCUS
-  ledcWrite(1, focusvolt);
-  ledcWrite(2, focusvolt);
-  generate_wave(abs(focusvolt));
-#endif
-  s = f.readStringUntil('\n');
   mt->azmotor->active = s.toInt();
   s = f.readStringUntil('\n');
   mt->altmotor->active = s.toInt();
-  s = f.readStringUntil('\n');
-  dcfocus = s.toInt();
   f.close();
   return 0;
 }
@@ -683,7 +664,7 @@ void load_saved_pos(void) {
     s = f.readStringUntil('\n');
     focus_motor.position = focus_motor.target = s.toInt();
     f.close();
-#if  defined (RTC_IC) && defined (RTC_NVRAM) && RTC_NVRAM > 0
+#if defined(RTC_IC) && defined(RTC_NVRAM) && RTC_NVRAM > 0
 #if RTC_IC == RTC_DS3231
 
     int i = 0;

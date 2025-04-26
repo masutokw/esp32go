@@ -6,7 +6,7 @@
 #include "focus.h"
 #include "tb6612.h"
 extern mount_t *telescope;
-extern stepper focus_motor;
+extern stepper *pmotor,aux_motor,focus_motor;
 extern int focusvolt;
 #include "nunchuck.h"
 #define ADDRESS 0x52
@@ -61,9 +61,9 @@ if (Wire.available()) {
        switch (chuckbuffer[0])
       {
         case 0 :
-          // if (pressed==3) telescope->smode=1;
+          if (pressed==3) pmotor=&aux_motor;
           if (pressed == 2) telescope->srate = 3;
-          else if (lastpress == 1) gotofocuser(focus_motor.max_steps,focus_motor.speed_low);
+          else if (lastpress == 1) gotofocuser(pmotor->max_steps,pmotor->speed_low);
           else if (pressed == 0)  mount_move(telescope, 'e'); //Serial.println("Left");
           break;
         case 1 :
@@ -80,9 +80,9 @@ if (Wire.available()) {
           }; //Serial.println("CenterX");
           break;
         case 2 :
-          //  if (pressed==3) telescope->smode=2;
+           if (pressed==3) pmotor=&focus_motor;
           if (pressed == 2) telescope->srate = 2 ;
-          else if (lastpress == 1)  gotofocuser(0,focus_motor.speed_low);
+          else if (lastpress == 1)  gotofocuser(0,pmotor->speed_low);
           else if (pressed == 0) mount_move(telescope, 'w'); //Serial.println("Rigth");
           break;
         default:
@@ -97,9 +97,8 @@ if (Wire.available()) {
       switch (chuckbuffer[1] )
       {
         case 0 :
-          // if (pressed==3) telescope->smode=0;
           if (pressed == 2) telescope->srate = 0;
-          else if (lastpress == 1)  gotofocuser(focus_motor.max_steps,focus_motor.speed);
+          else if (lastpress == 1)  gotofocuser(pmotor->max_steps,pmotor->speed);
           else if (pressed == 0) mount_move(telescope, 's'); //Serial.println("Down");
           break;
         case 1 :
@@ -117,7 +116,7 @@ if (Wire.available()) {
           break;
         case 2 :
           if (pressed == 2) telescope->srate = 1;
-          else if (lastpress == 1 )gotofocuser(0,focus_motor.speed);
+          else if (lastpress == 1 )gotofocuser(0,pmotor->speed);
           else if (pressed == 0) mount_move(telescope, 'n'); //Serial.println("Up");
           break;
         default:

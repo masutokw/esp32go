@@ -89,6 +89,7 @@ void eq_track(mount_t *mt1) {
 
   readcounter(mt1->altmotor);
   //goto -------------------------------------------------------------------------
+  bool slew = mt1->altmotor->slewing || mt1->azmotor->slewing; 
   if (mt1->altmotor->slewing) {
     sgndelta = (sign(delta = mt1->altmotor->delta));
     if (fabs(delta) > (M_PI)) sgndelta = -sgndelta;
@@ -126,6 +127,9 @@ void eq_track(mount_t *mt1) {
       mt1->azmotor->slewing = 0;
     }
   }
+
+  if(slew && !(mt1->altmotor->slewing || mt1->azmotor->slewing))
+    buzzerOn(300);
 }
 
 

@@ -273,7 +273,7 @@ void setup() {
   digitalWrite(ENABLE_AZ, DEN_DRIVER);
   digitalWrite(ENABLE_ALT, DEN_DRIVER);
   Serial.begin(BAUDRATE);
-  #ifndef STEP_FOCUS
+#ifndef STEP_FOCUS
   ledcAttachPin(PWM_B, 1);  // assign RGB led pins to channels
   ledcAttachPin(PWM_A, 2);
   ledcSetup(1, 10000, 8);  // 12 kHz PWM, 8-bit resolution
@@ -423,6 +423,7 @@ void setup() {
   digitalWrite(ALT_RES, 1);
 #endif
 #endif
+#ifndef STEP_FOCUS
   //pinMode(PWM_A, OUTPUT);
   //pinMode(PWM_B, OUTPUT);
   pinMode(AIN_1, OUTPUT);
@@ -435,6 +436,7 @@ void setup() {
   digitalWrite(AIN_2, 1);
   digitalWrite(BIN_1, 1);
   digitalWrite(BIN_2, 0);
+#endif
   digitalWrite(ENABLE_AZ, EN_DRIVER);
   digitalWrite(ENABLE_ALT, EN_DRIVER);
 
@@ -470,8 +472,8 @@ void setup() {
   pinMode(0, INPUT_PULLUP);
   attachInterrupt(0, nunchuk_reset, FALLING);
 
-  move_to(&focus_motor, focus_motor.position, 2000);
-  stopfocuser();
+  //move_to(&focus_motor, focus_motor.position, 2000);
+  //stopfocuser();
   // WA_O;
   // WB_O;
   // focuser_tckr.detach();
@@ -505,16 +507,15 @@ void setup() {
 
 #ifdef BUZZER_PIN
   pinMode(BUZZER_PIN, OUTPUT);
-  //activo
-  digitalWrite(BUZZER_PIN, HIGH);
-  delay(200);
-  digitalWrite(BUZZER_PIN, LOW);
-  // pasivo
-  //tone(BUZZER_PIN,1000,1000);
+  buzzerOn(0);
+  delay(300);
+  buzzerOff();
 #endif
 }
 
 void loop() {
+
+  buzzerOff();
   int zcount[2];
   delay(10);
   net_task();

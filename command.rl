@@ -239,6 +239,7 @@ long command( char *str )
         action Goto {if (telescope->mount_mode)
 					{goto_ra_dec(telescope,mount.ra_target*15.0*SEC_TO_RAD,mount.dec_target*SEC_TO_RAD);}
 					 else mount_slew(telescope);
+					 buzzerOn(300);
 					 sprintf(tmessage,"0");APPEND;}
         action stop {mount_stop(telescope,stcmd);}
         action rate {select_rate(telescope,stcmd); }
@@ -288,11 +289,11 @@ long command( char *str )
 		action fmove_rel {gotofocuser(pmotor->position+(focus_counter*neg));}
 		action fmove_to {gotofocuser(focus_counter);}
 		action fstop {stopfocuser();}
-		action select_focus {if (fc=='0') pmotor=&focus_motor; else pmotor=&aux_motor;}
+		action select_focus {if (fc=='0') pmotor=&focus_motor; else pmotor=&aux_motor; buzzerOn(300);}
 		action fsync_to{pmotor->position=pmotor->target=focus_counter;}
 		action fquery{sprintf(tmessage,"%05d#",pmotor->position);APPEND;}
 		action f_moving {sprintf(tmessage,"%d#",pmotor->state<stop);APPEND;}
-		action goto_home{mount_goto_home(telescope);}
+		action goto_home{buzzerOn(300);mount_goto_home(telescope);}
 		action getparked{sprintf(tmessage,"%s#",(telescope->parked? "1" : "0"));APPEND;}
 		action home{mount_home_set(telescope);}
 		action getpierside {sprintf(tmessage,"%s#",(get_pierside(telescope)? "WEST" : "EAST"));APPEND;}

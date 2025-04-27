@@ -12,6 +12,8 @@ extern int clients_connected;
 static const unsigned long REFRESH_INTERVAL = 1000; // (ms) refresh oled every second
 static unsigned long lastRefreshTime = 0;
 bool oled_disabled=false;
+#include "tb6612.h"
+extern stepper focus_motor,aux_motor,*pmotor;
 
 void oled_check()
 {
@@ -63,7 +65,7 @@ void oledDisplay()
   display.drawString(0, 0, ctime(&now));
 //---------
   display.drawString(0, 28, "T["+String(telescope->is_tracking ? "1":"0")+"]  S["+String((telescope->azmotor->slewing || telescope->altmotor->slewing) ? "1":"0")+"]  P.Side["+String(get_pierside(telescope) ? "W":"E")+"]  Flip["+String(telescope->autoflip ? "1":"0")+"]");
-  display.drawString(0, 38, "IP Clients: "+String(clients_connected));
+  display.drawString(0, 38, "F["+String(pmotor==&focus_motor ? "FOC":"AUX")+"]  IP Clients: "+String(clients_connected));
 //---------  
   display.display();
 }

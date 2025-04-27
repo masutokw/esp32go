@@ -14,3 +14,4 @@ esp32go.ino.esp32.bin
 /data
 build/esp32.esp32.esp32/esp32go.ino.elf
 /build
+.DS_Store

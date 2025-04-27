@@ -61,7 +61,11 @@ if (Wire.available()) {
        switch (chuckbuffer[0])
       {
         case 0 :
-          if (pressed==3) pmotor=&aux_motor;
+          if (pressed==3) 
+          {
+            pmotor=&aux_motor;
+            buzzerOn(300);
+          }
           if (pressed == 2) telescope->srate = 3;
           else if (lastpress == 1) gotofocuser(pmotor->max_steps,pmotor->speed_low);
           else if (pressed == 0)  mount_move(telescope, 'e'); //Serial.println("Left");
@@ -80,7 +84,11 @@ if (Wire.available()) {
           }; //Serial.println("CenterX");
           break;
         case 2 :
-           if (pressed==3) pmotor=&focus_motor;
+          if (pressed==3) 
+          {
+            pmotor=&focus_motor;
+            buzzerOn(300);
+          }
           if (pressed == 2) telescope->srate = 2 ;
           else if (lastpress == 1)  gotofocuser(0,pmotor->speed_low);
           else if (pressed == 0) mount_move(telescope, 'w'); //Serial.println("Rigth");

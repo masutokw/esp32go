@@ -46,7 +46,7 @@
 #define STEP_FOCUS
 #define CLOCK_OUT_AUX Z_STEP
 #define DIR_OUT_AUX Z_DIR
-#define ENABLE_FOCUS 23 // MOTOR_EN    // ---> TEMPORARY PATCH
+#define ENABLE_AUX 23 // MOTOR_EN    // ---> TEMPORARY PATCH
 #define TMC_DRIVERS
 #define BUZZER_PIN 13
 #else

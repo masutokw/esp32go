@@ -6,6 +6,8 @@ extern WiFiClass Wifi;
 extern int  wifi_pad_IP3;
 extern int wifi_pad_IP2;
 char tzstr[50] = TZ_SPAIN;
+bool buzzer_on = false;
+unsigned long buzzer_off_at;
 void sdt_init(double longitude, int tz)
 {
   sdt_millis = millis();
@@ -446,3 +448,21 @@ linfo.tm_isdst=0;
   }
 
 */
+
+void buzzerOn(unsigned long milliseconds)
+{
+  buzzer_on=true;
+  buzzer_off_at=millis()+milliseconds;
+#ifdef BUZZER_PIN
+  digitalWrite(BUZZER_PIN, HIGH);
+#endif
+}
+void buzzerOff(void)
+{
+  if( !buzzer_on || millis() < buzzer_off_at )
+    return;
+  buzzer_on=false;
+#ifdef BUZZER_PIN
+  digitalWrite(BUZZER_PIN, LOW);
+#endif
+}

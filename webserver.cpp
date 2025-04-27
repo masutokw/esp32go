@@ -165,6 +165,7 @@ void handleHome(void) {
         mount_home_set(telescope);
         break;
       case 1:
+        buzzerOn(300);
         mount_goto_home(telescope);
         break;
       case 2:
@@ -527,6 +528,7 @@ void handleMonitor(void) {
 <br>AZ Counter: %ld <br>Alt Counter: %ld \
 <br>AZ Back Counter: %d<br>Alt Back Counter: %d \
 <br>Clients: %d<br>Focus Counter: %d \
+<br>AUX Counter: %d \
 <br>Is slewing: %d <br>Is tracking: %d \
 <br>RA: %s<br>De: %s  \
 <br>PEC:%d  %d<br>\
@@ -534,7 +536,7 @@ void handleMonitor(void) {
  Date %s <br> %s <br> NVRAM %d %d\
 </body></html>",
            telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
-           altbackcounter, clients_connected, focus_motor.position,
+           altbackcounter, clients_connected, focus_motor.position, aux_motor.position,
            (telescope->azmotor->slewing || telescope->altmotor->slewing) ? 1 : 0,
            telescope->is_tracking, &buffra, &buffdec, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times, zcount[0], zcount[1]);
   serverweb.send(200, "text/html", page);

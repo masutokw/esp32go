@@ -57,7 +57,7 @@ const char* ssid = "MyWIFI";
 const char* password = "Mypassword";
 #endif
 extern volatile int state;
-extern stepper focus_motor,aux_motor, *pmotor;
+extern stepper focus_motor, aux_motor, *pmotor;
 extern int focusvolt;
 WiFiServer server(SERVER_PORT);
 WiFiClient serverClients[MAX_SRV_CLIENTS];
@@ -279,9 +279,9 @@ void setup() {
   ledcAttachPin(PWM_A, 2);
   ledcSetup(1, 10000, 8);  // 12 kHz PWM, 8-bit resolution
   ledcSetup(2, 10000, 8);
-  ledcWrite(1,127);
+  ledcWrite(1, 127);
   ledcWrite(2, 127);
-  #endif
+#endif
 #ifdef OLED_DISPLAY
   oled_initscr();
 #endif
@@ -365,8 +365,8 @@ void setup() {
   server.begin();
   server.setNoDelay(true);
   telescope = create_mount();
-  init_stepper(&focus_motor,DIR_OUT_FOCUS,CLOCK_OUT_FOCUS,ENABLE_FOCUS);
-  init_stepper(&aux_motor,DIR_OUT_AUX,CLOCK_OUT_AUX,ENABLE_AUX);
+  init_stepper(&focus_motor, DIR_OUT_FOCUS, CLOCK_OUT_FOCUS, ENABLE_FOCUS);
+  init_stepper(&aux_motor, DIR_OUT_AUX, CLOCK_OUT_AUX, ENABLE_AUX);
   pmotor = &focus_motor;
   readconfig(telescope);
   readauxconfig();
@@ -457,29 +457,30 @@ void setup() {
   timer_alt = timerBegin(TIMER_ALT, 80, true);
   timer_az = timerBegin(TIMER_AZ, 80, true);
   timer_focus = timerBegin(TIMER_FOCUS, 80, true);
-   timer_aux = timerBegin(TIMER_AUX, 80, true);
-  
+  timer_aux = timerBegin(TIMER_AUX, 80, true);
+
 
   // Attach onTimer function to our timer.
   timerAttachInterrupt(timer_az, &onTimer_az, false);
   timerAttachInterrupt(timer_alt, &onTimer_alt, false);
-  timerAttachInterrupt(timer_focus, &dostep, false);
+  timerAttachInterrupt(timer_focus, &do_step, false);
   timerAttachInterrupt(timer_aux, &aux_ISR, false);
 
   timerAlarmWrite(timer_az, 100000, true);
   timerAlarmWrite(timer_alt, 100000, true);
   timerAlarmWrite(timer_focus, 100000, true);
-   timerAlarmWrite(timer_aux, 100000, true);
+  timerAlarmWrite(timer_aux, 100000, true);
   // Start an alarm
   timerAlarmEnable(timer_az);
   timerAlarmEnable(timer_alt);
   timerAlarmDisable(timer_focus);
   timerAlarmDisable(timer_aux);
+  timerAlarmWrite(timer_aux, 100, true);
   pinMode(0, INPUT_PULLUP);
   attachInterrupt(0, nunchuk_reset, FALLING);
 
   //move_to(&focus_motor, focus_motor.position, 2000);
-  //stopfocuser();
+  stopfocuser();
   // WA_O;
   // WB_O;
   // focuser_tckr.detach();
@@ -514,14 +515,14 @@ void setup() {
 #ifdef BUZZER_PIN
   pinMode(BUZZER_PIN, OUTPUT);
   buzzerOn(300);
- // delay(300);
- // buzzerOff();
+  // delay(300);
+  // buzzerOff();
 #endif
 }
 
 void loop() {
 
- // buzzerOff();
+  // buzzerOff();
   int zcount[2];
   delay(10);
   net_task();
@@ -559,7 +560,7 @@ void loop() {
   if ((counter % 10 == 0) && (otab))
     ArduinoOTA.handle();
 #endif
-#if defined (RTC_IC) && defined (RTC_NVRAM) && RTC_NVRAM > 0
+#if defined(RTC_IC) && defined(RTC_NVRAM) && RTC_NVRAM > 0
   if (((counter % (RTC_NVRAM * 100)) == 0) && telescope->is_tracking) {
 #if RTC_IC == RTC_DS3231
     zcount[0] = azcounter;

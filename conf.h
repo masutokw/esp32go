@@ -58,11 +58,11 @@
 #define ENABLE_AUX 19
 
 #ifdef PROTO
-#define CLOCK_OUT_AZ  32
-#define DIR_OUT_AZ 33
+#define CLOCK_OUT_AZ  4
+#define DIR_OUT_AZ 2
 #define CLOCK_OUT_ALT 5
 #define DIR_OUT_ALT 18
-#define ENABLE_AZ 19
+#define ENABLE_AZ 16
 #define ENABLE_ALT 23
 #define AZ_RES 17
 #define ALT_RES 19

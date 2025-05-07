@@ -31,6 +31,7 @@ String a;
 hw_timer_t* timer_az = NULL;
 hw_timer_t* timer_alt = NULL;
 hw_timer_t* timer_focus = NULL;
+hw_timer_t* timer_aux = NULL;
 #ifdef OTA
 #include <ArduinoOTA.h>
 #include "OTA_helper.hpp"
@@ -456,19 +457,24 @@ void setup() {
   timer_alt = timerBegin(TIMER_ALT, 80, true);
   timer_az = timerBegin(TIMER_AZ, 80, true);
   timer_focus = timerBegin(TIMER_FOCUS, 80, true);
+   timer_aux = timerBegin(TIMER_AUX, 80, true);
+  
 
   // Attach onTimer function to our timer.
   timerAttachInterrupt(timer_az, &onTimer_az, false);
   timerAttachInterrupt(timer_alt, &onTimer_alt, false);
   timerAttachInterrupt(timer_focus, &dostep, false);
+  timerAttachInterrupt(timer_aux, &aux_ISR, false);
 
   timerAlarmWrite(timer_az, 100000, true);
   timerAlarmWrite(timer_alt, 100000, true);
   timerAlarmWrite(timer_focus, 100000, true);
+   timerAlarmWrite(timer_aux, 100000, true);
   // Start an alarm
   timerAlarmEnable(timer_az);
   timerAlarmEnable(timer_alt);
   timerAlarmDisable(timer_focus);
+  timerAlarmDisable(timer_aux);
   pinMode(0, INPUT_PULLUP);
   attachInterrupt(0, nunchuk_reset, FALLING);
 
@@ -507,15 +513,15 @@ void setup() {
 
 #ifdef BUZZER_PIN
   pinMode(BUZZER_PIN, OUTPUT);
-  buzzerOn(0);
-  delay(300);
-  buzzerOff();
+  buzzerOn(300);
+ // delay(300);
+ // buzzerOff();
 #endif
 }
 
 void loop() {
 
-  buzzerOff();
+ // buzzerOff();
   int zcount[2];
   delay(10);
   net_task();

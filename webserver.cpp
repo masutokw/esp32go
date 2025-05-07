@@ -727,10 +727,10 @@ void handleIana(void) {
 void handleAux() {
   char temp[4500];
   if (serverweb.hasArg("FOCUSMAX")) {
-    snprintf(temp, 700, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n#\n",
+    snprintf(temp, 700, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n#\n",
              serverweb.arg("FOCUSMAX"), serverweb.arg("FOCUSPEEDLOW"), serverweb.arg("FOCUSPEED"), serverweb.arg("PWR_DIR"),
              serverweb.arg("AUXMAX"), serverweb.arg("AUXSPEEDLOW"), serverweb.arg("AUXSPEED"), serverweb.arg("AUX_PWR_DIR"),
-             serverweb.arg("DC_FOCUS"));
+             serverweb.arg("DC_FOCUS"),serverweb.arg("IDMOTOR"));
     File f = SPIFFS.open(AUX_FILE, "w");
     if (!f) {
 
@@ -742,6 +742,15 @@ void handleAux() {
      // now = time(nullptr);
      // snprintf(msg, 42, "Config Saved at %s ", ctime(&now));
     }
+  }
+  String aux0="";
+  String aux1="";
+  String aux2="";
+  switch (aux_motor.id)
+  {case 0:aux0="selected";break;
+  case 1:aux1="selected";break;
+  case 2:aux2="selected";break;
+  
   }
     snprintf(temp, 4500,
              "<html><style>" BUTTTEXTT TEXTT3 "</style>" AUTO_SIZE
@@ -755,7 +764,9 @@ void handleAux() {
 <td><input type='number'step='1' name='AUXSPEED' class=\"text_red\" value='%d'></td></tr>\
 <tr><td>Volt</td><td><input type='number'step='1' name='PWR_DIR' class=\"text_red\" value='%d'></td>\
 <td><input type='number'step='1' name='AUX_PWR_DIR' class=\"text_red\" value='%d'></td></tr>\
-<tr><td>Stepper<input type='radio' name='DC_FOCUS' value='0' %s ></td><td>Dc<input type='radio' name='DC_FOCUS' value='1' %s ></td></tr>\
+<tr><td>Stepper<input type='radio' name='DC_FOCUS' value='0' %s ></td><td>Dc<input type='radio' name='DC_FOCUS' value='1' %s ></td>\
+<td><select name='IDMOTOR' id='lang'> <option value='0' %s>Focusers</option>\
+<option value='1' %s>Rotator</option> <option value='2' %s >Filter Wheel</option></select></td></tr>\
 </table>\
 <input type='submit' name='SUBMIT' class=\"button_red\" value='Save'>\
 </fieldset>\
@@ -764,7 +775,7 @@ void handleAux() {
 </body></html>",
              focus_motor.max_steps, aux_motor.max_steps,rconv(focus_motor.speed_low),rconv( aux_motor.speed_low),rconv(focus_motor.speed), rconv(aux_motor.speed),
              focus_motor.pwm * (focus_motor.inv ? -1 : 1), aux_motor.pwm * (aux_motor.inv ? -1 : 1),
-             dcfocus == 0 ? "checked" : "", dcfocus == 1 ? "checked" : "");
+             dcfocus == 0 ? "checked" : "", dcfocus == 1 ? "checked" : "",aux0,aux1,aux2);
     serverweb.send(200, "text/html", temp);
   }
 

@@ -126,6 +126,8 @@ int readauxconfig(void) {
   dcfocus = s.toInt();
   focus_motor.speed_low = fconv(tlow);
   focus_motor.speed = fconv(tspeed);
+  s = f.readStringUntil('\n');
+  aux_motor.id=s.toInt();
 #ifdef M_STEP
   generate_wave(focus_motor.pwm);
 #endif

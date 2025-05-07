@@ -25,11 +25,11 @@
 #define SCL_PIN 22
 #define BUZZER_PIN 26
 ///-------------------------------------------------------------
-#define TMC_DRIVERS   //uncomment if using tmc driver
-#define STEP_FOCUS   // uncomment when using 3d driver for focuser //comment when tb6612
-//#define M_STEP         //uncomment when TB6612 microsteppig 
+//#define TMC_DRIVERS   //uncomment if using tmc driver
+//#define STEP_FOCUS   // uncomment when using 3d driver for focuser //comment when tb6612
+#define M_STEP         //uncomment when TB6612 microsteppig 
 //#define FYSECT_BRD   //uncommnet for FYSECT 3D-printer board
-#define PROTO  //uncomment for not Angel´s board
+//#define PROTO  //uncomment for not Angel´s board
 //-----------------------------------------------
 #ifdef FYSECT_BRD
 #define CLOCK_OUT_AZ X_STEP
@@ -156,10 +156,12 @@
 #define TIMER_AZ 0
 #define TIMER_ALT 1
 #define TIMER_FOCUS 3
+#define TIMER_AUX 2
 #else
 #define TIMER_AZ 3
 #define TIMER_ALT 2
 #define TIMER_FOCUS 0
+#define TIMER_AUX 2
 #endif
 
 

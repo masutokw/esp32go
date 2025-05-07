@@ -40,7 +40,7 @@ long getDecimal(float val);
 void setwifipad(int ip3, int ip2);
 int getoffset(void);
 void buzzerOn(unsigned long milliseconds);
-void buzzerOff(void);
+void buzzerOff(char *p);
 
 
 #endif

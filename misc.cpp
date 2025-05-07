@@ -1,11 +1,13 @@
 #include "misc.h"
 #include "time.h"
+#include <Ticker.h>
 double sdt;
 long sdt_millis;
 extern WiFiClass Wifi;
 extern int  wifi_pad_IP3;
 extern int wifi_pad_IP2;
 char tzstr[50] = TZ_SPAIN;
+Ticker buzzer_tckr;
 bool buzzer_on = false;
 unsigned long buzzer_off_at;
 void sdt_init(double longitude, int tz)
@@ -450,18 +452,20 @@ linfo.tm_isdst=0;
 */
 
 void buzzerOn(unsigned long milliseconds)
-{
-  buzzer_on=true;
-  buzzer_off_at=millis()+milliseconds;
+{ char *a;
+ // buzzer_on=true;
+//  buzzer_off_at=millis()+milliseconds;
 #ifdef BUZZER_PIN
   digitalWrite(BUZZER_PIN, HIGH);
+  buzzer_tckr.once_ms( milliseconds,  buzzerOff, a);
 #endif
+ 
 }
-void buzzerOff(void)
+void buzzerOff(char *p)
 {
-  if( !buzzer_on || millis() < buzzer_off_at )
-    return;
-  buzzer_on=false;
+ // if( !buzzer_on || millis() < buzzer_off_at )
+ //   return;
+ // buzzer_on=false;
 #ifdef BUZZER_PIN
   digitalWrite(BUZZER_PIN, LOW);
 #endif

@@ -29,6 +29,8 @@ void init_stepper(stepper *motor, uint8_t dir, uint8_t step, uint8_t enable) {
   motor->inv = 0;
   motor->position = 0;
   motor->target = 0;
+  motor->speed_target = 0;
+  motor->speed_counter=0;
   motor->backcounter = 0;
   motor->resolution = 0;
   motor->state = stop;
@@ -193,4 +195,16 @@ void IRAM_ATTR dostep() {
 #endif
 #endif
   }
+}
+
+
+void IRAM_ATTR aux_ISR() {
+
+ if (++(pmotor->speed_counter)>=pmotor->speed_target){
+     pmotor->speed_counter=0;
+     dostep();}
+
+
+
+
 }

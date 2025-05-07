@@ -25,6 +25,7 @@ char tmessage[300];
 extern c_star st_now, st_target, st_current;
 extern char volatile sync_target;
 extern stepper focus_motor,aux_motor,*pmotor;
+stepper *lmotor=&focus_motor;
 extern int  dcfocus;
 struct _telescope_
 {   long dec_target,ra_target;
@@ -282,17 +283,19 @@ long command( char *str )
         action settime{set_time(deg,min,sec);}
 		action return_formatTime{sprintf(tmessage,"24#");APPEND;}
 		action return_tRate{sprintf(tmessage,"50.0#");APPEND;}
-		action fmove_in {gotofocuser(0,pmotor->speed);}
-		action fmove_out {gotofocuser(pmotor->max_steps,pmotor->speed);}
-		action fmovel_in {gotofocuser(0,pmotor->speed_low);}
-		action fmovel_out {gotofocuser(pmotor->max_steps,pmotor->speed_low);}
-		action fmove_rel {gotofocuser(pmotor->position+(focus_counter*neg));}
-		action fmove_to {gotofocuser(focus_counter);}
-		action fstop {stopfocuser();}
+		action fmove_in {gotofocuser(0,lmotor->speed,lmotor);}
+		action fmove_out {gotofocuser(lmotor->max_steps,lmotor->speed,lmotor);}
+		action fmovel_in {gotofocuser(0,lmotor->speed_low,lmotor);}
+		action fmovel_out {gotofocuser(lmotor->max_steps,lmotor->speed_low,lmotor);}
+		action fmove_rel {gotofocuser(lmotor->position+(focus_counter*neg));}
+		action fmove_to {gotofocuser(focus_counter,lmotor);}
+		action fstop {stopfocuser(lmotor);}
 		action select_focus {if (fc=='0') pmotor=&focus_motor; else pmotor=&aux_motor; buzzerOn(300);}
-		action fsync_to{pmotor->position=pmotor->target=focus_counter;}
-		action fquery{sprintf(tmessage,"%05d#",pmotor->position);APPEND;}
-		action f_moving {sprintf(tmessage,"%d#",pmotor->state<stop);APPEND;}
+		action select_motor {if (fc=='F') lmotor=&focus_motor; else lmotor=&aux_motor;}
+		action fsync_to{lmotor->position=lmotor->target=focus_counter;}
+		action fquery{sprintf(tmessage,"%05d#",lmotor->position);APPEND;}
+		action fquery_foc{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
+		action f_moving {sprintf(tmessage,"%d#",lmotor->state<stop);APPEND;}
 		action goto_home{buzzerOn(300);mount_goto_home(telescope);}
 		action getparked{sprintf(tmessage,"%s#",(telescope->parked? "1" : "0"));APPEND;}
 		action home{mount_home_set(telescope);}
@@ -357,7 +360,7 @@ long command( char *str )
 				   'c'%return_formatTime|
 				   'k'%return_track|
 				   'K'%return_tracks|
-				   'x'%return_ra %return_dec %return_az %return_alt %return_tracks %fquery );
+				   'x'%return_ra %return_dec %return_az %return_alt %return_tracks %fquery_foc );
         Move = 'M' (([nsweh]@storecmd %dir)|
                     ('S'%Goto)|
                     ('g'[nsew]@storecmd digit{4}$getpulse %pulse_dir));
@@ -392,7 +395,7 @@ long command( char *str )
 		f_moving='B'%f_moving;
 		f_speed=digit;
 		f_select='s'[0,1]$select_focus;
-		Focuser='F'(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel|f_moving|f_select);
+		Focuser=('F'|'X')$select_motor(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel|f_moving|f_select);
 # custom
 		Park = ('pH'%home)|('hP'%goto_home)|('pS'%getpierside)|('pF'%getflip)  |(('ps')('e'|'w')@setpierside)|('pnk'('0'|'1')@nunchuk)|('pa'('0'|'1')@autoflip)|('PP'%getparked);
 		IP_PAD ='IP' ((digit$getip3){1,3} '.' (digit$getip2){1,3})%set_ip;

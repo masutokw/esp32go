@@ -37,8 +37,8 @@ void init_stepper(stepper *motor,uint8_t dir,uint8_t step,uint8_t enable);
 void move_to(stepper *motor, long int  target,int period);
 void move_to (int dir);
 
-void do_step(stepper *motor);
+void IRAM_ATTR do_step();
 void step_out(uint8_t step);
-void IRAM_ATTR dostep();
+void IRAM_ATTR dostep(stepper *motor);
 void IRAM_ATTR aux_ISR();
 #endif

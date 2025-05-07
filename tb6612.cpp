@@ -1,3 +1,4 @@
+#include "esp32-hal-gpio.h"
 #include "esp32-hal-timer.h"
 #include "tb6612.h"
 #include <Ticker.h>
@@ -6,6 +7,7 @@ stepper focus_motor, aux_motor, *pmotor;
 //extern Ticker focuser_tckr;
 extern int focusvolt, focusspd_current;
 extern hw_timer_t *timer_focus;
+extern hw_timer_t *timer_aux;
 #define LOG2(n) (((sizeof(unsigned int) * CHAR_BIT) - 1) - (__builtin_clz((n))))
 #define WAVE_SIZE 32
 #define MSTEPS 8
@@ -29,19 +31,19 @@ void init_stepper(stepper *motor, uint8_t dir, uint8_t step, uint8_t enable) {
   motor->inv = 0;
   motor->position = 0;
   motor->target = 0;
-  motor->speed_target = 0;
-  motor->speed_counter=0;
+  motor->speed_target = 1000;
+  motor->speed_counter = 0;
   motor->backcounter = 0;
   motor->resolution = 0;
   motor->state = stop;
   motor->pcounter = 0;
-  motor->resolution = 1;
+  //motor->resolution = 1;
   motor->temperature = 25;
   motor->dir = dir;
   motor->step = step;
   motor->enable = enable;
   motor->state = synced;
-  motor->pwm =127;
+  motor->pwm = 127;
 }
 
 void move_to(stepper *motor, long int target, int period) {
@@ -70,8 +72,15 @@ void move_to(stepper *motor, long int target, int period) {
 #ifdef STEP_FOCUS
     digitalWrite(motor->enable, EN_DRIVER);
 #endif
+#ifdef HIRES_TIMER
     timerAlarmWrite(timer_focus, max(100, period), true);
     timerAlarmEnable(timer_focus);
+#else
+    motor->speed_target = period;
+    motor->speed_counter = 0;
+    //timerAlarmWrite(timer_aux, 100, true);
+    timerAlarmEnable(timer_aux);
+#endif
   }
 }
 
@@ -108,7 +117,7 @@ void move_to(int dir) {
 //--------------------------------------------------------------------------------------------
 
 
-void IRAM_ATTR dostep() {
+void IRAM_ATTR dostep(stepper *pmotor) {
   uint8_t p, s, j;
   uint16_t pwma, pwmb;
   if ((pmotor->state == slew) && (pmotor->position == pmotor->target)) {
@@ -119,7 +128,11 @@ void IRAM_ATTR dostep() {
 #else
     WA_O WB_O
 #endif
+#ifdef HIRES_TIMER
     timerAlarmDisable(timer_focus);
+#else
+    // timerAlarmDisable(timer_aux) ;
+#endif
   }
   if (pmotor->state != synced) {
     if ((pmotor->backcounter <= 0) || (pmotor->backcounter >= pmotor->backslash))
@@ -200,11 +213,18 @@ void IRAM_ATTR dostep() {
 
 void IRAM_ATTR aux_ISR() {
 
- if (++(pmotor->speed_counter)>=pmotor->speed_target){
-     pmotor->speed_counter=0;
-     dostep();}
+  if (++focus_motor.speed_counter > focus_motor.speed_target) {
+    focus_motor.speed_counter = 0;
+    dostep(&focus_motor);
+  }
+  //else
 
-
-
-
+  if (++aux_motor.speed_counter > aux_motor.speed_target) {
+    aux_motor.speed_counter = 0;
+    dostep(&aux_motor);
+  }
+  if ((focus_motor.resolution == 0) && (aux_motor.resolution == 0)) timerAlarmDisable(timer_aux);
+}
+void IRAM_ATTR do_step() {
+  dostep(pmotor);
 }

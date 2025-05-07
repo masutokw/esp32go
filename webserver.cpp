@@ -746,10 +746,12 @@ void handleAux() {
   String aux0="";
   String aux1="";
   String aux2="";
+   String aux3="";
   switch (aux_motor.id)
   {case 0:aux0="selected";break;
   case 1:aux1="selected";break;
   case 2:aux2="selected";break;
+  case 3:aux3="selected";break;
   
   }
     snprintf(temp, 4500,
@@ -765,8 +767,10 @@ void handleAux() {
 <tr><td>Volt</td><td><input type='number'step='1' name='PWR_DIR' class=\"text_red\" value='%d'></td>\
 <td><input type='number'step='1' name='AUX_PWR_DIR' class=\"text_red\" value='%d'></td></tr>\
 <tr><td>Stepper<input type='radio' name='DC_FOCUS' value='0' %s ></td><td>Dc<input type='radio' name='DC_FOCUS' value='1' %s ></td>\
-<td><select name='IDMOTOR' id='lang'> <option value='0' %s>Focusers</option>\
-<option value='1' %s>Rotator</option> <option value='2' %s >Filter Wheel</option></select></td></tr>\
+<td><select name='IDMOTOR' id='lang'> <option value='0' %s>Focuser</option>\
+<option value='1' %s>Rotator</option> <option value='2' %s >Filter Wheel</option>\
+<option value='3' %s >Disabled</option></select>\
+</td></tr>\
 </table>\
 <input type='submit' name='SUBMIT' class=\"button_red\" value='Save'>\
 </fieldset>\
@@ -775,7 +779,7 @@ void handleAux() {
 </body></html>",
              focus_motor.max_steps, aux_motor.max_steps,rconv(focus_motor.speed_low),rconv( aux_motor.speed_low),rconv(focus_motor.speed), rconv(aux_motor.speed),
              focus_motor.pwm * (focus_motor.inv ? -1 : 1), aux_motor.pwm * (aux_motor.inv ? -1 : 1),
-             dcfocus == 0 ? "checked" : "", dcfocus == 1 ? "checked" : "",aux0,aux1,aux2);
+             dcfocus == 0 ? "checked" : "", dcfocus == 1 ? "checked" : "",aux0,aux1,aux2,aux3);
     serverweb.send(200, "text/html", temp);
   }
 

@@ -2,6 +2,11 @@
 #include "focus.h"
 #include "tb6612.h"
 #define GOTO_FOCUS_PERIOD 2000
+#ifdef HIRES_TIMER
+#define TIMER_PER 1.0e+6
+#else
+#define TIMER_PER 1.0e+4
+#endif
 int focusspd_current = 0;  //dc
 int dcfocus = 0;
 int focusvolt = 127;
@@ -17,6 +22,15 @@ void gotofocuser(int pos) {
   else if (pos == 0) move_to(-1);
   else move_to(0);
 }
+
+void gotofocuser(int pos,stepper *motor) {
+  if (dcfocus != 1)
+    move_to(motor, pos, (motor->speed) * 2);
+  else if (pos == motor->max_steps) move_to(1);
+  else if (pos == 0) move_to(-1);
+  else move_to(0);
+}
+
 void gotofocuser(int pos, int speed) {
   if (dcfocus != 1) {
     move_to(pmotor, pos, speed);
@@ -31,15 +45,40 @@ void gotofocuser(int pos, int speed) {
     else move_to(0);
   }
 }
+
+void gotofocuser(int pos, int speed,stepper *motor) {
+  if (dcfocus != 1) {
+    move_to(motor, pos, speed);
+  } else {
+#ifndef DRV_8833
+    ledcWrite(1, speed);
+    ledcWrite(2, speed);
+#endif
+    focusspd_current = speed;
+    if (pos == motor->max_steps) move_to(1);
+    else if (pos == 0) move_to(-1);
+    else move_to(0);
+  }
+}
 void stopfocuser(void) {
   if (dcfocus != 1)
     move_to(pmotor, pmotor->position, pmotor->speed);
   else
     move_to(0);
 }
+void stopfocuser(stepper *motor) {
+  if (dcfocus != 1)
+    move_to(motor, motor->position, motor->speed);
+  else
+    move_to(0);
+}
 void setfocuser(int pos) {
   if (dcfocus != 1)
     pmotor->position = pmotor->target = pos;
+}
+void setfocuser(int pos,stepper *motor) {
+  if (dcfocus != 1)
+    motor->position = motor->target = pos;
 }
 int rconv(int period) {
   if (dcfocus)
@@ -48,7 +87,7 @@ int rconv(int period) {
   if (period == 0)
     return 65535;
   else
-    return trunc((1.0e+6 / period));
+    return trunc((TIMER_PER/ period));
 }
 
 int fconv(int period) {
@@ -58,7 +97,7 @@ int fconv(int period) {
   if (period == 0)
     return 65535;
   else
-    return trunc((1.0e+6 / period));
+    return trunc((TIMER_PER / period));
 }
 /*
 int readauxconfig(void) {

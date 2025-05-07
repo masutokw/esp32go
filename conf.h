@@ -27,8 +27,8 @@
 ///-------------------------------------------------------------
 //#define TMC_DRIVERS   //uncomment if using tmc driver
 //#define STEP_FOCUS   // uncomment when using 3d driver for focuser //comment when tb6612
-#define M_STEP         //uncomment when TB6612 microsteppig 
-//#define FYSECT_BRD   //uncommnet for FYSECT 3D-printer board
+//#define M_STEP         //uncomment when TB6612 microsteppig 
+#define FYSECT_BRD   //uncommnet for FYSECT 3D-printer board
 //#define PROTO  //uncomment for not Angel´s board
 //-----------------------------------------------
 #ifdef FYSECT_BRD
@@ -58,11 +58,11 @@
 #define ENABLE_AUX 19
 
 #ifdef PROTO
-#define CLOCK_OUT_AZ 4
-#define DIR_OUT_AZ 2
+#define CLOCK_OUT_AZ  32
+#define DIR_OUT_AZ 33
 #define CLOCK_OUT_ALT 5
 #define DIR_OUT_ALT 18
-#define ENABLE_AZ  16
+#define ENABLE_AZ 19
 #define ENABLE_ALT 23
 #define AZ_RES 17
 #define ALT_RES 19
@@ -161,7 +161,7 @@
 #define TIMER_AZ 3
 #define TIMER_ALT 2
 #define TIMER_FOCUS 0
-#define TIMER_AUX 2
+#define TIMER_AUX 1
 #endif
 
 
@@ -189,3 +189,4 @@
 #define TZ_SPAIN "CET-1CEST,M3.5.0,M10.5.0/3"
 //selected rate at boot 0:guide,1:center,2:find,3:slew.
 #define I_SELECT_RATE 3
+//#define HIRES_TIMER

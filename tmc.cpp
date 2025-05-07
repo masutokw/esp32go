@@ -84,7 +84,7 @@ void tmcinit(void) {
 void tmc_cmd(tmcmotor_t tm, TMC_DEVICE& tmc) {
 #ifdef TMC_DRIVERS
 
-  if (tm.msteps > 1) tmc.microsteps(tm.msteps);
+  if (tm.msteps > 0) tmc.microsteps(tm.msteps);
   if (tm.mamps > 0) tmc.rms_current(tm.mamps);
   if (tm.pol < 2) tmc.intpol(tm.pol);
   tmc.TPWMTHRS(tm.sp_trigger);

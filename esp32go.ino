@@ -11,6 +11,7 @@
 #include "focus.h"
 #include "tmc.h"
 #include "esp32-hal-ledc.h"
+#include "wheel.h"
 //Comment out undesired Feature at conf.h
 #define FORMAT_SPIFFS_IF_FAILED true
 #ifdef NUNCHUCK_CONTROL
@@ -370,6 +371,8 @@ void setup() {
   pmotor = &focus_motor;
   readconfig(telescope);
   readauxconfig();
+
+  //write_wheel_config();
   httpUpdater.setup(&serverweb);
   sntp_set_time_sync_notification_cb(timeavailable);
   f = SPIFFS.open(IANA_FILE, "r");

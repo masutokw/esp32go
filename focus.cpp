@@ -1,6 +1,7 @@
 #include <cmath>
 #include "focus.h"
 #include "tb6612.h"
+#include "wheel.h"
 #define GOTO_FOCUS_PERIOD 2000
 #ifdef HIRES_TIMER
 #define TIMER_PER 1.0e+6
@@ -11,7 +12,9 @@ int focusspd_current = 0;  //dc
 int dcfocus = 0;
 int focusvolt = 127;
 extern stepper *pmotor, aux_motor, focus_motor;
-void setfocuserspeed(motor_t* mt, int speed) {
+extern wheel_t wheel[9];
+extern byte wheel_index,wheel_slots;
+void setfocuserspeed(motor_t *mt, int speed) {
   // aux_set_period(mt->id, speed);
 }
 
@@ -23,7 +26,7 @@ void gotofocuser(int pos) {
   else move_to(0);
 }
 
-void gotofocuser(int pos,stepper *motor) {
+void gotofocuser(int pos, stepper *motor) {
   if (dcfocus != 1)
     move_to(motor, pos, (motor->speed) * 2);
   else if (pos == motor->max_steps) move_to(1);
@@ -46,7 +49,7 @@ void gotofocuser(int pos, int speed) {
   }
 }
 
-void gotofocuser(int pos, int speed,stepper *motor) {
+void gotofocuser(int pos, int speed, stepper *motor) {
   if (dcfocus != 1) {
     move_to(motor, pos, speed);
   } else {
@@ -76,7 +79,7 @@ void setfocuser(int pos) {
   if (dcfocus != 1)
     pmotor->position = pmotor->target = pos;
 }
-void setfocuser(int pos,stepper *motor) {
+void setfocuser(int pos, stepper *motor) {
   if (dcfocus != 1)
     motor->position = motor->target = pos;
 }
@@ -87,7 +90,7 @@ int rconv(int period) {
   if (period == 0)
     return 65535;
   else
-    return trunc((TIMER_PER/ period));
+    return trunc((TIMER_PER / period));
 }
 
 int fconv(int period) {
@@ -136,7 +139,7 @@ generate_wave( focus_motor.pwm);
 
 int readauxconfig(void) {
   File f;
-  int tlow, tspeed;
+  int tlow, tspeed,tlow1,tspeed1;
   if (!SPIFFS.exists(AUX_FILE)) return -1;
 
   f = SPIFFS.open(AUX_FILE, FILE_READ);
@@ -154,10 +157,10 @@ int readauxconfig(void) {
   s = f.readStringUntil('\n');
   aux_motor.max_steps = s.toInt();
   s = f.readStringUntil('\n');
-  aux_motor.speed_low = fconv(s.toInt());
-  s = f.readStringUntil('\n');
-  aux_motor.speed = fconv(s.toInt());
-  s = f.readStringUntil('\n');
+  tlow1=s.toInt();
+   s = f.readStringUntil('\n');
+  tspeed1=s.toInt();
+   s = f.readStringUntil('\n');
   tmpfocus = s.toInt();
   aux_motor.inv = (tmpfocus > 0) ? 0 : 1;
   aux_motor.pwm = abs(tmpfocus);
@@ -165,10 +168,23 @@ int readauxconfig(void) {
   dcfocus = s.toInt();
   focus_motor.speed_low = fconv(tlow);
   focus_motor.speed = fconv(tspeed);
+  aux_motor.speed_low =  fconv(tlow1);
+  aux_motor.speed =fconv(tspeed1);
   s = f.readStringUntil('\n');
-  aux_motor.id=s.toInt();
+  aux_motor.id = s.toInt();
+   s = f.readStringUntil('\n');
+  wheel_slots=s.toInt();
+  if (aux_motor.id=2) init_wheel_counters(wheel_slots, aux_motor.max_steps);
 #ifdef M_STEP
   generate_wave(focus_motor.pwm);
 #endif
   return 0;
+}
+
+void gotoindex(uint8_t index) {
+  if (index < 9) {
+    wheel_index = index;
+    aux_motor.target = wheel[wheel_index].value;
+    move_to(&aux_motor, aux_motor.target, aux_motor.speed);
+  }
 }

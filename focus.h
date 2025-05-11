@@ -13,5 +13,6 @@ void stopfocuser(stepper *motor);
 void setfocuser(int pos);
 int readauxconfig(void) ;
 int rconv( int period);
-int fconv( int period); 
+int fconv( int period);
+void gotoindex(uint8_t index) ;
 #endif

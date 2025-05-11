@@ -296,6 +296,7 @@ long command( char *str )
 		action fquery{sprintf(tmessage,"%05d#",lmotor->position);APPEND;}
 		action fquery_foc{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
 		action f_moving {sprintf(tmessage,"%d#",lmotor->state<stop);APPEND;}
+		action fmoveindex{gotoindex(fc-'0');}
 		action goto_home{buzzerOn(300);mount_goto_home(telescope);}
 		action getparked{sprintf(tmessage,"%s#",(telescope->parked? "1" : "0"));APPEND;}
 		action home{mount_home_set(telescope);}
@@ -395,7 +396,8 @@ long command( char *str )
 		f_moving='B'%f_moving;
 		f_speed=digit;
 		f_select='s'[0,1]$select_focus;
-		Focuser=('F'|'X')$select_motor(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel|f_moving|f_select);
+		f_index='I'[0-8]$fmoveindex;
+		Focuser=('F'|'X')$select_motor(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel|f_moving|f_select|f_index);
 # custom
 		Park = ('pH'%home)|('hP'%goto_home)|('pS'%getpierside)|('pF'%getflip)  |(('ps')('e'|'w')@setpierside)|('pnk'('0'|'1')@nunchuk)|('pa'('0'|'1')@autoflip)|('PP'%getparked);
 		IP_PAD ='IP' ((digit$getip3){1,3} '.' (digit$getip2){1,3})%set_ip;

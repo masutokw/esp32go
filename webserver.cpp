@@ -8,8 +8,10 @@
 #include "encoder.h"
 #include "tmc.h"
 #include "focus.h"
+#include "wheel.h"
 #ifdef IR_CONTROL
 extern uint32_t truecode, lasti;
+
 extern byte cmd_map[];
 const String codes[31] = { "EAST", "WEST", "NORTH", "SOUTH", "OK", "FOCUS_F", "FOCUS_B", "GUIDE", "CENTER", "FIND", "SLEW", "N_EAST", "N_WEST", "S_EAST",
                            "S_WEST", "TRACK", "UNTRACK", "B_1", "B_2", "B_3", "B_4", "B_5", "B_6", "B_7", "B_8", "B_9", "B_0", "GO_TO", "CLEAR", "FLIP_W", "FLIP_E" };
@@ -23,6 +25,9 @@ extern bool pad_enabled;
 #include "RTClib.h"
 extern RTC_IC rtc;
 #endif
+extern wheel_t wheel[9];
+extern byte wheel_index;
+extern byte wheel_slots;
 extern tmcmotor_t tmcmotors[4];
 extern int clients_connected;
 extern uint64_t period_alt;
@@ -78,7 +83,7 @@ void handleConfig(void) {
              serverweb.arg("RAMP"), serverweb.arg("RAMPA"), serverweb.arg("BACK_AZ"), serverweb.arg("BACK_ALT"),
              serverweb.arg("MOUNT"), serverweb.arg("TRACK"), serverweb.arg("AUTOFLIP"), String(serverweb.hasArg("INVAZ")),
              String(serverweb.hasArg("INVALT")), String(serverweb.hasArg("ACTAZ")), String(serverweb.hasArg("ACTALT")));
-       File f = SPIFFS.open(MOUNT_FILE, "w");
+    File f = SPIFFS.open(MOUNT_FILE, "w");
     if (!f) {
 
       snprintf(msg, 42, "File open failed");
@@ -125,14 +130,14 @@ void handleConfig(void) {
   delay(50);
   //Second  page chunk
   snprintf(temp, 4500,
- "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Geodata</legend>\
+           "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Geodata</legend>\
 <table style='width:250px'><tr><td>Longitude:</td><td><input type='number' step='any' name='LONGITUDE' class=\"text_red\" value='%.4f'></td></tr>\
 <tr><td>Latitude:</td><td><input type='number'step='any'  name='LATITUDE' class=\"text_red\"  value='%.4f'></td></tr>\
 <tr><td>GMT offset:</td><td><input type='number'step='1' name='TIMEZONE' class=\"text_red\" value='%d'></td></tr></table>\
 </fieldset></form><br>\
 <br>Load Time : %s \
 <br>%s \
-</body></html>", 
+</body></html>",
            telescope->longitude, telescope->lat, telescope->time_zone, ctime(&now), &msg);
   serverweb.sendContent(temp);
   serverweb.sendContent("");
@@ -566,7 +571,7 @@ void handleMain(void) {
   content += "<button onclick=\"location.href='/network'\" class=\"button_red\"   type=\"button\">WLAN&Network</button><br>";
   content += "<button onclick=\"location.href='/aux'\" class=\"button_red\" type=\"button\">Focus</button>&ensp;";
   content += "<button onclick=\"location.href='/update'\" class=\"button_red\" type=\"button\">Firmware</button>&ensp;";
- 
+
 #ifdef TMC_DRIVERS
   content += "<button onclick=\"location.href='/tmc'\" class=\"button_red\" type=\"button\">TMC</button>&ensp;";
 #endif
@@ -578,7 +583,8 @@ void handleMain(void) {
   content += "<button onclick=\"location.href='/park'\" class=\"button_red\" type=\"button\">Park</button>&ensp;";
   content += "<button onclick=\"location.href='/home?HOME=0'\" class=\"button_red\" type=\"button\">Reset  home</button>&ensp;";
   content += "<button onclick=\"location.href='/home?HOME=1'\" class=\"button_red\" type=\"button\">GO&Park home</button><br>";
-  content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">2 stars align</button></table></fieldset>";
+  content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">2 stars align</button><br>";
+  content += "<button onclick=\"location.href='/wheel'\"class=\"button_red\" type=\"button\">Filter Wheel</button></table></fieldset>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Control set</legend>";
   content += "<table style='width:250px'>";
 #ifdef IR_CONTROL
@@ -594,7 +600,9 @@ void handleMain(void) {
 #endif
   content += "</table></fieldset> <fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Info</legend>";
   content += "<table style='width:250px'>";
-  content += "<button onclick=\"location.href='/time'\" class=\"button_red\" type=\"button\">Sync Date/Time</button><button onclick=\"location.href='/monitor'\" class=\"button_red\" type=\"button\">Monitor Counters</button></table></fieldset>";
+  content += "<button onclick=\"location.href='/time'\" class=\"button_red\" type=\"button\">Sync Date/Time</button>";
+  content +="<button onclick=\"location.href='/monitor'\" class=\"button_red\" type=\"button\">Monitor Counters</button><br>";
+  content +="<button onclick=\"location.href='/iana'\" class=\"button_red\" type=\"button\">IANA Timezone Set </button></table></fieldset>";
 
   content += "<br>Loaded at Time :" + String(ctime(&now)) + String(NTP_Sync ? "NTP OK" : "RTC") + " Offset:" + String(getoffset()) + "<br></body></html>";
   serverweb.send(200, "text/html", content);
@@ -727,10 +735,10 @@ void handleIana(void) {
 void handleAux() {
   char temp[4500];
   if (serverweb.hasArg("FOCUSMAX")) {
-    snprintf(temp, 700, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n#\n",
+    snprintf(temp, 700, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n#\n",
              serverweb.arg("FOCUSMAX"), serverweb.arg("FOCUSPEEDLOW"), serverweb.arg("FOCUSPEED"), serverweb.arg("PWR_DIR"),
              serverweb.arg("AUXMAX"), serverweb.arg("AUXSPEEDLOW"), serverweb.arg("AUXSPEED"), serverweb.arg("AUX_PWR_DIR"),
-             serverweb.arg("DC_FOCUS"),serverweb.arg("IDMOTOR"));
+             serverweb.arg("DC_FOCUS"), serverweb.arg("IDMOTOR"),serverweb.arg("SLOTS"));
     File f = SPIFFS.open(AUX_FILE, "w");
     if (!f) {
 
@@ -738,27 +746,28 @@ void handleAux() {
     } else {
       f.println(temp);
       f.close();
-      readauxconfig() ;
-     // now = time(nullptr);
-     // snprintf(msg, 42, "Config Saved at %s ", ctime(&now));
+      readauxconfig();
+      // now = time(nullptr);
+      // snprintf(msg, 42, "Config Saved at %s ", ctime(&now));
     }
   }
-  String aux0="";
-  String aux1="";
-  String aux2="";
-   String aux3="";
-  switch (aux_motor.id)
-  {case 0:aux0="selected";break;
-  case 1:aux1="selected";break;
-  case 2:aux2="selected";break;
-  case 3:aux3="selected";break;
-  
+  String aux0 = "";
+  String aux1 = "";
+  String aux2 = "";
+  String aux3 = "";
+  switch (aux_motor.id) {
+    case 0: aux0 = "selected"; break;
+    case 1: aux1 = "selected"; break;
+    case 2: aux2 = "selected"; break;
+    case 3: aux3 = "selected"; break;
   }
-    snprintf(temp, 4500,
-             "<html><style>" BUTTTEXTT TEXTT3 "</style>" AUTO_SIZE
-             "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/aux' method='POST'><h2>Aux Motors</h2>\
+  snprintf(temp, 4500,
+           "<html><style>" BUTTTEXTT TEXTT3 "</style>" AUTO_SIZE
+           "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/aux' method='POST'><h2>Aux Motors</h2>\
 <fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Focuser</legend>\
-<table style='width:250px'><tr><td>Focus Max:</td><td><input type='number'step='1' name='FOCUSMAX' class=\"text_red\" value='%d'></td>\
+<table style='width:250px'>\
+<tr><th>Param</th> <th>Focus</th><th>Aux</th></tr>\
+<tr><td>Focus Max:</td><td><input type='number'step='1' name='FOCUSMAX' class=\"text_red\" value='%d'></td>\
 <td><input type='number'step='1' name='AUXMAX' class=\"text_red\" value='%d'></td></tr>\
 <tr><td>Low Speed:</td><td><input type='number'step='1' name='FOCUSPEEDLOW' class=\"text_red\" value='%d'></td>\
 <td><input type='number'step='1' name='AUXSPEEDLOW' class=\"text_red\" value='%d'></td></tr>\
@@ -770,52 +779,78 @@ void handleAux() {
 <td><select name='IDMOTOR' id='lang'> <option value='0' %s>Focuser</option>\
 <option value='1' %s>Rotator</option> <option value='2' %s >Filter Wheel</option>\
 <option value='3' %s >Disabled</option></select>\
-</td></tr>\
+</td></tr><tr><td></td><td>Slots</td>\
+<td><input type='number'step='1' name='SLOTS' class=\"text_red\" value='%d'></td></tr>\
 </table>\
 <input type='submit' name='SUBMIT' class=\"button_red\" value='Save'>\
 </fieldset>\
 <br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button>\
 </form>\
 </body></html>",
-             focus_motor.max_steps, aux_motor.max_steps,rconv(focus_motor.speed_low),rconv( aux_motor.speed_low),rconv(focus_motor.speed), rconv(aux_motor.speed),
-             focus_motor.pwm * (focus_motor.inv ? -1 : 1), aux_motor.pwm * (aux_motor.inv ? -1 : 1),
-             dcfocus == 0 ? "checked" : "", dcfocus == 1 ? "checked" : "",aux0,aux1,aux2,aux3);
-    serverweb.send(200, "text/html", temp);
+           focus_motor.max_steps, aux_motor.max_steps, rconv(focus_motor.speed_low), rconv(aux_motor.speed_low), rconv(focus_motor.speed), rconv(aux_motor.speed),
+           focus_motor.pwm * (focus_motor.inv ? -1 : 1), aux_motor.pwm * (aux_motor.inv ? -1 : 1),
+           dcfocus == 0 ? "checked" : "", dcfocus == 1 ? "checked" : "", aux0, aux1, aux2, aux3,wheel_slots);
+  serverweb.send(200, "text/html", temp);
+}
+
+void handleWheel() {
+
+  if (serverweb.hasArg("MOVE")) {
+    String net = serverweb.arg("MOVE");
+    wheel_index = net.toInt();
+    aux_motor.target = wheel[wheel_index].value;
+    move_to(&aux_motor, aux_motor.target, aux_motor.speed);
   }
+  String content = "<html><head><style>" BUTT TEXTT "</style>" AUTO_SIZE "</head><body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>Filter Wheel</h2><br>";
+  content += "<form action='/wheel' method='POST'>";
+  content += "<td><select name='MOVE' id='lang'>";
+  String temp = "";
+  for (byte g = 0; g < 9; g++) {
+    temp = wheel_index == g ? "selected" : "";
+    content += "<option value='" + String(g) + "' " + temp + ">" + String(wheel[g].name) + "</option>";
+  }
+  content += "</select>";
 
+  content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Set'></form>"
+             "<br>";
+  content += "<button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Home</button><br>";
+  content += "</body></html>";
+  serverweb.send(200, "text/html", content);
 
-  void initwebserver(void) {
-    serverweb.on("/park", handlePark);
-    serverweb.on("/time", handleTime);
-    serverweb.on("/sync", handleSync);
-    serverweb.on("/restart", handleRestart);
-    serverweb.on("/Align", handleStar);
-    serverweb.on("/home", handleHome);
-    serverweb.on("/gohome", handleHome);
-    serverweb.on("/network", handleNetwork);
-    serverweb.on("/meridian", handleMeridian);
-    serverweb.on("/focus", handleFocus);
-    serverweb.on("/config", handleConfig);
-    serverweb.on("/", handleMain);
-    serverweb.on("/main", handleMain);
+}
+void initwebserver(void) {
+  serverweb.on("/park", handlePark);
+  serverweb.on("/time", handleTime);
+  serverweb.on("/sync", handleSync);
+  serverweb.on("/restart", handleRestart);
+  serverweb.on("/Align", handleStar);
+  serverweb.on("/home", handleHome);
+  serverweb.on("/gohome", handleHome);
+  serverweb.on("/network", handleNetwork);
+  serverweb.on("/meridian", handleMeridian);
+  serverweb.on("/focus", handleFocus);
+  serverweb.on("/config", handleConfig);
+  serverweb.on("/", handleMain);
+  serverweb.on("/main", handleMain);
 #ifdef IR_CONTROL
-    serverweb.on("/remote", handleRemote);
-    serverweb.on("/IR", handleIr);
+  serverweb.on("/remote", handleRemote);
+  serverweb.on("/IR", handleIr);
 #endif
 #ifdef NUNCHUCK_CONTROL
-    serverweb.on("/nunchuk", handleNunchuk);
+  serverweb.on("/nunchuk", handleNunchuk);
 #endif
-    serverweb.on("/monitor", handleMonitor);
-    serverweb.on("/starinstructions", handleStarInstructions);
-    serverweb.on("/instructions", handleInstructions);
-    serverweb.on("/tmc", handleTmc);
-    serverweb.on("/iana", handleIana);
-    serverweb.on("/aux", handleAux);
-    serverweb.onNotFound([]() {
-      if (!handleFileRead(serverweb.uri()))
-        serverweb.send(404, "text/plain", "FileNotFound");
-    });
+  serverweb.on("/monitor", handleMonitor);
+  serverweb.on("/starinstructions", handleStarInstructions);
+  serverweb.on("/instructions", handleInstructions);
+  serverweb.on("/tmc", handleTmc);
+  serverweb.on("/iana", handleIana);
+  serverweb.on("/aux", handleAux);
+  serverweb.on("/wheel", handleWheel);
+  serverweb.onNotFound([]() {
+    if (!handleFileRead(serverweb.uri()))
+      serverweb.send(404, "text/plain", "FileNotFound");
+  });
 
-    serverweb.begin();
-  }
+  serverweb.begin();
+}
 #endif

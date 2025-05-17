@@ -19,8 +19,8 @@
 #include "nunchuck.h"
 #endif
 #include "tmc.h"
-char response [200];
-//char tmessage[50];
+#include "wheel.h"
+char response [300];
 char tmessage[300];
 extern c_star st_now, st_target, st_current;
 extern char volatile sync_target;
@@ -39,7 +39,7 @@ struct _telescope_
 mount;
 extern long sdt_millis;
 extern mount_t *telescope;
-void conf_tmc(const char *filename);
+void sendfile(const char *filename);
 void conf(void);
 void lxprintsite(void)
 {
@@ -60,21 +60,40 @@ void appcmd(char cmd)
   break;
   case 'A':conf();
   break;
-  case 'T':conf_tmc(TMC_FILE);
+  case 'T':sendfile(TMC_FILE);
   break;
-  case 'F':conf_tmc(AUX_FILE);
+  case 'F':sendfile(AUX_FILE);
+  break;
+  case 'D':sendfile(WHEEL_FILE);
   break;
   
 }
 
 
 }
-void conf_tmc(const char *filename){
+void sendfile2(const char *filename){
 File f = SPIFFS.open(filename,"r");
   if (!f) exit;
+ String fsize=String(f.size()+1);
      f.read((uint8_t *)tmessage,f.size()+1);
+	 APPEND("patata");
 	 f.close();   
    }
+   
+void sendfile(const char *filename){
+String s="";
+File f = SPIFFS.open(filename,"r");
+  if (!f) exit;
+ while (f.available()){
+  s+=char (f.read());
+  }
+s.toCharArray(tmessage,s.length()+1);
+tmessage[ s.length() + 1]=0;
+	 f.close();   
+   }
+   
+
+
 void conf(void)
 {
 	
@@ -332,6 +351,8 @@ long command( char *str )
 						case 'n':conf_write(mark,NETWORK_FILE);break;
 						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
 						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
+						case 'd':conf_write(mark,WHEEL_FILE);read_wheel_config();break;
+						
 						}
 						}
 	action nunchuk {setnunchuk(fc);}
@@ -406,8 +427,8 @@ long command( char *str )
         Autostar='GV'('D'%a_date | 'N'%a_number | 'P'%a_product | 'T'%a_time | 'F'%a_firm) ;
 		
 #app commands
-		cgfsend=[zagjATF]@storecmd %cmd_app;
-		cgfwrite=[snwtf]@markinput extend* %writeconf ;
+		cgfsend=[zagjATFD]@storecmd %cmd_app;
+		cgfwrite=[snwtfd]@markinput extend* %writeconf ;
 		Appcmd= 'c'(cgfsend | cgfwrite);
 		
 		

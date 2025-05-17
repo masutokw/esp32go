@@ -12,13 +12,13 @@ if (!SPIFFS.exists(WHEEL_FILE)) return -1;
 f = SPIFFS.open(WHEEL_FILE, FILE_READ);
 String s;
 for (byte n = 0; n < 9;n++){
-    String s = f.readStringUntil('\n');
+    s = f.readStringUntil('\n');
     s.toCharArray(wheel[n].name, s.length() + 1);
     s = f.readStringUntil('\n');
     wheel[n].value = s.toInt();
     s = f.readStringUntil('\n');
     wheel[n].offset = s.toInt();
-    s = f.readStringUntil('\n');
+  
   }
   f.close();
   return 0;
@@ -33,6 +33,7 @@ byte n=0;
       snprintf(temp,100, "%s\n%d\n%d\n", wheel[n].name, wheel[n].value, wheel[n].offset);
       f.print(temp);
     }
+      f.print("#\n");
       f.close();
       }
 void init_wheel_counters(uint8_t slots,long int max_steps) {

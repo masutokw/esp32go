@@ -570,6 +570,7 @@ void handleMain(void) {
   content += "<button onclick=\"location.href='/config'\" class=\"button_red\"   type=\"button\">Mount</button>&ensp; ";
   content += "<button onclick=\"location.href='/network'\" class=\"button_red\"   type=\"button\">WLAN&Network</button><br>";
   content += "<button onclick=\"location.href='/aux'\" class=\"button_red\" type=\"button\">Focus</button>&ensp;";
+   content += "<button onclick=\"location.href='/wheelconfig'\" class=\"button_red\" type=\"button\">Filter Wheel</button>&ensp;";
   content += "<button onclick=\"location.href='/update'\" class=\"button_red\" type=\"button\">Firmware</button>&ensp;";
 
 #ifdef TMC_DRIVERS
@@ -601,8 +602,8 @@ void handleMain(void) {
   content += "</table></fieldset> <fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Info</legend>";
   content += "<table style='width:250px'>";
   content += "<button onclick=\"location.href='/time'\" class=\"button_red\" type=\"button\">Sync Date/Time</button>";
-  content +="<button onclick=\"location.href='/monitor'\" class=\"button_red\" type=\"button\">Monitor Counters</button><br>";
-  content +="<button onclick=\"location.href='/iana'\" class=\"button_red\" type=\"button\">IANA Timezone Set </button></table></fieldset>";
+  content += "<button onclick=\"location.href='/monitor'\" class=\"button_red\" type=\"button\">Monitor Counters</button><br>";
+  content += "<button onclick=\"location.href='/iana'\" class=\"button_red\" type=\"button\">IANA Timezone Set </button></table></fieldset>";
 
   content += "<br>Loaded at Time :" + String(ctime(&now)) + String(NTP_Sync ? "NTP OK" : "RTC") + " Offset:" + String(getoffset()) + "<br></body></html>";
   serverweb.send(200, "text/html", content);
@@ -733,12 +734,12 @@ void handleIana(void) {
 }
 
 void handleAux() {
-  char temp[4500];
+  char temp[4500]="";
   if (serverweb.hasArg("FOCUSMAX")) {
     snprintf(temp, 700, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n#\n",
              serverweb.arg("FOCUSMAX"), serverweb.arg("FOCUSPEEDLOW"), serverweb.arg("FOCUSPEED"), serverweb.arg("PWR_DIR"),
              serverweb.arg("AUXMAX"), serverweb.arg("AUXSPEEDLOW"), serverweb.arg("AUXSPEED"), serverweb.arg("AUX_PWR_DIR"),
-             serverweb.arg("DC_FOCUS"), serverweb.arg("IDMOTOR"),serverweb.arg("SLOTS"));
+             serverweb.arg("DC_FOCUS"), serverweb.arg("IDMOTOR"), serverweb.arg("SLOTS"));
     File f = SPIFFS.open(AUX_FILE, "w");
     if (!f) {
 
@@ -789,35 +790,98 @@ void handleAux() {
 </body></html>",
            focus_motor.max_steps, aux_motor.max_steps, rconv(focus_motor.speed_low), rconv(aux_motor.speed_low), rconv(focus_motor.speed), rconv(aux_motor.speed),
            focus_motor.pwm * (focus_motor.inv ? -1 : 1), aux_motor.pwm * (aux_motor.inv ? -1 : 1),
-           dcfocus == 0 ? "checked" : "", dcfocus == 1 ? "checked" : "", aux0, aux1, aux2, aux3,wheel_slots);
+           dcfocus == 0 ? "checked" : "", dcfocus == 1 ? "checked" : "", aux0, aux1, aux2, aux3, wheel_slots);
   serverweb.send(200, "text/html", temp);
 }
 
-void handleWheel() {
 
-  if (serverweb.hasArg("MOVE")) {
+
+void handleWheel() {
+  String msg="";
+
+  if (serverweb.hasArg("SYNC")) {
+
+    aux_motor.position = 0;
+    wheel_index = 0;
+    msg="Reset Home sync";
+  } else
+
+    if (serverweb.hasArg("MOVE")) {
     String net = serverweb.arg("MOVE");
     wheel_index = net.toInt();
     aux_motor.target = wheel[wheel_index].value;
     move_to(&aux_motor, aux_motor.target, aux_motor.speed);
+     msg="Filter Changed to "+String(wheel[wheel_index].name);
   }
+
+
   String content = "<html><head><style>" BUTT TEXTT "</style>" AUTO_SIZE "</head><body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>Filter Wheel</h2><br>";
   content += "<form action='/wheel' method='POST'>";
-  content += "<td><select name='MOVE' id='lang'>";
-  String temp = "";
+  content += "<select name='MOVE' id='lang'>";
   for (byte g = 0; g < 9; g++) {
-    temp = wheel_index == g ? "selected" : "";
-    content += "<option value='" + String(g) + "' " + temp + ">" + String(wheel[g].name) + "</option>";
+    content += "<option value='" + String(g) + "' " + (wheel_index == g ? "selected" : "") + ">" + String(wheel[g].name) + "</option>";
   }
-  content += "</select>";
-
-  content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Set'></form>"
-             "<br>";
-  content += "<button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Home</button><br>";
+  content += "</select><input type='submit' name='SUBMIT'  class=\"button_red\" value='Set Filter'>";
+  content += "<input type='submit' name='SYNC'  class=\"button_red\" value='Sync home'></form><br>"+msg;
+  content += "<button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>";
   content += "</body></html>";
   serverweb.send(200, "text/html", content);
-
 }
+
+void handlewheelcgf() {
+  char temp[100];
+  char tbl[800] = "";
+  char msg[43] = "";
+  File f;
+  String num;
+  if (serverweb.hasArg("SLOT0")) {
+    for (int n = 0; n < 9; n++) {
+      num = String(n);
+      snprintf(temp, 100, "%s\n%s\n%s\n", serverweb.arg("NAME" + num), serverweb.arg("SLOT" + num), num);
+      strcat(tbl, temp);
+    }
+    strcat(tbl, "#\n");
+
+    f = SPIFFS.open(WHEEL_FILE, FILE_WRITE, true);
+    if (!f) {
+      f.close();
+
+      //snprintf(table, 42, "File open failed");
+    } else {
+      f.println(tbl);
+      f.close();
+      read_wheel_config();
+    }
+    snprintf(msg, 42, "Config Saved at %s ", tbl);
+  }
+
+
+  //snprintf(temp,800,
+  char tmp[4500] = "<html><style>" BUTTTEXTT TEXTT3 "</style>" AUTO_SIZE
+                   "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/wheelconfig' method='POST'><h2>Aux Motors</h2>\
+<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Focuser</legend>\
+<table style='width:250px'>\
+<tr><th>Param</th> <th>Focus</th><th>Aux</th></tr>";
+  int n = 0;
+  for (n = 0; n < 9; n++) {
+    snprintf(tbl, 600, "<tr><td>Slot %d:</td><td><input type='text' name='NAME%d' class=\"text_red\" value='%s'></td>\
+<td><input type='number'step='1' name='SLOT%d' class=\"text_red\" value='%d'></td></tr>",
+             n, n, wheel[n].name, n, wheel[n].value);
+    strcat(tmp, tbl);
+  }
+  //  strcat(tmp,msg);
+  strcat(tmp, "</table>\
+<input type='submit' name='SUBMIT' class=\"button_red\" value='Save'>\
+</fieldset>\
+<br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button>\
+</form>\
+</body></html>");
+  //strcat(tmp, table);
+
+  serverweb.send(200, "text/html", tmp);
+}
+
+
 void initwebserver(void) {
   serverweb.on("/park", handlePark);
   serverweb.on("/time", handleTime);
@@ -846,6 +910,7 @@ void initwebserver(void) {
   serverweb.on("/iana", handleIana);
   serverweb.on("/aux", handleAux);
   serverweb.on("/wheel", handleWheel);
+  serverweb.on("/wheelconfig", handlewheelcgf);
   serverweb.onNotFound([]() {
     if (!handleFileRead(serverweb.uri()))
       serverweb.send(404, "text/plain", "FileNotFound");

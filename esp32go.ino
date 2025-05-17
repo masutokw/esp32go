@@ -371,7 +371,7 @@ void setup() {
   pmotor = &focus_motor;
   readconfig(telescope);
   readauxconfig();
-
+  read_wheel_config();
   //write_wheel_config();
   httpUpdater.setup(&serverweb);
   sntp_set_time_sync_notification_cb(timeavailable);

@@ -174,7 +174,7 @@ int readauxconfig(void) {
   aux_motor.id = s.toInt();
    s = f.readStringUntil('\n');
   wheel_slots=s.toInt();
-  if (aux_motor.id=2) init_wheel_counters(wheel_slots, aux_motor.max_steps);
+  if (aux_motor.id==2) init_wheel_counters(wheel_slots, aux_motor.max_steps);
 #ifdef M_STEP
   generate_wave(focus_motor.pwm);
 #endif

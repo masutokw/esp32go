@@ -228,3 +228,26 @@ void IRAM_ATTR aux_ISR() {
 void IRAM_ATTR do_step() {
   dostep(pmotor);
 }
+
+void setaux(bool focus){
+  if (focus){
+    focus_motor.step=CLOCK_OUT_FOCUS;
+    focus_motor.dir=DIR_OUT_FOCUS;
+    focus_motor.enable=ENABLE_FOCUS;
+
+    aux_motor.step=CLOCK_OUT_AUX;
+    aux_motor.dir=DIR_OUT_AUX;
+    aux_motor.enable=ENABLE_AUX;
+  }else
+  {
+    aux_motor.step=CLOCK_OUT_FOCUS;
+    aux_motor.dir=DIR_OUT_FOCUS;
+    aux_motor.enable=ENABLE_FOCUS;
+
+    focus_motor.step=CLOCK_OUT_AUX;
+    focus_motor.dir=DIR_OUT_AUX;
+    focus_motor.enable=ENABLE_AUX;
+    
+  }
+
+}

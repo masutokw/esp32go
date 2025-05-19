@@ -28,8 +28,8 @@
 #define TMC_DRIVERS   //uncomment if using tmc driver
 #define STEP_FOCUS   // uncomment when using 3d driver for focuser //comment when tb6612
 //#define M_STEP         //uncomment when TB6612 microsteppig 
-#define FYSECT_BRD   //uncommnet for FYSECT 3D-printer board
-//#define PROTO  //uncomment for not Angel´s board
+//#define FYSECT_BRD   //uncommnet for FYSECT 3D-printer board
+#define PROTO  //uncomment for not Angel´s board
 //-----------------------------------------------
 #ifdef FYSECT_BRD
 #define CLOCK_OUT_AZ X_STEP

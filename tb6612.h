@@ -41,4 +41,5 @@ void IRAM_ATTR do_step();
 void step_out(uint8_t step);
 void IRAM_ATTR dostep(stepper *motor);
 void IRAM_ATTR aux_ISR();
+void setaux(bool focus);
 #endif

@@ -139,7 +139,7 @@ void IRAM_ATTR onTimer_alt() {
       if ((active) && (timerAlarmRead(timer_alt)) != period_alt) timerAlarmWrite(timer_alt, period_alt, true);
     } else {
       altbackcounter += -altdir;
-      if ((active) && (period_az > ALTBACKSPD)) timerAlarmWrite(timer_alt, ALTBACKSPD, true);
+      if ((active) && (period_alt > ALTBACKSPD)) timerAlarmWrite(timer_alt, ALTBACKSPD, true);
     }
 
     if (altcounter < 0) altcounter = telescope->altmotor->maxcounter;

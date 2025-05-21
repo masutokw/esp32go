@@ -266,15 +266,15 @@ static const int command_en_main = 319;
 	switch ( cs )
 	{
 tr20:
-#line 327 "command.rl"
+#line 328 "command.rl"
 	{;}
 	goto st319;
 tr21:
-#line 325 "command.rl"
+#line 326 "command.rl"
 	{telescope->track=0;telescope->azmotor->targetspeed=0.0;}
 	goto st319;
 tr22:
-#line 326 "command.rl"
+#line 327 "command.rl"
 	{telescope->track=1;}
 	goto st319;
 tr24:
@@ -287,7 +287,7 @@ tr24:
 						}
 	goto st319;
 tr26:
-#line 328 "command.rl"
+#line 329 "command.rl"
 	{if ((telescope->azmotor->slewing ||(telescope->altmotor->slewing))&&!(telescope->parked)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
 	goto st319;
 tr37:
@@ -348,7 +348,7 @@ tr97:
 	{lxprintGMT_offset(tmessage,telescope->time_zone );APPEND}
 	goto st319;
 tr98:
-#line 331 "command.rl"
+#line 332 "command.rl"
 	{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2));APPEND;}
 	goto st319;
 tr99:
@@ -373,23 +373,23 @@ tr103:
 	{sprintf(tmessage,"50.0#");APPEND;}
 	goto st319;
 tr109:
-#line 332 "command.rl"
+#line 333 "command.rl"
 	{sprintf(tmessage,"012 24 2000#") ;APPEND;}
 	goto st319;
 tr110:
-#line 336 "command.rl"
+#line 337 "command.rl"
 	{sprintf(tmessage,"43Eg#") ;APPEND;}
 	goto st319;
 tr111:
-#line 333 "command.rl"
+#line 334 "command.rl"
 	{sprintf(tmessage,"01.0#") ;APPEND;}
 	goto st319;
 tr112:
-#line 334 "command.rl"
+#line 335 "command.rl"
 	{ sprintf(tmessage,"esp32go#") ;APPEND;}
 	goto st319;
 tr113:
-#line 335 "command.rl"
+#line 336 "command.rl"
 	{sprintf(tmessage,"00:00:00#") ;APPEND;}
 	goto st319;
 tr114:
@@ -409,7 +409,7 @@ tr117:
 	{lxprintlong1(tmessage,telescope->longitude);APPEND;}
 	goto st319;
 tr118:
-#line 330 "command.rl"
+#line 331 "command.rl"
 	{sprintf(tmessage, telescope->is_tracking ? "1":"0");APPEND;}
 	goto st319;
 tr119:
@@ -431,13 +431,13 @@ tr121:
 	{ lxprintaz1(tmessage, st_current.az); APPEND;}
 #line 271 "command.rl"
 	{lxprintde1(tmessage, st_current.alt); APPEND;}
-#line 331 "command.rl"
+#line 332 "command.rl"
 	{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2));APPEND;}
 #line 316 "command.rl"
 	{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
 	goto st319;
 tr127:
-#line 337 "command.rl"
+#line 338 "command.rl"
 	{setwifipad(ip3,ip2);}
 	goto st319;
 tr134:
@@ -457,7 +457,7 @@ tr141:
 	{pulse_guide(telescope,stcmd,pulse);}
 	goto st319;
 tr143:
-#line 320 "command.rl"
+#line 321 "command.rl"
 	{sprintf(tmessage,"%s#",(telescope->parked? "1" : "0"));APPEND;}
 	goto st319;
 tr144:
@@ -489,23 +489,23 @@ tr191:
                             }
 	goto st319;
 tr211:
-#line 338 "command.rl"
+#line 339 "command.rl"
 	{appcmd(stcmd);APPEND;}
 	goto st319;
 tr440:
-#line 319 "command.rl"
-	{buzzerOn(300);mount_goto_home(telescope);}
+#line 320 "command.rl"
+	{mount_goto_home(telescope);}
 	goto st319;
 tr447:
-#line 323 "command.rl"
+#line 324 "command.rl"
 	{sprintf(tmessage,"%s#",(telescope->autoflip? "1" : "0"));APPEND;}
 	goto st319;
 tr448:
-#line 321 "command.rl"
+#line 322 "command.rl"
 	{mount_home_set(telescope);}
 	goto st319;
 tr449:
-#line 322 "command.rl"
+#line 323 "command.rl"
 	{sprintf(tmessage,"%s#",(get_pierside(telescope)? "WEST" : "EAST"));APPEND;}
 	goto st319;
 st319:
@@ -776,7 +776,7 @@ tr74:
 	{if ((*p)=='0') pmotor=&focus_motor; else pmotor=&aux_motor; buzzerOn(300);}
 	goto st25;
 tr208:
-#line 339 "command.rl"
+#line 340 "command.rl"
 	{if (((*p)>='0')&&((*p)<'3'))telescope->smode=(*p)-'0';
 						else if (((*p)=='3')&&(telescope->mount_mode>EQ)){
 							 telescope->is_tracking = FALSE;
@@ -788,15 +788,15 @@ tr208:
 		}
 	goto st25;
 tr450:
-#line 359 "command.rl"
+#line 360 "command.rl"
 	{setflipmode((*p));}
 	goto st25;
 tr452:
-#line 358 "command.rl"
+#line 359 "command.rl"
 	{setnunchuk((*p));}
 	goto st25;
 tr453:
-#line 324 "command.rl"
+#line 325 "command.rl"
 	{meridianflip(telescope,(*p)=='w');}
 	goto st25;
 st25:
@@ -2172,7 +2172,7 @@ tr286:
 	{if ((*p)=='0') pmotor=&focus_motor; else pmotor=&aux_motor; buzzerOn(300);}
 	goto st150;
 tr421:
-#line 339 "command.rl"
+#line 340 "command.rl"
 	{if (((*p)>='0')&&((*p)<'3'))telescope->smode=(*p)-'0';
 						else if (((*p)=='3')&&(telescope->mount_mode>EQ)){
 							 telescope->is_tracking = FALSE;
@@ -2188,15 +2188,15 @@ tr210:
 	{stcmd=(*p);mark=p;mark++;}
 	goto st150;
 tr435:
-#line 359 "command.rl"
+#line 360 "command.rl"
 	{setflipmode((*p));}
 	goto st150;
 tr437:
-#line 358 "command.rl"
+#line 359 "command.rl"
 	{setnunchuk((*p));}
 	goto st150;
 tr438:
-#line 324 "command.rl"
+#line 325 "command.rl"
 	{meridianflip(telescope,(*p)=='w');}
 	goto st150;
 st150:
@@ -2208,7 +2208,7 @@ case 150:
 		goto tr213;
 	goto st150;
 tr213:
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2221,9 +2221,9 @@ tr213:
 						}
 	goto st321;
 tr233:
-#line 327 "command.rl"
+#line 328 "command.rl"
 	{;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2236,9 +2236,9 @@ tr233:
 						}
 	goto st321;
 tr234:
-#line 325 "command.rl"
+#line 326 "command.rl"
 	{telescope->track=0;telescope->azmotor->targetspeed=0.0;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2251,9 +2251,9 @@ tr234:
 						}
 	goto st321;
 tr235:
-#line 326 "command.rl"
+#line 327 "command.rl"
 	{telescope->track=1;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2273,7 +2273,7 @@ tr237:
 						{sync_eq(telescope);telescope->altmotor->slewing= telescope->azmotor->slewing=FALSE;}
 						sprintf(tmessage,"sync#");APPEND;
 						}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2286,9 +2286,9 @@ tr237:
 						}
 	goto st321;
 tr239:
-#line 328 "command.rl"
+#line 329 "command.rl"
 	{if ((telescope->azmotor->slewing ||(telescope->altmotor->slewing))&&!(telescope->parked)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2303,7 +2303,7 @@ tr239:
 tr250:
 #line 308 "command.rl"
 	{gotofocuser(lmotor->max_steps,lmotor->speed_low,lmotor);}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2318,7 +2318,7 @@ tr250:
 tr252:
 #line 306 "command.rl"
 	{gotofocuser(lmotor->max_steps,lmotor->speed,lmotor);}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2333,7 +2333,7 @@ tr252:
 tr253:
 #line 307 "command.rl"
 	{gotofocuser(0,lmotor->speed_low,lmotor);}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2348,7 +2348,7 @@ tr253:
 tr255:
 #line 305 "command.rl"
 	{gotofocuser(0,lmotor->speed,lmotor);}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2363,7 +2363,7 @@ tr255:
 tr263:
 #line 310 "command.rl"
 	{gotofocuser(focus_counter,lmotor);}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2378,7 +2378,7 @@ tr263:
 tr264:
 #line 317 "command.rl"
 	{sprintf(tmessage,"%d#",lmotor->state<stop);APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2393,7 +2393,7 @@ tr264:
 tr275:
 #line 314 "command.rl"
 	{lmotor->position=lmotor->target=focus_counter;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2408,7 +2408,7 @@ tr275:
 tr283:
 #line 309 "command.rl"
 	{gotofocuser(lmotor->position+(focus_counter*neg));}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2423,7 +2423,7 @@ tr283:
 tr284:
 #line 311 "command.rl"
 	{stopfocuser(lmotor);}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2438,7 +2438,7 @@ tr284:
 tr285:
 #line 315 "command.rl"
 	{sprintf(tmessage,"%05d#",lmotor->position);APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2453,7 +2453,7 @@ tr285:
 tr306:
 #line 271 "command.rl"
 	{lxprintde1(tmessage, st_current.alt); APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2468,7 +2468,7 @@ tr306:
 tr307:
 #line 274 "command.rl"
 	{lxprintdate1(tmessage);APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2484,7 +2484,7 @@ tr308:
 #line 268 "command.rl"
 	{if (telescope->mount_mode) lxprintde1(tmessage, st_current.dec);
 							else mount_lxde_str(tmessage,telescope); APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2499,7 +2499,7 @@ tr308:
 tr309:
 #line 301 "command.rl"
 	{lxprintGMT_offset(tmessage,telescope->time_zone );APPEND}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2512,9 +2512,9 @@ tr309:
 						}
 	goto st321;
 tr310:
-#line 331 "command.rl"
+#line 332 "command.rl"
 	{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2));APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2529,7 +2529,7 @@ tr310:
 tr311:
 #line 288 "command.rl"
 	{ lxprinttime1(tmessage);APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2544,7 +2544,7 @@ tr311:
 tr312:
 #line 275 "command.rl"
 	{ lxprintsite();}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2560,7 +2560,7 @@ tr313:
 #line 266 "command.rl"
 	{if (telescope->mount_mode) lxprintra1(tmessage, st_current.ra);
 							else mount_lxra_str(tmessage,telescope); APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2575,7 +2575,7 @@ tr313:
 tr314:
 #line 289 "command.rl"
 	{ lxprintra(tmessage, sidereal_timeGMT(telescope->longitude,telescope->time_zone) * 15.0 * DEG_TO_RAD);APPEND;strcat(response,"#");}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2590,7 +2590,7 @@ tr314:
 tr315:
 #line 304 "command.rl"
 	{sprintf(tmessage,"50.0#");APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2603,9 +2603,9 @@ tr315:
 						}
 	goto st321;
 tr321:
-#line 332 "command.rl"
+#line 333 "command.rl"
 	{sprintf(tmessage,"012 24 2000#") ;APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2618,9 +2618,9 @@ tr321:
 						}
 	goto st321;
 tr322:
-#line 336 "command.rl"
+#line 337 "command.rl"
 	{sprintf(tmessage,"43Eg#") ;APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2633,9 +2633,9 @@ tr322:
 						}
 	goto st321;
 tr323:
-#line 333 "command.rl"
+#line 334 "command.rl"
 	{sprintf(tmessage,"01.0#") ;APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2648,9 +2648,9 @@ tr323:
 						}
 	goto st321;
 tr324:
-#line 334 "command.rl"
+#line 335 "command.rl"
 	{ sprintf(tmessage,"esp32go#") ;APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2663,9 +2663,9 @@ tr324:
 						}
 	goto st321;
 tr325:
-#line 335 "command.rl"
+#line 336 "command.rl"
 	{sprintf(tmessage,"00:00:00#") ;APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2680,7 +2680,7 @@ tr325:
 tr326:
 #line 270 "command.rl"
 	{ lxprintaz1(tmessage, st_current.az); APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2695,7 +2695,7 @@ tr326:
 tr327:
 #line 303 "command.rl"
 	{sprintf(tmessage,"24#");APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2710,7 +2710,7 @@ tr327:
 tr328:
 #line 273 "command.rl"
 	{lxprintde1(tmessage, st_target.dec); APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2725,7 +2725,7 @@ tr328:
 tr329:
 #line 277 "command.rl"
 	{lxprintlong1(tmessage,telescope->longitude);APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2738,9 +2738,9 @@ tr329:
 						}
 	goto st321;
 tr330:
-#line 330 "command.rl"
+#line 331 "command.rl"
 	{sprintf(tmessage, telescope->is_tracking ? "1":"0");APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2755,7 +2755,7 @@ tr330:
 tr331:
 #line 272 "command.rl"
 	{ lxprintra1(tmessage, st_target.ra); APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2770,7 +2770,7 @@ tr331:
 tr332:
 #line 278 "command.rl"
 	{lxprintlat1(tmessage,telescope->lat);APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2793,11 +2793,11 @@ tr333:
 	{ lxprintaz1(tmessage, st_current.az); APPEND;}
 #line 271 "command.rl"
 	{lxprintde1(tmessage, st_current.alt); APPEND;}
-#line 331 "command.rl"
+#line 332 "command.rl"
 	{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2));APPEND;}
 #line 316 "command.rl"
 	{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2810,9 +2810,9 @@ tr333:
 						}
 	goto st321;
 tr339:
-#line 337 "command.rl"
+#line 338 "command.rl"
 	{setwifipad(ip3,ip2);}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2831,7 +2831,7 @@ tr346:
 					 else mount_slew(telescope);
 					 buzzerOn(300);
 					 sprintf(tmessage,"0");APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2846,7 +2846,7 @@ tr346:
 tr347:
 #line 257 "command.rl"
 	{mount_move(telescope,stcmd);}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2861,7 +2861,7 @@ tr347:
 tr353:
 #line 258 "command.rl"
 	{pulse_guide(telescope,stcmd,pulse);}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2874,9 +2874,9 @@ tr353:
 						}
 	goto st321;
 tr355:
-#line 320 "command.rl"
+#line 321 "command.rl"
 	{sprintf(tmessage,"%s#",(telescope->parked? "1" : "0"));APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2891,7 +2891,7 @@ tr355:
 tr356:
 #line 264 "command.rl"
 	{mount_stop(telescope,stcmd);}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2906,7 +2906,7 @@ tr356:
 tr359:
 #line 265 "command.rl"
 	{select_rate(telescope,stcmd); }
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2921,7 +2921,7 @@ tr359:
 tr375:
 #line 297 "command.rl"
 	{set_date(min,deg,sec);}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2938,7 +2938,7 @@ tr380:
 	{ telescope->time_zone=-deg*neg;}
 #line 276 "command.rl"
 	{sprintf(tmessage,"1");APPEND;deg=sec=min=0;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2953,7 +2953,7 @@ tr380:
 tr393:
 #line 302 "command.rl"
 	{set_time(deg,min,sec);}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2970,7 +2970,7 @@ tr403:
 	{set_cmd_exe(stcmd,(neg*(deg )));
                              sprintf(tmessage,"1");APPEND;deg=sec=min=0;
                             }
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2983,9 +2983,9 @@ tr403:
 						}
 	goto st321;
 tr423:
-#line 338 "command.rl"
+#line 339 "command.rl"
 	{appcmd(stcmd);APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2998,9 +2998,9 @@ tr423:
 						}
 	goto st321;
 tr425:
-#line 319 "command.rl"
-	{buzzerOn(300);mount_goto_home(telescope);}
-#line 348 "command.rl"
+#line 320 "command.rl"
+	{mount_goto_home(telescope);}
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -3013,9 +3013,9 @@ tr425:
 						}
 	goto st321;
 tr432:
-#line 323 "command.rl"
+#line 324 "command.rl"
 	{sprintf(tmessage,"%s#",(telescope->autoflip? "1" : "0"));APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -3028,9 +3028,9 @@ tr432:
 						}
 	goto st321;
 tr433:
-#line 321 "command.rl"
+#line 322 "command.rl"
 	{mount_home_set(telescope);}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -3043,9 +3043,9 @@ tr433:
 						}
 	goto st321;
 tr434:
-#line 322 "command.rl"
+#line 323 "command.rl"
 	{sprintf(tmessage,"%s#",(get_pierside(telescope)? "WEST" : "EAST"));APPEND;}
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -4718,7 +4718,7 @@ tr419:
 	{set_cmd_exe(stcmd,(neg*(deg )));
                              sprintf(tmessage,"1");APPEND;deg=sec=min=0;
                             }
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -4744,7 +4744,7 @@ case 322:
 		goto tr404;
 	goto st150;
 tr415:
-#line 348 "command.rl"
+#line 349 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -5356,7 +5356,7 @@ case 318:
 	_out: {}
 	}
 
-#line 444 "command.rl"
+#line 445 "command.rl"
 
 
 //---------------------------------------------------------------------------------------------------------------------

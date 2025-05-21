@@ -316,8 +316,7 @@ long command( char *str )
 		action fquery_foc{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
 		action f_moving {sprintf(tmessage,"%d#",lmotor->state<stop);APPEND;}
 		action fmoveindex{gotoindex(fc-'0');}
-		#action goto_home{buzzerOn(300);mount_goto_home(telescope);}
-		 action goto_home{mount_goto_home(telescope);}
+		action goto_home{buzzerOn(300);mount_goto_home(telescope);}
 		action getparked{sprintf(tmessage,"%s#",(telescope->parked? "1" : "0"));APPEND;}
 		action home{mount_home_set(telescope);}
 		action getpierside {sprintf(tmessage,"%s#",(get_pierside(telescope)? "WEST" : "EAST"));APPEND;}

@@ -140,6 +140,7 @@ int goto_ra_dec(mount_t *mt, double ra, double dec) {
   mt->is_tracking = TRUE;
   st_target.ra = ra;
   st_target.dec = dec;
+  mt->azmotor->slewing=mt->altmotor->slewing=true;
   return 1;
 }
 
@@ -599,6 +600,9 @@ void track(mount_t *mt) {
     // Compute and set timer intervals for stepper  rates
     settargetspeed(mt->azmotor, d_az_r);
     settargetspeed(mt->altmotor, d_alt_r);
+
+    if (mt->azmotor->slewing )mt->azmotor->slewing=abs (d_az_r)>  100/RAD_TO_ARCS;
+    if (mt->altmotor->slewing)mt->altmotor->slewing =abs (d_alt_r)>  100/RAD_TO_ARCS;
   }
   if (mt->sync) sync_ra_dec(mt);
 }

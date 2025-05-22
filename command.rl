@@ -325,8 +325,8 @@ long command( char *str )
 		action set_land {telescope->track=0;telescope->azmotor->targetspeed=0.0;}
 		action set_polar {telescope->track=1;}
 		action set_altaz {;}
-		action return_dst{if ((telescope->azmotor->slewing ||(telescope->altmotor->slewing))&&!(telescope->parked)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
-		#action return_dst{if (telescope->azmotor->slewing || telescope->altmotor->slewing) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
+		#action return_dst{if ((telescope->azmotor->slewing ||(telescope->altmotor->slewing))&&!(telescope->parked)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
+		action return_dst{if (telescope->azmotor->slewing || telescope->altmotor->slewing) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
 		action return_track{sprintf(tmessage, telescope->is_tracking ? "1":"0");APPEND;}
 		action return_tracks{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2));APPEND;}		
 		action a_date {sprintf(tmessage,"012 24 2000#") ;APPEND;}
@@ -383,7 +383,7 @@ long command( char *str )
 				   'k'%return_track|
 				   'K'%return_tracks|
 				   'x'%return_ra %return_dec %return_az %return_alt %return_tracks %fquery_foc );
-        Move = 'M' (([nsweh]@storecmd %dir)|
+        Move = 'M' (([nsweht]@storecmd %dir)|
                     ('S'%Goto)|
                     ('g'[nsew]@storecmd digit{4}$getpulse %pulse_dir));
 

@@ -17,6 +17,7 @@ Ticker pulse_dec_tckr, pulse_ra_tckr;
 char sel_flag;
 char volatile sync_target = TRUE;
 char volatile sync_stop = FALSE;
+char volatile Az_track = TRUE;
 extern stepper focus_motor;
 mount_t *create_mount(void) {
   int maxcounter = AZ_RED;
@@ -259,7 +260,10 @@ void mount_move(mount_t *mt, char dir) {
     case 'e':
       mt->azmotor->targetspeed = -SID_RATE_RAD * (mt->rate[srate][0] - sid);
       break;
-    case 'h': mount_track_off(mt);
+    case 'h': mount_track_off(mt); Az_track=FALSE;
+     break;
+     case 't':  Az_track=TRUE;
+     break;
   };
 }
 void pulse_stop_dec(mount_t *mt) {
@@ -443,6 +447,7 @@ void mount_track_off(mount_t *mt)
   mt->altmotor->targetspeed = 0.0;
   mt->azmotor->targetspeed = 0.0;
   mount_park(mt);
+   sync_stop = TRUE;
 }
 void mount_park(mount_t *mt)
 
@@ -581,7 +586,7 @@ void track(mount_t *mt) {
     st_target.dec = mt->dec_target = st_current.dec;
     sync_target = FALSE;
     sync_stop = FALSE;
-    mt->is_tracking = TRUE;
+    mt->is_tracking = Az_track; //ultimo
   }
 
   if (mt->is_tracking) {
@@ -601,7 +606,7 @@ void track(mount_t *mt) {
     settargetspeed(mt->azmotor, d_az_r);
     settargetspeed(mt->altmotor, d_alt_r);
 
-    if (mt->azmotor->slewing )mt->azmotor->slewing=abs (d_az_r)>  100/RAD_TO_ARCS;
+    if (mt->azmotor->slewing)mt->azmotor->slewing=abs (d_az_r)>  100/RAD_TO_ARCS;
     if (mt->altmotor->slewing)mt->altmotor->slewing =abs (d_alt_r)>  100/RAD_TO_ARCS;
   }
   if (mt->sync) sync_ra_dec(mt);

@@ -328,7 +328,7 @@ long command( char *str )
 		#action return_dst{if ((telescope->azmotor->slewing ||(telescope->altmotor->slewing))&&!(telescope->parked)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
 		action return_dst{if (telescope->azmotor->slewing || telescope->altmotor->slewing) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
 		action return_track{sprintf(tmessage, telescope->is_tracking ? "1":"0");APPEND;}
-		action return_tracks{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2));APPEND;}		
+		action return_tracks{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2)+((telescope->azmotor->slewing || telescope->altmotor->slewing)<<3));APPEND;}		
 		action a_date {sprintf(tmessage,"012 24 2000#") ;APPEND;}
 		action a_number {sprintf(tmessage,"01.0#") ;APPEND;}
 		action a_product{ sprintf(tmessage,"esp32go#") ;APPEND;}

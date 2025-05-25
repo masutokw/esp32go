@@ -13,6 +13,7 @@ extern int dcfocus;
 extern int azcounter, altcounter;
 extern int azbackcounter, altbackcounter;
 extern char tzstr[50];
+double timetarget = 1.0;
 Ticker pulse_dec_tckr, pulse_ra_tckr;
 char sel_flag;
 char volatile sync_target = TRUE;
@@ -90,7 +91,7 @@ void eq_track(mount_t *mt1) {
 
   readcounter(mt1->altmotor);
   //goto -------------------------------------------------------------------------
-  bool slew = mt1->altmotor->slewing || mt1->azmotor->slewing; 
+  bool slew = mt1->altmotor->slewing || mt1->azmotor->slewing;
   if (mt1->altmotor->slewing) {
     sgndelta = (sign(delta = mt1->altmotor->delta));
     if (fabs(delta) > (M_PI)) sgndelta = -sgndelta;
@@ -129,7 +130,7 @@ void eq_track(mount_t *mt1) {
     }
   }
 
-  if(slew && !(mt1->altmotor->slewing || mt1->azmotor->slewing))
+  if (slew && !(mt1->altmotor->slewing || mt1->azmotor->slewing))
     buzzerOn(300);
 }
 
@@ -141,7 +142,7 @@ int goto_ra_dec(mount_t *mt, double ra, double dec) {
   mt->is_tracking = TRUE;
   st_target.ra = ra;
   st_target.dec = dec;
-  mt->azmotor->slewing=mt->altmotor->slewing=true;
+  mt->azmotor->slewing = mt->altmotor->slewing = true;
   return 1;
 }
 
@@ -156,6 +157,7 @@ int sync_ra_dec(mount_t *mt) {
   else
     setpositionf(mt->altmotor, (M_2PI + st_current.alt));
   mt->sync = FALSE;
+ // sync_target=true;
   return 1;
 }
 
@@ -260,10 +262,14 @@ void mount_move(mount_t *mt, char dir) {
     case 'e':
       mt->azmotor->targetspeed = -SID_RATE_RAD * (mt->rate[srate][0] - sid);
       break;
-    case 'h': mount_track_off(mt); Az_track=FALSE;
-     break;
-     case 't':  Az_track=TRUE;
-     break;
+    case 'h':
+      mount_track_off(mt);
+      Az_track = FALSE;  //timetarget=0.0;
+      break;
+    case 't':
+      Az_track = TRUE;
+      timetarget = 1.0;
+      break;
   };
 }
 void pulse_stop_dec(mount_t *mt) {
@@ -447,7 +453,7 @@ void mount_track_off(mount_t *mt)
   mt->altmotor->targetspeed = 0.0;
   mt->azmotor->targetspeed = 0.0;
   mount_park(mt);
-   sync_stop = TRUE;
+  sync_stop = TRUE;
 }
 void mount_park(mount_t *mt)
 
@@ -575,7 +581,7 @@ void track(mount_t *mt) {
   readcounter_n(mt->altmotor);
   readcounter(mt->azmotor);
   st_current.timer_count = ((millis() - sdt_millis) / 1000.0);
-  if (!mt->parked) st_target.timer_count = st_current.timer_count;
+  if ((!mt->parked) && (timetarget > 0)) st_target.timer_count = st_current.timer_count;
   st_current.az = mt->azmotor->position;
   st_current.alt = mt->altmotor->position;
   st_current.p_mode = st_target.p_mode = get_pierside(mt);
@@ -586,13 +592,14 @@ void track(mount_t *mt) {
     st_target.dec = mt->dec_target = st_current.dec;
     sync_target = FALSE;
     sync_stop = FALSE;
-    mt->is_tracking = Az_track; //ultimo
+    mt->is_tracking = Az_track;  //ultimo
   }
 
   if (mt->is_tracking) {
     //compute next alt/az mount values  for target next lap second
     if (!mt->parked) {
-      st_target.timer_count += 1.0;
+      //  st_target.timer_count += 1.0;
+      st_target.timer_count += timetarget;
       to_alt_az(&st_target);
     }
     //compute delta values :next values from actual values for desired target coordinates
@@ -606,8 +613,8 @@ void track(mount_t *mt) {
     settargetspeed(mt->azmotor, d_az_r);
     settargetspeed(mt->altmotor, d_alt_r);
 
-    if (mt->azmotor->slewing)mt->azmotor->slewing=abs (d_az_r)>  100/RAD_TO_ARCS;
-    if (mt->altmotor->slewing)mt->altmotor->slewing =abs (d_alt_r)>  100/RAD_TO_ARCS;
+    if (mt->azmotor->slewing) mt->azmotor->slewing = abs(d_az_r) > 100 / RAD_TO_ARCS;
+    if (mt->altmotor->slewing) mt->altmotor->slewing = abs(d_alt_r) > 100 / RAD_TO_ARCS;
   }
   if (mt->sync) sync_ra_dec(mt);
 }

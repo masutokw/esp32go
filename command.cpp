@@ -349,7 +349,7 @@ tr97:
 	goto st319;
 tr98:
 #line 331 "command.rl"
-	{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2));APPEND;}
+	{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2)+((telescope->azmotor->slewing || telescope->altmotor->slewing)<<3));APPEND;}
 	goto st319;
 tr99:
 #line 288 "command.rl"
@@ -432,7 +432,7 @@ tr121:
 #line 271 "command.rl"
 	{lxprintde1(tmessage, st_current.alt); APPEND;}
 #line 331 "command.rl"
-	{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2));APPEND;}
+	{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2)+((telescope->azmotor->slewing || telescope->altmotor->slewing)<<3));APPEND;}
 #line 316 "command.rl"
 	{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
 	goto st319;
@@ -2514,7 +2514,7 @@ tr309:
 	goto st321;
 tr310:
 #line 331 "command.rl"
-	{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2));APPEND;}
+	{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2)+((telescope->azmotor->slewing || telescope->altmotor->slewing)<<3));APPEND;}
 #line 348 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
@@ -2795,7 +2795,7 @@ tr333:
 #line 271 "command.rl"
 	{lxprintde1(tmessage, st_current.alt); APPEND;}
 #line 331 "command.rl"
-	{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2));APPEND;}
+	{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2)+((telescope->azmotor->slewing || telescope->altmotor->slewing)<<3));APPEND;}
 #line 316 "command.rl"
 	{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
 #line 348 "command.rl"

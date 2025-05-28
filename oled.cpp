@@ -64,7 +64,7 @@ void oledDisplay()
   //display.drawString(0, 32,String(pw)+ " "+ String(n));
   display.drawString(0, 0, ctime(&now));
 //---------
-  display.drawString(0, 28, "T["+String(telescope->is_tracking ? "1":"0")+"]  S["+String((telescope->azmotor->slewing || telescope->altmotor->slewing) ? "1":"0")+"]  P.Side["+String(get_pierside(telescope) ? "W":"E")+"]  Flip["+String(telescope->autoflip ? "1":"0")+"]");
+  display.drawString(0, 28, "T["+String(telescope->is_tracking ? "1":"0")+String(telescope->track ? "1":"0")+"]  S["+String((telescope->azmotor->slewing || telescope->altmotor->slewing) ? "1":"0")+"]  PSide["+String(get_pierside(telescope) ? "W":"E")+"]  Flip["+String(telescope->autoflip ? "1":"0")+"]");
   display.drawString(0, 38, "F["+String(pmotor==&focus_motor ? "FOC":"AUX")+"]  IP Clients: "+String(clients_connected));
 //---------  
   display.display();

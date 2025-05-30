@@ -406,9 +406,9 @@ void setup() {
   //
   server.begin();
   server.setNoDelay(true);
-  telescope = create_mount();
   init_stepper(&focus_motor, DIR_OUT_FOCUS, CLOCK_OUT_FOCUS, ENABLE_FOCUS);
   init_stepper(&aux_motor, DIR_OUT_AUX, CLOCK_OUT_AUX, ENABLE_AUX);
+  telescope = create_mount();
   pmotor = &focus_motor;
   readconfig(telescope);
   readauxconfig();

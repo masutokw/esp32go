@@ -20,6 +20,7 @@ char volatile sync_target = TRUE;
 char volatile sync_stop = FALSE;
 char volatile Az_track = TRUE;
 extern stepper focus_motor;
+extern stepper aux_motor;
 #ifdef RA_preTrack
 bool pretrack = false;
 double true_target = 0;
@@ -119,7 +120,7 @@ void eq_track(mount_t *mt1) {
 
 
   readcounter(mt1->azmotor);
-  if (mt1->parked)
+  if (mt1->parked && !slew)
     sgndelta = sign(delta = (mt1->azmotor->delta = mt1->azmotor->position - mt1->fix_ra_target));
   else
     sgndelta = sign(delta = (mt1->azmotor->delta = mt1->azmotor->position - calc_Ra(mt1->azmotor->target, mt1->longitude)));
@@ -150,7 +151,13 @@ void eq_track(mount_t *mt1) {
   }
 
   if (slew && !(mt1->altmotor->slewing || mt1->azmotor->slewing))
+  {
     buzzerOn(300);
+    if(mt1->parked)
+    {
+      mount_park(mt1);
+    }
+  }
 }
 
 
@@ -496,6 +503,7 @@ void mount_park(mount_t *mt)
   f.println(azcounter);
   f.println(altcounter);
   f.println(focus_motor.position);
+  f.println(aux_motor.position);
   f.close();
 }
 void mount_goto_home(mount_t *mt) {
@@ -517,6 +525,7 @@ void mount_goto_home(mount_t *mt) {
       mt->fix_ra_target = mt->azmotor->target = M_PI / 2;
       mt->azmotor->slewing = mt->altmotor->slewing = true;
       mt->track = 0;
+      mt->is_tracking = 0;
       mt->parked = 1;
       break;
   }
@@ -718,6 +727,8 @@ void load_saved_pos(void) {
     altcounter = s.toInt();
     s = f.readStringUntil('\n');
     focus_motor.position = focus_motor.target = s.toInt();
+    s = f.readStringUntil('\n');
+    aux_motor.position = aux_motor.target = s.toInt();
     f.close();
 #if defined(RTC_IC) && defined(RTC_NVRAM) && RTC_NVRAM > 0
 #if RTC_IC == RTC_DS3231

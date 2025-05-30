@@ -539,7 +539,8 @@ void handleMonitor(void) {
 <br>AZ Back Counter: %d<br>Alt Back Counter: %d \
 <br>Clients: %d<br>Focus Counter: %d \
 <br>AUX Counter: %d \
-<br>Is slewing: %d <br>Is tracking: %d (track %d)\
+<br>Is slewing: AZ:%d ALT:%d <br>Is tracking: %d (track %d)\
+<br>Parked: %d \
 <br>RA: %s<br>De: %s  \
 <br>PEC:%d  %d<br>\
 <br>WifiPAD IP : X.X%d.%d<br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>\
@@ -547,8 +548,8 @@ void handleMonitor(void) {
 </body></html>",
            telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
            altbackcounter, clients_connected, focus_motor.position, aux_motor.position,
-           (telescope->azmotor->slewing || telescope->altmotor->slewing) ? 1 : 0,
-           telescope->is_tracking, telescope->track, &buffra, &buffdec, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times, zcount[0], zcount[1]);
+           telescope->azmotor->slewing, telescope->altmotor->slewing,
+           telescope->is_tracking, telescope->track, telescope->parked, &buffra, &buffdec, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times, zcount[0], zcount[1]);
   serverweb.send(200, "text/html", page);
 }
 

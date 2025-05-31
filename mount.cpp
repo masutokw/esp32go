@@ -153,7 +153,7 @@ void eq_track(mount_t *mt1) {
   if (slew && !(mt1->altmotor->slewing || mt1->azmotor->slewing))
   {
     buzzerOn(300);
-    if(mt1->parked)
+    if(mt1->parked) // goto HOME ends here
     {
       mount_park(mt1);
     }
@@ -193,6 +193,11 @@ int sync_eq(mount_t *mt) {
 
   eq_to_enc(&(mt->azmotor->target), &(mt->altmotor->target),
             mt->ra_target, mt->dec_target, get_pierside(mt));
+
+  if (mt->autoflip) {
+    bool side = (calc_lha(mt->ra_target, mt->longitude) > 180.0);
+    eq_to_enc(&(mt->azmotor->target), &(mt->altmotor->target), mt->ra_target, mt->dec_target, side);
+  }
 
   setpositionf(mt->altmotor, mt->altmotor->target);
   setpositionf(mt->azmotor, calc_Ra(mt->azmotor->target, mt->longitude));

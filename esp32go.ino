@@ -72,6 +72,8 @@ const char* pin = "0000";
 extern char response[200];
 extern char tzstr[50];
 byte otab = 0;
+bool bt_on = true;
+bool ap_on = true;
 mount_t* telescope;
 c_star volatile st_now, st_target, st_current, st_1, st_2;
 String ssi;
@@ -300,40 +302,79 @@ void setup() {
   // SerialBT.enableSSP();
   uint8_t baseMac[6];
   esp_read_mac(baseMac, ESP_MAC_BT);
-  SerialBT.begin(BT_NAME + String(baseMac[4], HEX) + "_" + String(baseMac[5], HEX));
-  SerialBT.setPin(pin);
-  WiFi.mode(WIFI_AP_STA);
+
   if (!SPIFFS.begin()) {
     SPIFFS.begin(true);
     ESP.restart();
   }
+
   File f;
-  if (SPIFFS.exists(WIFI_FILE)) {
+  bool sta_ok=false;
+  uint8_t i = 0;
+  if (SPIFFS.exists(WIFI_FILE)) 
+  {
+    WiFi.mode(WIFI_STA);
     f = SPIFFS.open(WIFI_FILE, FILE_READ);
     ssi = f.readStringUntil('\n');
     pwd = f.readStringUntil('\n');
+    f.close();
     ssi.trim();
     pwd.trim();
+    WiFi.disconnect();
+    delay(100);
     WiFi.begin(ssi.c_str(), pwd.c_str());
-    f.close();
-  } else {
-    WiFi.begin(ssid, password);
-  }
-  WiFi.softAP(SSID_AP, PASS_AP);
-
-  if (SPIFFS.exists(NETWORK_FILE)) {
-    f = SPIFFS.open(NETWORK_FILE, "r");
-    IPAddress ip;
-    IPAddress gateway;
-    IPAddress subnet;
-    IPAddress dns;
-    if (ip.fromString(f.readStringUntil('\n')) && subnet.fromString(f.readStringUntil('\n')) && gateway.fromString(f.readStringUntil('\n')) + dns.fromString(f.readStringUntil('\n'))) {
-      WiFi.config(ip, gateway, subnet, dns);
-      otab = f.readStringUntil('\n').toInt();
+    while (WiFi.status() != WL_CONNECTED && i++ < 20) delay(500);
+    if(WiFi.status() == WL_CONNECTED)
+    {
+      sta_ok=true;
+      if (SPIFFS.exists(NETWORK_FILE)) 
+      {
+        f = SPIFFS.open(NETWORK_FILE, "r");
+        IPAddress ip;
+        IPAddress gateway;
+        IPAddress subnet;
+        IPAddress dns;
+        if (ip.fromString(f.readStringUntil('\n')) && subnet.fromString(f.readStringUntil('\n')) && gateway.fromString(f.readStringUntil('\n')) + dns.fromString(f.readStringUntil('\n'))) 
+        {
+          WiFi.config(ip, gateway, subnet, dns);
+          otab = f.readStringUntil('\n').toInt();
+          //if(f.readStringUntil('\n').toInt()==0)
+          if(f.readStringUntil('\n')=="0")
+            bt_on=false;
+          //if(f.readStringUntil('\n').toInt()==0)
+          if(f.readStringUntil('\n')=="0")
+            ap_on=false;
+        }
+        f.close();
+      }
     }
-
-    f.close();
+    else
+    {
+      WiFi.disconnect(true);
+    }
   }
+  else
+  {
+    bt_on=true;
+  }
+  if(!sta_ok || ap_on)
+  {
+    if(!sta_ok)
+      WiFi.mode(WIFI_AP);
+    else
+      WiFi.mode(WIFI_AP_STA);
+    WiFi.softAP(SSID_AP, PASS_AP);
+  }
+  if(bt_on)
+  {
+    SerialBT.begin(BT_NAME + String(baseMac[4], HEX) + "_" + String(baseMac[5], HEX));
+    SerialBT.setPin(pin);
+  }
+  else
+  {
+    WiFi.setSleep(false);
+  }
+
 #ifdef FIXED_IP
   IPAddress ip(192, 168, 1, FIXED_IP);
   IPAddress gateway(192, 168, 1, 1);
@@ -343,7 +384,7 @@ void setup() {
 #endif
 
   delay(500);
-  uint8_t i = 0;
+  i = 0;
   while (WiFi.status() != WL_CONNECTED && i++ < 20) delay(500);
   if (WiFi.status() != WL_CONNECTED) WiFi.disconnect(true);
 
@@ -365,9 +406,9 @@ void setup() {
   //
   server.begin();
   server.setNoDelay(true);
-  telescope = create_mount();
   init_stepper(&focus_motor, DIR_OUT_FOCUS, CLOCK_OUT_FOCUS, ENABLE_FOCUS);
   init_stepper(&aux_motor, DIR_OUT_AUX, CLOCK_OUT_AUX, ENABLE_AUX);
+  telescope = create_mount();
   pmotor = &focus_motor;
   readconfig(telescope);
   readauxconfig();
@@ -531,7 +572,8 @@ void loop() {
   delay(10);
   net_task();
 #ifndef BT_TRACE_USB
-  bttask();
+  if(bt_on)
+    bttask();
 #endif
 #ifndef LX200TRACE
   serialtask();

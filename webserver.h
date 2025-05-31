@@ -50,6 +50,8 @@ extern mount_t *telescope;
 extern String ssi;
 extern String pwd;
 extern byte otab;
+extern bool bt_on;
+extern bool ap_on;
 void initwebserver(void);
 
 #endif // WEBSERVER_H_INCLUDED

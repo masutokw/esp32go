@@ -24,6 +24,7 @@
 #define SDA_PIN 21
 #define SCL_PIN 22
 #define BUZZER_PIN 26
+#define RA_preTrack
 ///-------------------------------------------------------------
 #define TMC_DRIVERS   //uncomment if using tmc driver
 //#define STEP_FOCUS   // uncomment when using 3d driver for focuser //comment when tb6612

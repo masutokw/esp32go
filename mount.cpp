@@ -26,6 +26,7 @@ bool pretrack = false;
 double true_target = 0;
 #endif
 bool az_goto = false;
+bool home_goto = false;
 mount_t *create_mount(void) {
   int maxcounter = AZ_RED;
   int maxcounteralt = ALT_RED;
@@ -120,7 +121,7 @@ void eq_track(mount_t *mt1) {
 
 
   readcounter(mt1->azmotor);
-  if (mt1->parked && !slew)
+  if (mt1->parked)
     sgndelta = sign(delta = (mt1->azmotor->delta = mt1->azmotor->position - mt1->fix_ra_target));
   else
     sgndelta = sign(delta = (mt1->azmotor->delta = mt1->azmotor->position - calc_Ra(mt1->azmotor->target, mt1->longitude)));
@@ -150,14 +151,15 @@ void eq_track(mount_t *mt1) {
     }
   }
 
-  if (slew && !(mt1->altmotor->slewing || mt1->azmotor->slewing))
+  if (home_goto && mt1->parked && !mt1->altmotor->slewing && abs(mt1->azmotor->targetspeed) < abs(mt1->track_speed)) // goto HOME ends here
   {
-    buzzerOn(300);
-    if(mt1->parked) // goto HOME ends here
-    {
-      mount_park(mt1);
-    }
+    home_goto = false;
+    mt1->azmotor->slewing = 0;
+    mount_park(mt1);
   }
+  if (slew && !(mt1->altmotor->slewing || mt1->azmotor->slewing))
+    buzzerOn(300);
+
 }
 
 
@@ -515,6 +517,7 @@ void mount_goto_home(mount_t *mt) {
   switch (mt->mount_mode) {
     case ALTAZ:
       mt->parked = 1;
+      az_goto = true;
       set_star(&st_target, 90.0, 0.0, (mt->lat > 0) ? 0.0 : 180.0, abs(mt->lat), 0);
       break;
     case ALIGN:
@@ -532,6 +535,7 @@ void mount_goto_home(mount_t *mt) {
       mt->track = 0;
       mt->is_tracking = 0;
       mt->parked = 1;
+      home_goto = true;
       break;
   }
 }

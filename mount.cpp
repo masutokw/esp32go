@@ -20,6 +20,13 @@ char volatile sync_target = TRUE;
 char volatile sync_stop = FALSE;
 char volatile Az_track = TRUE;
 extern stepper focus_motor;
+extern stepper aux_motor;
+#ifdef RA_preTrack
+bool pretrack = false;
+double true_target = 0;
+#endif
+bool az_goto = false;
+bool home_goto = false;
 mount_t *create_mount(void) {
   int maxcounter = AZ_RED;
   int maxcounteralt = ALT_RED;
@@ -125,13 +132,34 @@ void eq_track(mount_t *mt1) {
       speed = fmin(mt1->maxspeed[0], fabs(delta)) * sgndelta;
       mt1->azmotor->targetspeed = -(speed) + (SID_RATE_RAD);
     } else {
+#ifdef RA_preTrack
+      if(pretrack && true_target != 0)
+      {
+        mt1->azmotor->target = true_target;
+        pretrack = false;
+        true_target = 0;
+        return;
+      }
+      else
+      {
+        mt1->azmotor->targetspeed = mt1->track_speed;  // * mt1->track;  
+      }
+#else
       mt1->azmotor->targetspeed = mt1->track_speed;  // * mt1->track;
+#endif
       mt1->azmotor->slewing = 0;
     }
   }
 
+  if (home_goto && mt1->parked && !mt1->altmotor->slewing && abs(mt1->azmotor->targetspeed) < abs(mt1->track_speed)) // goto HOME ends here
+  {
+    home_goto = false;
+    mt1->azmotor->slewing = 0;
+    mount_park(mt1);
+  }
   if (slew && !(mt1->altmotor->slewing || mt1->azmotor->slewing))
     buzzerOn(300);
+
 }
 
 
@@ -143,6 +171,7 @@ int goto_ra_dec(mount_t *mt, double ra, double dec) {
   st_target.ra = ra;
   st_target.dec = dec;
   mt->azmotor->slewing = mt->altmotor->slewing = true;
+  az_goto = true;
   return 1;
 }
 
@@ -166,6 +195,11 @@ int sync_eq(mount_t *mt) {
 
   eq_to_enc(&(mt->azmotor->target), &(mt->altmotor->target),
             mt->ra_target, mt->dec_target, get_pierside(mt));
+
+  if (mt->autoflip) {
+    bool side = (calc_lha(mt->ra_target, mt->longitude) > 180.0);
+    eq_to_enc(&(mt->azmotor->target), &(mt->altmotor->target), mt->ra_target, mt->dec_target, side);
+  }
 
   setpositionf(mt->altmotor, mt->altmotor->target);
   setpositionf(mt->azmotor, calc_Ra(mt->azmotor->target, mt->longitude));
@@ -338,6 +372,16 @@ int mount_slew(mount_t *mt) {
     set_track_speed(mt, 1);
     mt->parked = 0;
   }
+
+#ifdef RA_preTrack
+  if( mt->azmotor->position > calc_Ra(mt->azmotor->target, mt->longitude) )
+  {
+    pretrack = true;
+    true_target = mt->azmotor->target;
+    mt->azmotor->target = mt->azmotor->target+0.025;
+  }
+#endif
+
   return 1;
 }
 
@@ -466,12 +510,14 @@ void mount_park(mount_t *mt)
   f.println(azcounter);
   f.println(altcounter);
   f.println(focus_motor.position);
+  f.println(aux_motor.position);
   f.close();
 }
 void mount_goto_home(mount_t *mt) {
   switch (mt->mount_mode) {
     case ALTAZ:
       mt->parked = 1;
+      az_goto = true;
       set_star(&st_target, 90.0, 0.0, (mt->lat > 0) ? 0.0 : 180.0, abs(mt->lat), 0);
       break;
     case ALIGN:
@@ -487,7 +533,9 @@ void mount_goto_home(mount_t *mt) {
       mt->fix_ra_target = mt->azmotor->target = M_PI / 2;
       mt->azmotor->slewing = mt->altmotor->slewing = true;
       mt->track = 0;
+      mt->is_tracking = 0;
       mt->parked = 1;
+      home_goto = true;
       break;
   }
 }
@@ -617,6 +665,11 @@ void track(mount_t *mt) {
     if (mt->altmotor->slewing) mt->altmotor->slewing = abs(d_alt_r) > 100 / RAD_TO_ARCS;
   }
   if (mt->sync) sync_ra_dec(mt);
+  if(az_goto && !mt->azmotor->slewing && !mt->altmotor->slewing)
+  {
+    az_goto = false;
+    buzzerOn(300);
+  }
 }
 
 void align_sync_all(mount_t *mt, long ra, long dec) {
@@ -683,6 +736,8 @@ void load_saved_pos(void) {
     altcounter = s.toInt();
     s = f.readStringUntil('\n');
     focus_motor.position = focus_motor.target = s.toInt();
+    s = f.readStringUntil('\n');
+    aux_motor.position = aux_motor.target = s.toInt();
     f.close();
 #if defined(RTC_IC) && defined(RTC_NVRAM) && RTC_NVRAM > 0
 #if RTC_IC == RTC_DS3231

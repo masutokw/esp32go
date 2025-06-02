@@ -337,7 +337,7 @@ void handleNetwork(void) {
   }
   String msg, ip, mask, gate, dns;
   if (serverweb.hasArg("IP") && serverweb.hasArg("MASK") && serverweb.hasArg("GATEWAY") && serverweb.hasArg("DNS") && serverweb.hasArg("OTAB")) {
-    String net = serverweb.arg("IP") + "\n" + serverweb.arg("MASK") + "\n" + serverweb.arg("GATEWAY") + "\n" + serverweb.arg("DNS") + "\n" + serverweb.arg("OTAB") + "\n";
+    String net = serverweb.arg("IP") + "\n" + serverweb.arg("MASK") + "\n" + serverweb.arg("GATEWAY") + "\n" + serverweb.arg("DNS") + "\n" + serverweb.arg("OTAB") + "\n" + (serverweb.arg("BT")!="" ? serverweb.arg("BT"):"0") + "\n" + (serverweb.arg("AP")!="" ? serverweb.arg("AP"):"0") + "\n" ;
     File f = SPIFFS.open(NETWORK_FILE, "w");
     if (!f) {
       net = ("file open failed");
@@ -348,7 +348,9 @@ void handleNetwork(void) {
     msg += "\n" + serverweb.arg("MASK");
     msg += "\n" + serverweb.arg("GATEWAY");
     msg += "\n" + serverweb.arg("DNS");
-    msg += "\n" + serverweb.arg("OTAB") + "\n";
+    msg += "\n" + serverweb.arg("OTAB");
+    msg += "\n" + serverweb.arg("BT");
+    msg += "\n" + serverweb.arg("AP") + "\n";
   }
   String content = "<html><style>" BUTTTEXTT "</style>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/network' method='POST'><h2>Network Config</h2>";
   content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Login  information:</legend>";
@@ -361,7 +363,10 @@ void handleNetwork(void) {
   content += "<td><td>MASK</td><td><input type='test' name='MASK'class=\"text_red\"  value='" + WiFi.subnetMask().toString() + "'></td></tr>";
   content += "<tr><td>Gateway</td><td><input type='text' name='GATEWAY' class=\"text_red\" value='" + WiFi.gatewayIP().toString() + "'></td></td>";
   content += "<td><td>DNS</td><td><input type='test' name='DNS' class=\"text_red\"  value='" + WiFi.dnsIP().toString() + "'></td></tr>";
-  content += "<tr><td>OTA on boot</td><td><input type='number' name='OTAB' class=\"text_red\" value='" + String(otab) + "'></td></td></tr></table>";
+  content += "<tr><td colspan='2'>OTA on boot</td><td colspan='3'><input type='number' name='OTAB' class=\"text_red\" value='" + String(otab) + "'></td></tr>";
+  content += "<tr><td colspan='2'>Bluetooth on boot</td><td colspan='3'><input type='checkbox' name='BT' class=\"text_red\" value='1' " + String(bt_on ? "checked":"") + "></td></tr>";
+  content += "<tr><td colspan='2'>SoftAP on boot</td><td colspan='3'><input type='checkbox' name='AP' class=\"text_red\" value='1' " + String(ap_on ? "checked":"") + "></td></tr>";
+  content += "</table>";
 
   content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Save'></fieldset></form>" + msg + "<br>";
   content += "<button onclick=\"location.href='/'\"class=\"button_red\" type=\"button\">Back</button> <button onclick=\"location.href='/restart'\"class=\"button_red\"  type=\"button\">Restart ESP32go</button><br>";
@@ -485,7 +490,7 @@ void handleMeridian(void) {
 }
 
 void handleMonitor(void) {
-  char page[900];
+  char page[1000];
   char buffra[12];
   char buffdec[12];
   char times[300];
@@ -526,7 +531,7 @@ void handleMonitor(void) {
   if (telescope->mount_mode) lxprintde(buffdec, st_current.dec);
   else mount_lxde_str(buffdec, telescope);
   buffdec[3] = ':';
-  snprintf(page, 900,
+  snprintf(page, 1000,
            "<html>\
 <head> <meta http-equiv='refresh' content='3'><style>" BUTTTEXTT "</style>" AUTO_SIZE " </head>\
 <body  bgcolor=\"#000000\" text=\"#5599ff\"><h2>Monitor</h2> \
@@ -534,7 +539,9 @@ void handleMonitor(void) {
 <br>AZ Back Counter: %d<br>Alt Back Counter: %d \
 <br>Clients: %d<br>Focus Counter: %d \
 <br>AUX Counter: %d \
-<br>Is slewing: %d <br>Is tracking: %d \
+<br>Is slewing: AZ:%d ALT:%d <br>Is tracking: %d (track %d)\
+<br>Target speed: AZ:%s ALT:%s \
+<br>Parked: %d \
 <br>RA: %s<br>De: %s  \
 <br>PEC:%d  %d<br>\
 <br>WifiPAD IP : X.X%d.%d<br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>\
@@ -542,8 +549,9 @@ void handleMonitor(void) {
 </body></html>",
            telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
            altbackcounter, clients_connected, focus_motor.position, aux_motor.position,
-           (telescope->azmotor->slewing || telescope->altmotor->slewing) ? 1 : 0,
-           telescope->is_tracking, &buffra, &buffdec, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times, zcount[0], zcount[1]);
+           telescope->azmotor->slewing,telescope->altmotor->slewing, telescope->is_tracking, telescope->track, 
+           String(telescope->azmotor->targetspeed, 15).c_str(), String(telescope->altmotor->targetspeed, 15).c_str(),
+           telescope->parked, &buffra, &buffdec, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times, zcount[0], zcount[1]);
   serverweb.send(200, "text/html", page);
 }
 

@@ -24,6 +24,7 @@
 #define SDA_PIN 21
 #define SCL_PIN 22
 #define BUZZER_PIN 26
+#define BUZZER_PWM 10 // 5 to 10 is LOW
 #define RA_preTrack
 ///-------------------------------------------------------------
 #define TMC_DRIVERS   //uncomment if using tmc driver

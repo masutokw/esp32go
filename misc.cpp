@@ -456,7 +456,11 @@ void buzzerOn(unsigned long milliseconds)
  // buzzer_on=true;
 //  buzzer_off_at=millis()+milliseconds;
 #ifdef BUZZER_PIN
+#ifdef BUZZER_PWM
+  analogWrite(BUZZER_PIN,BUZZER_PWM);
+#else
   digitalWrite(BUZZER_PIN, HIGH);
+#endif
   buzzer_tckr.once_ms( milliseconds,  buzzerOff, a);
 #endif
  
@@ -467,6 +471,10 @@ void buzzerOff(char *p)
  //   return;
  // buzzer_on=false;
 #ifdef BUZZER_PIN
+#ifdef BUZZER_PWM
+  analogWrite(BUZZER_PIN,0);
+#else
   digitalWrite(BUZZER_PIN, LOW);
+#endif
 #endif
 }

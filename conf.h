@@ -24,8 +24,8 @@
 #define SDA_PIN 21
 #define SCL_PIN 22
 #define BUZZER_PIN 26
-#define BUZZER_PWM 10 // 5 to 10 is LOW
-#define RA_preTrack
+#define BUZZER_PWM 10 // 5 to 10 is LOW VOLUME
+#define RA_preTrack // EQ ONLY! end RA GOTOs always according to tracking
 ///-------------------------------------------------------------
 #define TMC_DRIVERS   //uncomment if using tmc driver
 //#define STEP_FOCUS   // uncomment when using 3d driver for focuser //comment when tb6612
@@ -51,6 +51,7 @@
 #define ENABLE_AUX 23 // MOTOR_EN    // ---> TEMPORARY PATCH
 #define TMC_DRIVERS
 #define BUZZER_PIN 13
+#define BUZZER_PWM 55 // lower values do not work, this sounds LOW in Fysetc
 #else
 #define CLOCK_OUT_FOCUS  12 
 #define DIR_OUT_FOCUS 13

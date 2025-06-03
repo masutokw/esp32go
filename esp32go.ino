@@ -327,42 +327,41 @@ void setup() {
     if(WiFi.status() == WL_CONNECTED)
     {
       sta_ok=true;
-      if (SPIFFS.exists(NETWORK_FILE)) 
-      {
-        f = SPIFFS.open(NETWORK_FILE, "r");
-        IPAddress ip;
-        IPAddress gateway;
-        IPAddress subnet;
-        IPAddress dns;
-        if (ip.fromString(f.readStringUntil('\n')) && subnet.fromString(f.readStringUntil('\n')) && gateway.fromString(f.readStringUntil('\n')) + dns.fromString(f.readStringUntil('\n'))) 
-        {
-          WiFi.config(ip, gateway, subnet, dns);
-          otab = f.readStringUntil('\n').toInt();
-          //if(f.readStringUntil('\n').toInt()==0)
-          if(f.readStringUntil('\n')=="0")
-            bt_on=false;
-          //if(f.readStringUntil('\n').toInt()==0)
-          if(f.readStringUntil('\n')=="0")
-            ap_on=false;
-        }
-        f.close();
-      }
     }
     else
     {
       WiFi.disconnect(true);
     }
   }
-  else
+  if (SPIFFS.exists(NETWORK_FILE)) 
   {
-    bt_on=true;
+    f = SPIFFS.open(NETWORK_FILE, "r");
+    IPAddress ip;
+    IPAddress gateway;
+    IPAddress subnet;
+    IPAddress dns;
+    ip.fromString(f.readStringUntil('\n'));
+    subnet.fromString(f.readStringUntil('\n'));
+    gateway.fromString(f.readStringUntil('\n'));
+    dns.fromString(f.readStringUntil('\n'));
+    if(sta_ok)
+        WiFi.config(ip, gateway, subnet, dns);
+    otab = f.readStringUntil('\n').toInt();
+    bt_on = f.readStringUntil('\n').toInt();
+    ap_on = f.readStringUntil('\n').toInt();
+    f.close();
   }
   if(!sta_ok || ap_on)
   {
     if(!sta_ok)
+    {
       WiFi.mode(WIFI_AP);
+      otab = 0;
+    }
     else
+    {
       WiFi.mode(WIFI_AP_STA);
+    }
     WiFi.softAP(SSID_AP, PASS_AP);
   }
   if(bt_on)

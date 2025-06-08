@@ -48,6 +48,7 @@
 extern WebServer serverweb;
 extern mount_t *telescope;
 extern String ssi;
+extern String ap_ssid;
 extern String pwd;
 extern byte otab;
 extern bool bt_on;

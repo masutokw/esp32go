@@ -337,7 +337,7 @@ void handleNetwork(void) {
   }
   String msg, ip, mask, gate, dns;
   if (serverweb.hasArg("IP") && serverweb.hasArg("MASK") && serverweb.hasArg("GATEWAY") && serverweb.hasArg("DNS") && serverweb.hasArg("OTAB")) {
-    String net = serverweb.arg("IP") + "\n" + serverweb.arg("MASK") + "\n" + serverweb.arg("GATEWAY") + "\n" + serverweb.arg("DNS") + "\n" + serverweb.arg("OTAB") + "\n" + (serverweb.arg("BT")!="" ? serverweb.arg("BT"):"0") + "\n" + (serverweb.arg("AP")!="" ? serverweb.arg("AP"):"0") + "\n" ;
+    String net = serverweb.arg("IP") + "\n" + serverweb.arg("MASK") + "\n" + serverweb.arg("GATEWAY") + "\n" + serverweb.arg("DNS") + "\n" + serverweb.arg("OTAB") + "\n" + (serverweb.arg("BT") != "" ? serverweb.arg("BT") : "0") + "\n" + (serverweb.arg("AP") != "" ? serverweb.arg("AP") : "0") + "\n";
     File f = SPIFFS.open(NETWORK_FILE, "w");
     if (!f) {
       net = ("file open failed");
@@ -364,8 +364,8 @@ void handleNetwork(void) {
   content += "<tr><td>Gateway</td><td><input type='text' name='GATEWAY' class=\"text_red\" value='" + WiFi.gatewayIP().toString() + "'></td></td>";
   content += "<td><td>DNS</td><td><input type='test' name='DNS' class=\"text_red\"  value='" + WiFi.dnsIP().toString() + "'></td></tr>";
   content += "<tr><td colspan='2'>OTA on boot</td><td colspan='3'><input type='number' name='OTAB' class=\"text_red\" value='" + String(otab) + "'></td></tr>";
-  content += "<tr><td colspan='2'>Bluetooth on boot</td><td colspan='3'><input type='checkbox' name='BT' class=\"text_red\" value='1' " + String(bt_on ? "checked":"") + "></td></tr>";
-  content += "<tr><td colspan='2'>SoftAP on boot</td><td colspan='3'><input type='checkbox' name='AP' class=\"text_red\" value='1' " + String(ap_on ? "checked":"") + "></td></tr>";
+  content += "<tr><td colspan='2'>Bluetooth on boot</td><td colspan='3'><input type='checkbox' name='BT' class=\"text_red\" value='1' " + String(bt_on ? "checked" : "") + "></td></tr>";
+  content += "<tr><td colspan='2'>SoftAP on boot</td><td colspan='3'><input type='checkbox' name='AP' class=\"text_red\" value='1' " + String(ap_on ? "checked" : "") + "></td></tr>";
   content += "</table>";
 
   content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Save'></fieldset></form>" + msg + "<br>";
@@ -549,7 +549,7 @@ void handleMonitor(void) {
 </body></html>",
            telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
            altbackcounter, clients_connected, focus_motor.position, aux_motor.position,
-           telescope->azmotor->slewing,telescope->altmotor->slewing, telescope->is_tracking, telescope->track, 
+           telescope->azmotor->slewing, telescope->altmotor->slewing, telescope->is_tracking, telescope->track,
            String(telescope->azmotor->targetspeed, 15).c_str(), String(telescope->altmotor->targetspeed, 15).c_str(),
            telescope->parked, &buffra, &buffdec, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times, zcount[0], zcount[1]);
   serverweb.send(200, "text/html", page);
@@ -578,9 +578,9 @@ void handleMain(void) {
   content += "<button onclick=\"location.href='/config'\" class=\"button_red\"   type=\"button\">Mount</button>&ensp; ";
   content += "<button onclick=\"location.href='/network'\" class=\"button_red\"   type=\"button\">WLAN&Network</button><br>";
   content += "<button onclick=\"location.href='/aux'\" class=\"button_red\" type=\"button\">Focus</button>&ensp;";
-   content += "<button onclick=\"location.href='/wheelconfig'\" class=\"button_red\" type=\"button\">Filter Wheel</button>&ensp;";
+  content += "<button onclick=\"location.href='/wheelconfig'\" class=\"button_red\" type=\"button\">Filter Wheel</button>&ensp;";
   content += "<button onclick=\"location.href='/update'\" class=\"button_red\" type=\"button\">Firmware</button>&ensp;";
-
+  content += "<button onclick=\"location.href='/homecfg'\" class=\"button_red\" type=\"button\">Home Set</button>&ensp;";
 #ifdef TMC_DRIVERS
   content += "<button onclick=\"location.href='/tmc'\" class=\"button_red\" type=\"button\">TMC</button>&ensp;";
 #endif
@@ -592,6 +592,8 @@ void handleMain(void) {
   content += "<button onclick=\"location.href='/park'\" class=\"button_red\" type=\"button\">Park</button>&ensp;";
   content += "<button onclick=\"location.href='/home?HOME=0'\" class=\"button_red\" type=\"button\">Reset  home</button>&ensp;";
   content += "<button onclick=\"location.href='/home?HOME=1'\" class=\"button_red\" type=\"button\">GO&Park home</button><br>";
+  content += "<button onclick=\"location.href='/track?TRACK=1'\" class=\"button_red\" type=\"button\">Track On</button>&ensp;";
+  content += "<button onclick=\"location.href='/track?TRACK=0'\" class=\"button_red\" type=\"button\">Track Off</button><br>";
   content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">2 stars align</button><br>";
   content += "<button onclick=\"location.href='/wheel'\"class=\"button_red\" type=\"button\">Filter Wheel</button></table></fieldset>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Control set</legend>";
@@ -742,7 +744,7 @@ void handleIana(void) {
 }
 
 void handleAux() {
-  char temp[4500]="";
+  char temp[4500] = "";
   if (serverweb.hasArg("FOCUSMAX")) {
     snprintf(temp, 700, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n#\n",
              serverweb.arg("FOCUSMAX"), serverweb.arg("FOCUSPEEDLOW"), serverweb.arg("FOCUSPEED"), serverweb.arg("PWR_DIR"),
@@ -805,13 +807,13 @@ void handleAux() {
 
 
 void handleWheel() {
-  String msg="";
+  String msg = "";
 
   if (serverweb.hasArg("SYNC")) {
 
     aux_motor.position = 0;
     wheel_index = 0;
-    msg="Reset Home sync";
+    msg = "Reset Home sync";
   } else
 
     if (serverweb.hasArg("MOVE")) {
@@ -819,7 +821,7 @@ void handleWheel() {
     wheel_index = net.toInt();
     aux_motor.target = wheel[wheel_index].value;
     move_to(&aux_motor, aux_motor.target, aux_motor.speed);
-     msg="Filter Changed to "+String(wheel[wheel_index].name);
+    msg = "Filter Changed to " + String(wheel[wheel_index].name);
   }
 
 
@@ -830,7 +832,7 @@ void handleWheel() {
     content += "<option value='" + String(g) + "' " + (wheel_index == g ? "selected" : "") + ">" + String(wheel[g].name) + "</option>";
   }
   content += "</select><input type='submit' name='SUBMIT'  class=\"button_red\" value='Set Filter'>";
-  content += "<input type='submit' name='SYNC'  class=\"button_red\" value='Sync home'></form><br>"+msg;
+  content += "<input type='submit' name='SYNC'  class=\"button_red\" value='Sync home'></form><br>" + msg;
   content += "<button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>";
   content += "</body></html>";
   serverweb.send(200, "text/html", content);
@@ -889,6 +891,78 @@ void handlewheelcgf() {
   serverweb.send(200, "text/html", tmp);
 }
 
+void handlehomecfg() {
+  String msg = "";
+  char home_index;
+  if (serverweb.hasArg("SYNC")) {
+    set_home(telescope);
+
+    msg = "Home set to actual telescope Position";
+  } else
+
+    if (serverweb.hasArg("HOME")) {
+    String net = serverweb.arg("HOME");
+    home_index = net.toInt() + 48;
+    mount_fix_home(home_index, telescope);
+    switch (home_index) {
+      case '0':
+        net = "Polar";
+        break;
+      case '1':
+        net = "Zenit";
+        break;
+      case '2':
+        net = "East";
+        break;
+      case '3':
+        net = "West";
+        break;
+    }
+    msg = " Changed to " + net;
+  }
+
+
+  String content = "<html><head><style>" BUTT TEXTT "</style>" AUTO_SIZE "</head><body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>Mount Home Config</h2><br>";
+  content += "<form action='/homecfg' method='POST'>";
+  content += "<select name='HOME' id='lang'>";
+
+  content += "<option value='0' >Polar</option>";
+  content += "<option value='1' >Zenith</option>";
+  content += "<option value='2' >East</option>";
+  content += "<option value='3' >West</option>";
+
+
+  content += "</select><input type='submit' name='SUBMIT'  class=\"button_red\" value='Set Home'>";
+  content += "<input type='submit' name='SYNC'  class=\"button_red\" value='Sync home'></form><br>" + msg;
+  content += "<button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>";
+  content += "</body></html>";
+  serverweb.send(200, "text/html", content);
+}
+
+void handleTrack(void) {
+  int track;
+  String msg,net;
+  if (serverweb.hasArg("TRACK")) {
+     net = serverweb.arg("TRACK");
+    track = net.toInt();
+    if (track) {
+      mount_stop(telescope, 'w');
+      mount_move(telescope, 't');
+    } else
+      mount_move(telescope, 'h');
+    ;
+
+    msg = "Track";
+  }
+
+  String content = "<html>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>TrackControl</h2><br>";
+  content += net+"<br>";
+  content += "AZ Counter:" + String(telescope->azmotor->counter) + "<br>";
+  content += "Alt Counter:" + String(telescope->altmotor->counter) + "<br>";
+  content += "<button onclick=\"location.href='/'\"  type=\"button\">Home</button><br>";
+  content += "</body></html>";
+  serverweb.send(200, "text/html", content);
+}
 
 void initwebserver(void) {
   serverweb.on("/park", handlePark);
@@ -919,6 +993,8 @@ void initwebserver(void) {
   serverweb.on("/aux", handleAux);
   serverweb.on("/wheel", handleWheel);
   serverweb.on("/wheelconfig", handlewheelcgf);
+  serverweb.on("/homecfg", handlehomecfg);
+  serverweb.on("/track", handleTrack);
   serverweb.onNotFound([]() {
     if (!handleFileRead(serverweb.uri()))
       serverweb.send(404, "text/plain", "FileNotFound");

@@ -270,6 +270,7 @@ void serialtask(void) {
 }
 
 void setup() {
+  esp_log_level_set("*", ESP_LOG_NONE);
   generate_wave(127);
   delay(300);
   pinMode(ENABLE_AZ, OUTPUT);
@@ -277,6 +278,7 @@ void setup() {
   digitalWrite(ENABLE_AZ, DEN_DRIVER);
   digitalWrite(ENABLE_ALT, DEN_DRIVER);
   Serial.begin(BAUDRATE);
+  Serial.setDebugOutput(false);
 #ifndef STEP_FOCUS
   ledcAttachPin(PWM_B, 1);  // assign RGB led pins to channels
   ledcAttachPin(PWM_A, 2);
@@ -309,10 +311,9 @@ void setup() {
   }
 
   File f;
-  bool sta_ok=false;
+  bool sta_ok = false;
   uint8_t i = 0;
-  if (SPIFFS.exists(WIFI_FILE)) 
-  {
+  if (SPIFFS.exists(WIFI_FILE)) {
     WiFi.mode(WIFI_STA);
     f = SPIFFS.open(WIFI_FILE, FILE_READ);
     ssi = f.readStringUntil('\n');
@@ -324,17 +325,13 @@ void setup() {
     delay(100);
     WiFi.begin(ssi.c_str(), pwd.c_str());
     while (WiFi.status() != WL_CONNECTED && i++ < 20) delay(500);
-    if(WiFi.status() == WL_CONNECTED)
-    {
-      sta_ok=true;
-    }
-    else
-    {
+    if (WiFi.status() == WL_CONNECTED) {
+      sta_ok = true;
+    } else {
       WiFi.disconnect(true);
     }
   }
-  if (SPIFFS.exists(NETWORK_FILE)) 
-  {
+  if (SPIFFS.exists(NETWORK_FILE)) {
     f = SPIFFS.open(NETWORK_FILE, "r");
     IPAddress ip;
     IPAddress gateway;
@@ -344,33 +341,26 @@ void setup() {
     subnet.fromString(f.readStringUntil('\n'));
     gateway.fromString(f.readStringUntil('\n'));
     dns.fromString(f.readStringUntil('\n'));
-    if(sta_ok)
-        WiFi.config(ip, gateway, subnet, dns);
+    if (sta_ok)
+      WiFi.config(ip, gateway, subnet, dns);
     otab = f.readStringUntil('\n').toInt();
     bt_on = f.readStringUntil('\n').toInt();
     ap_on = f.readStringUntil('\n').toInt();
     f.close();
   }
-  if(!sta_ok || ap_on)
-  {
-    if(!sta_ok)
-    {
+  if (!sta_ok || ap_on) {
+    if (!sta_ok) {
       WiFi.mode(WIFI_AP);
       otab = 0;
-    }
-    else
-    {
+    } else {
       WiFi.mode(WIFI_AP_STA);
     }
     WiFi.softAP(SSID_AP, PASS_AP);
   }
-  if(bt_on)
-  {
+  if (bt_on) {
     SerialBT.begin(BT_NAME + String(baseMac[4], HEX) + "_" + String(baseMac[5], HEX));
     SerialBT.setPin(pin);
-  }
-  else
-  {
+  } else {
     WiFi.setSleep(false);
   }
 
@@ -410,9 +400,10 @@ void setup() {
   telescope = create_mount();
   pmotor = &focus_motor;
   readconfig(telescope);
+  load_home(telescope);
   readauxconfig();
   read_wheel_config();
- // setaux(false);
+  // setaux(false);
   //write_wheel_config();
   httpUpdater.setup(&serverweb);
   sntp_set_time_sync_notification_cb(timeavailable);
@@ -571,7 +562,7 @@ void loop() {
   delay(10);
   net_task();
 #ifndef BT_TRACE_USB
-  if(bt_on)
+  if (bt_on)
     bttask();
 #endif
 #ifndef LX200TRACE

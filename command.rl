@@ -319,16 +319,18 @@ long command( char *str )
 		action goto_home{buzzerOn(300);mount_goto_home(telescope);}
 		action getparked{sprintf(tmessage,"%s#",(telescope->parked? "1" : "0"));APPEND;}
 		action home{mount_home_set(telescope);}
+		action setfixhome{mount_fix_home(fc,telescope);}
 		action getpierside {sprintf(tmessage,"%s#",(get_pierside(telescope)? "WEST" : "EAST"));APPEND;}
 		action getflip {sprintf(tmessage,"%s#",(telescope->autoflip? "1" : "0"));APPEND;}
 		action setpierside{meridianflip(telescope,fc=='w');}
 		action set_land {telescope->track=0;telescope->azmotor->targetspeed=0.0;}
 		action set_polar {telescope->track=1;}
 		action set_altaz {;}
+		action sethome {set_home(telescope);}
 		#action return_dst{if ((telescope->azmotor->slewing ||(telescope->altmotor->slewing))&&!(telescope->parked)) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
 		action return_dst{if (telescope->azmotor->slewing || telescope->altmotor->slewing) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
 		action return_track{sprintf(tmessage, telescope->is_tracking ? "1":"0");APPEND;}
-		action return_tracks{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2)+((telescope->azmotor->slewing || telescope->altmotor->slewing)<<3));APPEND;}		
+		action return_tracks{sprintf(tmessage, "%02d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2)+((telescope->azmotor->slewing || telescope->altmotor->slewing)<<3));APPEND;}		
 		action a_date {sprintf(tmessage,"012 24 2000#") ;APPEND;}
 		action a_number {sprintf(tmessage,"01.0#") ;APPEND;}
 		action a_product{ sprintf(tmessage,"esp32go#") ;APPEND;}
@@ -420,7 +422,8 @@ long command( char *str )
 		f_index='I'[0-8]$fmoveindex;
 		Focuser=('F'|'X')$select_motor(f_in|f_out|f_go|f_query|f_stop|f_sync|f_rel|f_moving|f_select|f_index);
 # custom
-		Park = ('pH'%home)|('hP'%goto_home)|('pS'%getpierside)|('pF'%getflip)  |(('ps')('e'|'w')@setpierside)|('pnk'('0'|'1')@nunchuk)|('pa'('0'|'1')@autoflip)|('PP'%getparked);
+		Park = ('pH'%home)|('hP'%goto_home)|('pS'%getpierside)|('pF'%getflip)  |(('ps')('e'|'w')@setpierside)|
+				('pnk'('0'|'1')@nunchuk)|('pa'('0'|'1')@autoflip)|('PP'%getparked)|('hS'%sethome)|('hH'digit@setfixhome);
 		IP_PAD ='IP' ((digit$getip3){1,3} '.' (digit$getip2){1,3})%set_ip;
 		Sync_mode='a'digit$syncmode;
 #autostar

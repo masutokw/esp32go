@@ -240,11 +240,11 @@ long command( char *str )
 	int focus_counter=0;
     
 #line 2 "command.cpp"
-static const int command_start = 319;
-static const int command_first_final = 319;
+static const int command_start = 323;
+static const int command_first_final = 323;
 static const int command_error = 0;
 
-static const int command_en_main = 319;
+static const int command_en_main = 323;
 
 
 #line 242 "command.rl"
@@ -266,17 +266,17 @@ static const int command_en_main = 319;
 	switch ( cs )
 	{
 tr20:
-#line 327 "command.rl"
+#line 328 "command.rl"
 	{;}
-	goto st319;
+	goto st323;
 tr21:
-#line 325 "command.rl"
-	{telescope->track=0;telescope->azmotor->targetspeed=0.0;}
-	goto st319;
-tr22:
 #line 326 "command.rl"
+	{telescope->track=0;telescope->azmotor->targetspeed=0.0;}
+	goto st323;
+tr22:
+#line 327 "command.rl"
 	{telescope->track=1;}
-	goto st319;
+	goto st323;
 tr24:
 #line 281 "command.rl"
 	{if (telescope->mount_mode)
@@ -285,141 +285,141 @@ tr24:
 						{sync_eq(telescope);telescope->altmotor->slewing= telescope->azmotor->slewing=FALSE;}
 						sprintf(tmessage,"sync#");APPEND;
 						}
-	goto st319;
+	goto st323;
 tr26:
-#line 329 "command.rl"
+#line 331 "command.rl"
 	{if (telescope->azmotor->slewing || telescope->altmotor->slewing) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
-	goto st319;
+	goto st323;
 tr37:
 #line 308 "command.rl"
 	{gotofocuser(lmotor->max_steps,lmotor->speed_low,lmotor);}
-	goto st319;
+	goto st323;
 tr39:
 #line 306 "command.rl"
 	{gotofocuser(lmotor->max_steps,lmotor->speed,lmotor);}
-	goto st319;
+	goto st323;
 tr40:
 #line 307 "command.rl"
 	{gotofocuser(0,lmotor->speed_low,lmotor);}
-	goto st319;
+	goto st323;
 tr42:
 #line 305 "command.rl"
 	{gotofocuser(0,lmotor->speed,lmotor);}
-	goto st319;
+	goto st323;
 tr50:
 #line 310 "command.rl"
 	{gotofocuser(focus_counter,lmotor);}
-	goto st319;
+	goto st323;
 tr51:
 #line 317 "command.rl"
 	{sprintf(tmessage,"%d#",lmotor->state<stop);APPEND;}
-	goto st319;
+	goto st323;
 tr63:
 #line 314 "command.rl"
 	{lmotor->position=lmotor->target=focus_counter;}
-	goto st319;
+	goto st323;
 tr71:
 #line 309 "command.rl"
 	{gotofocuser(lmotor->position+(focus_counter*neg));}
-	goto st319;
+	goto st323;
 tr72:
 #line 311 "command.rl"
 	{stopfocuser(lmotor);}
-	goto st319;
+	goto st323;
 tr73:
 #line 315 "command.rl"
 	{sprintf(tmessage,"%05d#",lmotor->position);APPEND;}
-	goto st319;
+	goto st323;
 tr94:
 #line 271 "command.rl"
 	{lxprintde1(tmessage, st_current.alt); APPEND;}
-	goto st319;
+	goto st323;
 tr95:
 #line 274 "command.rl"
 	{lxprintdate1(tmessage);APPEND;}
-	goto st319;
+	goto st323;
 tr96:
 #line 268 "command.rl"
 	{if (telescope->mount_mode) lxprintde1(tmessage, st_current.dec);
 							else mount_lxde_str(tmessage,telescope); APPEND;}
-	goto st319;
+	goto st323;
 tr97:
 #line 301 "command.rl"
 	{lxprintGMT_offset(tmessage,telescope->time_zone );APPEND}
-	goto st319;
+	goto st323;
 tr98:
-#line 331 "command.rl"
-	{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2)+((telescope->azmotor->slewing || telescope->altmotor->slewing)<<3));APPEND;}
-	goto st319;
+#line 333 "command.rl"
+	{sprintf(tmessage, "%02d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2)+((telescope->azmotor->slewing || telescope->altmotor->slewing)<<3));APPEND;}
+	goto st323;
 tr99:
 #line 288 "command.rl"
 	{ lxprinttime1(tmessage);APPEND;}
-	goto st319;
+	goto st323;
 tr100:
 #line 275 "command.rl"
 	{ lxprintsite();}
-	goto st319;
+	goto st323;
 tr101:
 #line 266 "command.rl"
 	{if (telescope->mount_mode) lxprintra1(tmessage, st_current.ra);
 							else mount_lxra_str(tmessage,telescope); APPEND;}
-	goto st319;
+	goto st323;
 tr102:
 #line 289 "command.rl"
 	{ lxprintra(tmessage, sidereal_timeGMT(telescope->longitude,telescope->time_zone) * 15.0 * DEG_TO_RAD);APPEND;strcat(response,"#");}
-	goto st319;
+	goto st323;
 tr103:
 #line 304 "command.rl"
 	{sprintf(tmessage,"50.0#");APPEND;}
-	goto st319;
+	goto st323;
 tr109:
-#line 332 "command.rl"
-	{sprintf(tmessage,"012 24 2000#") ;APPEND;}
-	goto st319;
-tr110:
-#line 336 "command.rl"
-	{sprintf(tmessage,"43Eg#") ;APPEND;}
-	goto st319;
-tr111:
-#line 333 "command.rl"
-	{sprintf(tmessage,"01.0#") ;APPEND;}
-	goto st319;
-tr112:
 #line 334 "command.rl"
-	{ sprintf(tmessage,"esp32go#") ;APPEND;}
-	goto st319;
-tr113:
+	{sprintf(tmessage,"012 24 2000#") ;APPEND;}
+	goto st323;
+tr110:
+#line 338 "command.rl"
+	{sprintf(tmessage,"43Eg#") ;APPEND;}
+	goto st323;
+tr111:
 #line 335 "command.rl"
+	{sprintf(tmessage,"01.0#") ;APPEND;}
+	goto st323;
+tr112:
+#line 336 "command.rl"
+	{ sprintf(tmessage,"esp32go#") ;APPEND;}
+	goto st323;
+tr113:
+#line 337 "command.rl"
 	{sprintf(tmessage,"00:00:00#") ;APPEND;}
-	goto st319;
+	goto st323;
 tr114:
 #line 270 "command.rl"
 	{ lxprintaz1(tmessage, st_current.az); APPEND;}
-	goto st319;
+	goto st323;
 tr115:
 #line 303 "command.rl"
 	{sprintf(tmessage,"24#");APPEND;}
-	goto st319;
+	goto st323;
 tr116:
 #line 273 "command.rl"
 	{lxprintde1(tmessage, st_target.dec); APPEND;}
-	goto st319;
+	goto st323;
 tr117:
 #line 277 "command.rl"
 	{lxprintlong1(tmessage,telescope->longitude);APPEND;}
-	goto st319;
+	goto st323;
 tr118:
-#line 330 "command.rl"
+#line 332 "command.rl"
 	{sprintf(tmessage, telescope->is_tracking ? "1":"0");APPEND;}
-	goto st319;
+	goto st323;
 tr119:
 #line 272 "command.rl"
 	{ lxprintra1(tmessage, st_target.ra); APPEND;}
-	goto st319;
+	goto st323;
 tr120:
 #line 278 "command.rl"
 	{lxprintlat1(tmessage,telescope->lat);APPEND;}
-	goto st319;
+	goto st323;
 tr121:
 #line 266 "command.rl"
 	{if (telescope->mount_mode) lxprintra1(tmessage, st_current.ra);
@@ -431,15 +431,15 @@ tr121:
 	{ lxprintaz1(tmessage, st_current.az); APPEND;}
 #line 271 "command.rl"
 	{lxprintde1(tmessage, st_current.alt); APPEND;}
-#line 331 "command.rl"
-	{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2)+((telescope->azmotor->slewing || telescope->altmotor->slewing)<<3));APPEND;}
+#line 333 "command.rl"
+	{sprintf(tmessage, "%02d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2)+((telescope->azmotor->slewing || telescope->altmotor->slewing)<<3));APPEND;}
 #line 316 "command.rl"
 	{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
-	goto st319;
+	goto st323;
 tr127:
-#line 337 "command.rl"
+#line 339 "command.rl"
 	{setwifipad(ip3,ip2);}
-	goto st319;
+	goto st323;
 tr134:
 #line 259 "command.rl"
 	{if (telescope->mount_mode)
@@ -447,74 +447,78 @@ tr134:
 					 else mount_slew(telescope);
 					 buzzerOn(300);
 					 sprintf(tmessage,"0");APPEND;}
-	goto st319;
+	goto st323;
 tr135:
 #line 257 "command.rl"
 	{mount_move(telescope,stcmd);}
-	goto st319;
+	goto st323;
 tr141:
 #line 258 "command.rl"
 	{pulse_guide(telescope,stcmd,pulse);}
-	goto st319;
+	goto st323;
 tr143:
 #line 320 "command.rl"
 	{sprintf(tmessage,"%s#",(telescope->parked? "1" : "0"));APPEND;}
-	goto st319;
+	goto st323;
 tr144:
 #line 264 "command.rl"
 	{mount_stop(telescope,stcmd);}
-	goto st319;
+	goto st323;
 tr147:
 #line 265 "command.rl"
 	{select_rate(telescope,stcmd); }
-	goto st319;
+	goto st323;
 tr163:
 #line 297 "command.rl"
 	{set_date(min,deg,sec);}
-	goto st319;
+	goto st323;
 tr168:
 #line 299 "command.rl"
 	{ telescope->time_zone=-deg*neg;}
 #line 276 "command.rl"
 	{sprintf(tmessage,"1");APPEND;deg=sec=min=0;}
-	goto st319;
+	goto st323;
 tr181:
 #line 302 "command.rl"
 	{set_time(deg,min,sec);}
-	goto st319;
+	goto st323;
 tr191:
 #line 290 "command.rl"
 	{set_cmd_exe(stcmd,(neg*(deg )));
                              sprintf(tmessage,"1");APPEND;deg=sec=min=0;
                             }
-	goto st319;
+	goto st323;
 tr211:
-#line 338 "command.rl"
+#line 340 "command.rl"
 	{appcmd(stcmd);APPEND;}
-	goto st319;
-tr440:
+	goto st323;
+tr447:
 #line 319 "command.rl"
 	{buzzerOn(300);mount_goto_home(telescope);}
-	goto st319;
-tr447:
-#line 323 "command.rl"
-	{sprintf(tmessage,"%s#",(telescope->autoflip? "1" : "0"));APPEND;}
-	goto st319;
+	goto st323;
 tr448:
+#line 329 "command.rl"
+	{set_home(telescope);}
+	goto st323;
+tr455:
+#line 324 "command.rl"
+	{sprintf(tmessage,"%s#",(telescope->autoflip? "1" : "0"));APPEND;}
+	goto st323;
+tr456:
 #line 321 "command.rl"
 	{mount_home_set(telescope);}
-	goto st319;
-tr449:
-#line 322 "command.rl"
+	goto st323;
+tr457:
+#line 323 "command.rl"
 	{sprintf(tmessage,"%s#",(get_pierside(telescope)? "WEST" : "EAST"));APPEND;}
-	goto st319;
-st319:
+	goto st323;
+st323:
 	if ( ++p == pe )
-		goto _test_eof319;
-case 319:
-#line 203 "command.cpp"
+		goto _test_eof323;
+case 323:
+#line 206 "command.cpp"
 	switch( (*p) ) {
-		case 6: goto tr454;
+		case 6: goto tr462;
 		case 35: goto st1;
 		case 58: goto st2;
 	}
@@ -522,7 +526,7 @@ case 319:
 st0:
 cs = 0;
 	goto _out;
-tr454:
+tr462:
 #line 298 "command.rl"
 	{if (telescope->mount_mode==ALTAZ) sprintf(tmessage,"A");else if (telescope->track) sprintf(tmessage,"P"); else sprintf(tmessage,"L"); APPEND; }
 	goto st1;
@@ -530,7 +534,7 @@ st1:
 	if ( ++p == pe )
 		goto _test_eof1;
 case 1:
-#line 219 "command.cpp"
+#line 222 "command.cpp"
 	if ( (*p) == 58 )
 		goto st2;
 	goto st0;
@@ -553,8 +557,8 @@ case 2:
 		case 88: goto tr5;
 		case 97: goto st147;
 		case 99: goto st148;
-		case 104: goto st309;
-		case 112: goto st311;
+		case 104: goto st311;
+		case 112: goto st315;
 	}
 	goto st0;
 st3:
@@ -626,7 +630,7 @@ st11:
 	if ( ++p == pe )
 		goto _test_eof11;
 case 11:
-#line 313 "command.cpp"
+#line 316 "command.cpp"
 	switch( (*p) ) {
 		case 43: goto st12;
 		case 45: goto st14;
@@ -689,7 +693,7 @@ st17:
 	if ( ++p == pe )
 		goto _test_eof17;
 case 17:
-#line 374 "command.cpp"
+#line 377 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr45;
 	goto st0;
@@ -701,7 +705,7 @@ st18:
 	if ( ++p == pe )
 		goto _test_eof18;
 case 18:
-#line 384 "command.cpp"
+#line 387 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr46;
 	goto st0;
@@ -713,7 +717,7 @@ st19:
 	if ( ++p == pe )
 		goto _test_eof19;
 case 19:
-#line 394 "command.cpp"
+#line 397 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr47;
 	goto st0;
@@ -725,7 +729,7 @@ st20:
 	if ( ++p == pe )
 		goto _test_eof20;
 case 20:
-#line 404 "command.cpp"
+#line 407 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr48;
 	goto st0;
@@ -737,7 +741,7 @@ st21:
 	if ( ++p == pe )
 		goto _test_eof21;
 case 21:
-#line 414 "command.cpp"
+#line 417 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr49;
 	goto st0;
@@ -749,7 +753,7 @@ st22:
 	if ( ++p == pe )
 		goto _test_eof22;
 case 22:
-#line 424 "command.cpp"
+#line 427 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr50;
 	goto st0;
@@ -776,7 +780,7 @@ tr74:
 	{if ((*p)=='0') pmotor=&focus_motor; else pmotor=&aux_motor; buzzerOn(300);}
 	goto st25;
 tr208:
-#line 339 "command.rl"
+#line 341 "command.rl"
 	{if (((*p)>='0')&&((*p)<'3'))telescope->smode=(*p)-'0';
 						else if (((*p)=='3')&&(telescope->mount_mode>EQ)){
 							 telescope->is_tracking = FALSE;
@@ -787,25 +791,29 @@ tr208:
 		
 		}
 	goto st25;
-tr450:
-#line 359 "command.rl"
+tr446:
+#line 322 "command.rl"
+	{mount_fix_home((*p),telescope);}
+	goto st25;
+tr458:
+#line 361 "command.rl"
 	{setflipmode((*p));}
 	goto st25;
-tr452:
-#line 358 "command.rl"
+tr460:
+#line 360 "command.rl"
 	{setnunchuk((*p));}
 	goto st25;
-tr453:
-#line 324 "command.rl"
+tr461:
+#line 325 "command.rl"
 	{meridianflip(telescope,(*p)=='w');}
 	goto st25;
 st25:
 	if ( ++p == pe )
 		goto _test_eof25;
 case 25:
-#line 471 "command.cpp"
+#line 477 "command.cpp"
 	if ( (*p) == 35 )
-		goto st319;
+		goto st323;
 	goto st0;
 st26:
 	if ( ++p == pe )
@@ -838,7 +846,7 @@ st29:
 	if ( ++p == pe )
 		goto _test_eof29;
 case 29:
-#line 504 "command.cpp"
+#line 510 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr58;
 	goto st0;
@@ -850,7 +858,7 @@ st30:
 	if ( ++p == pe )
 		goto _test_eof30;
 case 30:
-#line 514 "command.cpp"
+#line 520 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr59;
 	goto st0;
@@ -862,7 +870,7 @@ st31:
 	if ( ++p == pe )
 		goto _test_eof31;
 case 31:
-#line 524 "command.cpp"
+#line 530 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr60;
 	goto st0;
@@ -874,7 +882,7 @@ st32:
 	if ( ++p == pe )
 		goto _test_eof32;
 case 32:
-#line 534 "command.cpp"
+#line 540 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr61;
 	goto st0;
@@ -886,7 +894,7 @@ st33:
 	if ( ++p == pe )
 		goto _test_eof33;
 case 33:
-#line 544 "command.cpp"
+#line 550 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr62;
 	goto st0;
@@ -898,7 +906,7 @@ st34:
 	if ( ++p == pe )
 		goto _test_eof34;
 case 34:
-#line 554 "command.cpp"
+#line 560 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr63;
 	goto st0;
@@ -919,7 +927,7 @@ st36:
 	if ( ++p == pe )
 		goto _test_eof36;
 case 36:
-#line 573 "command.cpp"
+#line 579 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr66;
 	goto st0;
@@ -931,7 +939,7 @@ st37:
 	if ( ++p == pe )
 		goto _test_eof37;
 case 37:
-#line 583 "command.cpp"
+#line 589 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr67;
 	goto st0;
@@ -943,7 +951,7 @@ st38:
 	if ( ++p == pe )
 		goto _test_eof38;
 case 38:
-#line 593 "command.cpp"
+#line 599 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr68;
 	goto st0;
@@ -955,7 +963,7 @@ st39:
 	if ( ++p == pe )
 		goto _test_eof39;
 case 39:
-#line 603 "command.cpp"
+#line 609 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr69;
 	goto st0;
@@ -967,7 +975,7 @@ st40:
 	if ( ++p == pe )
 		goto _test_eof40;
 case 40:
-#line 613 "command.cpp"
+#line 619 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr70;
 	goto st0;
@@ -979,7 +987,7 @@ st41:
 	if ( ++p == pe )
 		goto _test_eof41;
 case 41:
-#line 623 "command.cpp"
+#line 629 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr71;
 	goto st0;
@@ -1227,7 +1235,7 @@ st72:
 	if ( ++p == pe )
 		goto _test_eof72;
 case 72:
-#line 869 "command.cpp"
+#line 875 "command.cpp"
 	if ( (*p) == 46 )
 		goto st73;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -1248,7 +1256,7 @@ st74:
 	if ( ++p == pe )
 		goto _test_eof74;
 case 74:
-#line 888 "command.cpp"
+#line 894 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr127;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -1262,7 +1270,7 @@ st75:
 	if ( ++p == pe )
 		goto _test_eof75;
 case 75:
-#line 900 "command.cpp"
+#line 906 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr127;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -1276,7 +1284,7 @@ st76:
 	if ( ++p == pe )
 		goto _test_eof76;
 case 76:
-#line 912 "command.cpp"
+#line 918 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr127;
 	goto st0;
@@ -1288,7 +1296,7 @@ st77:
 	if ( ++p == pe )
 		goto _test_eof77;
 case 77:
-#line 922 "command.cpp"
+#line 928 "command.cpp"
 	if ( (*p) == 46 )
 		goto st73;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -1302,7 +1310,7 @@ st78:
 	if ( ++p == pe )
 		goto _test_eof78;
 case 78:
-#line 934 "command.cpp"
+#line 940 "command.cpp"
 	if ( (*p) == 46 )
 		goto st73;
 	goto st0;
@@ -1336,7 +1344,7 @@ st81:
 	if ( ++p == pe )
 		goto _test_eof81;
 case 81:
-#line 966 "command.cpp"
+#line 972 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr135;
 	goto st0;
@@ -1359,7 +1367,7 @@ st83:
 	if ( ++p == pe )
 		goto _test_eof83;
 case 83:
-#line 987 "command.cpp"
+#line 993 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr137;
 	goto st0;
@@ -1371,7 +1379,7 @@ st84:
 	if ( ++p == pe )
 		goto _test_eof84;
 case 84:
-#line 997 "command.cpp"
+#line 1003 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr138;
 	goto st0;
@@ -1383,7 +1391,7 @@ st85:
 	if ( ++p == pe )
 		goto _test_eof85;
 case 85:
-#line 1007 "command.cpp"
+#line 1013 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr139;
 	goto st0;
@@ -1395,7 +1403,7 @@ st86:
 	if ( ++p == pe )
 		goto _test_eof86;
 case 86:
-#line 1017 "command.cpp"
+#line 1023 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr140;
 	goto st0;
@@ -1407,7 +1415,7 @@ st87:
 	if ( ++p == pe )
 		goto _test_eof87;
 case 87:
-#line 1027 "command.cpp"
+#line 1033 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr141;
 	goto st0;
@@ -1445,7 +1453,7 @@ st91:
 	if ( ++p == pe )
 		goto _test_eof91;
 case 91:
-#line 1063 "command.cpp"
+#line 1069 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr144;
 	goto st0;
@@ -1468,7 +1476,7 @@ st93:
 	if ( ++p == pe )
 		goto _test_eof93;
 case 93:
-#line 1084 "command.cpp"
+#line 1090 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr147;
 	if ( 48 <= (*p) && (*p) <= 52 )
@@ -1525,7 +1533,7 @@ st98:
 	if ( ++p == pe )
 		goto _test_eof98;
 case 98:
-#line 1139 "command.cpp"
+#line 1145 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr156;
 	goto st0;
@@ -1537,7 +1545,7 @@ st99:
 	if ( ++p == pe )
 		goto _test_eof99;
 case 99:
-#line 1149 "command.cpp"
+#line 1155 "command.cpp"
 	if ( (*p) == 47 )
 		goto st100;
 	goto st0;
@@ -1556,7 +1564,7 @@ st101:
 	if ( ++p == pe )
 		goto _test_eof101;
 case 101:
-#line 1166 "command.cpp"
+#line 1172 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr159;
 	goto st0;
@@ -1568,7 +1576,7 @@ st102:
 	if ( ++p == pe )
 		goto _test_eof102;
 case 102:
-#line 1176 "command.cpp"
+#line 1182 "command.cpp"
 	if ( (*p) == 47 )
 		goto st103;
 	goto st0;
@@ -1587,7 +1595,7 @@ st104:
 	if ( ++p == pe )
 		goto _test_eof104;
 case 104:
-#line 1193 "command.cpp"
+#line 1199 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr162;
 	goto st0;
@@ -1599,7 +1607,7 @@ st105:
 	if ( ++p == pe )
 		goto _test_eof105;
 case 105:
-#line 1203 "command.cpp"
+#line 1209 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr163;
 	goto st0;
@@ -1632,7 +1640,7 @@ st108:
 	if ( ++p == pe )
 		goto _test_eof108;
 case 108:
-#line 1234 "command.cpp"
+#line 1240 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr167;
 	goto st0;
@@ -1644,7 +1652,7 @@ st109:
 	if ( ++p == pe )
 		goto _test_eof109;
 case 109:
-#line 1244 "command.cpp"
+#line 1250 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr168;
 		case 44: goto st110;
@@ -1675,7 +1683,7 @@ st112:
 	if ( ++p == pe )
 		goto _test_eof112;
 case 112:
-#line 1273 "command.cpp"
+#line 1279 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr168;
 		case 44: goto st110;
@@ -1709,7 +1717,7 @@ st115:
 	if ( ++p == pe )
 		goto _test_eof115;
 case 115:
-#line 1305 "command.cpp"
+#line 1311 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr174;
 	goto st0;
@@ -1721,7 +1729,7 @@ st116:
 	if ( ++p == pe )
 		goto _test_eof116;
 case 116:
-#line 1315 "command.cpp"
+#line 1321 "command.cpp"
 	if ( (*p) == 58 )
 		goto st117;
 	goto st0;
@@ -1740,7 +1748,7 @@ st118:
 	if ( ++p == pe )
 		goto _test_eof118;
 case 118:
-#line 1332 "command.cpp"
+#line 1338 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr177;
 	goto st0;
@@ -1752,7 +1760,7 @@ st119:
 	if ( ++p == pe )
 		goto _test_eof119;
 case 119:
-#line 1342 "command.cpp"
+#line 1348 "command.cpp"
 	if ( (*p) == 58 )
 		goto st120;
 	goto st0;
@@ -1771,7 +1779,7 @@ st121:
 	if ( ++p == pe )
 		goto _test_eof121;
 case 121:
-#line 1359 "command.cpp"
+#line 1365 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr180;
 	goto st0;
@@ -1783,7 +1791,7 @@ st122:
 	if ( ++p == pe )
 		goto _test_eof122;
 case 122:
-#line 1369 "command.cpp"
+#line 1375 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr181;
 	goto st0;
@@ -1795,7 +1803,7 @@ st123:
 	if ( ++p == pe )
 		goto _test_eof123;
 case 123:
-#line 1379 "command.cpp"
+#line 1385 "command.cpp"
 	if ( (*p) == 32 )
 		goto st124;
 	if ( (*p) > 13 ) {
@@ -1819,7 +1827,7 @@ st125:
 	if ( ++p == pe )
 		goto _test_eof125;
 case 125:
-#line 1401 "command.cpp"
+#line 1407 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr184;
 	goto st0;
@@ -1831,7 +1839,7 @@ st126:
 	if ( ++p == pe )
 		goto _test_eof126;
 case 126:
-#line 1411 "command.cpp"
+#line 1417 "command.cpp"
 	switch( (*p) ) {
 		case 47: goto st127;
 		case 58: goto st127;
@@ -1852,7 +1860,7 @@ st128:
 	if ( ++p == pe )
 		goto _test_eof128;
 case 128:
-#line 1430 "command.cpp"
+#line 1436 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr187;
 	goto st0;
@@ -1866,7 +1874,7 @@ st129:
 	if ( ++p == pe )
 		goto _test_eof129;
 case 129:
-#line 1441 "command.cpp"
+#line 1447 "command.cpp"
 	switch( (*p) ) {
 		case 46: goto st130;
 		case 47: goto st132;
@@ -1888,7 +1896,7 @@ st131:
 	if ( ++p == pe )
 		goto _test_eof131;
 case 131:
-#line 1461 "command.cpp"
+#line 1467 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr191;
 	goto st0;
@@ -1907,7 +1915,7 @@ st133:
 	if ( ++p == pe )
 		goto _test_eof133;
 case 133:
-#line 1478 "command.cpp"
+#line 1484 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr193;
 	goto st0;
@@ -1921,7 +1929,7 @@ st134:
 	if ( ++p == pe )
 		goto _test_eof134;
 case 134:
-#line 1489 "command.cpp"
+#line 1495 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr191;
 		case 44: goto st135;
@@ -1964,7 +1972,7 @@ st138:
 	if ( ++p == pe )
 		goto _test_eof138;
 case 138:
-#line 1530 "command.cpp"
+#line 1536 "command.cpp"
 	switch( (*p) ) {
 		case 32: goto st139;
 		case 43: goto st140;
@@ -1999,7 +2007,7 @@ st140:
 	if ( ++p == pe )
 		goto _test_eof140;
 case 140:
-#line 1563 "command.cpp"
+#line 1569 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr201;
 	goto st0;
@@ -2011,7 +2019,7 @@ st141:
 	if ( ++p == pe )
 		goto _test_eof141;
 case 141:
-#line 1573 "command.cpp"
+#line 1579 "command.cpp"
 	if ( (*p) < 58 ) {
 		if ( (*p) > 47 ) {
 			if ( 48 <= (*p) && (*p) <= 57 )
@@ -2042,7 +2050,7 @@ st143:
 	if ( ++p == pe )
 		goto _test_eof143;
 case 143:
-#line 1602 "command.cpp"
+#line 1608 "command.cpp"
 	if ( 48 <= (*p) && (*p) <= 57 )
 		goto tr205;
 	goto st0;
@@ -2056,7 +2064,7 @@ st144:
 	if ( ++p == pe )
 		goto _test_eof144;
 case 144:
-#line 1613 "command.cpp"
+#line 1619 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr206;
 	goto st132;
@@ -2065,14 +2073,14 @@ tr206:
 	{set_cmd_exe(stcmd,(neg*(deg )));
                              sprintf(tmessage,"1");APPEND;deg=sec=min=0;
                             }
-	goto st320;
-st320:
+	goto st324;
+st324:
 	if ( ++p == pe )
-		goto _test_eof320;
-case 320:
-#line 1625 "command.cpp"
+		goto _test_eof324;
+case 324:
+#line 1631 "command.cpp"
 	switch( (*p) ) {
-		case 6: goto tr454;
+		case 6: goto tr462;
 		case 35: goto st1;
 		case 58: goto st2;
 	}
@@ -2087,7 +2095,7 @@ st145:
 	if ( ++p == pe )
 		goto _test_eof145;
 case 145:
-#line 1640 "command.cpp"
+#line 1646 "command.cpp"
 	if ( (*p) < 58 ) {
 		if ( (*p) > 47 ) {
 			if ( 48 <= (*p) && (*p) <= 57 )
@@ -2111,7 +2119,7 @@ st146:
 	if ( ++p == pe )
 		goto _test_eof146;
 case 146:
-#line 1662 "command.cpp"
+#line 1668 "command.cpp"
 	if ( (*p) < 58 ) {
 		if ( 33 <= (*p) && (*p) <= 47 )
 			goto st142;
@@ -2160,7 +2168,7 @@ st149:
 	if ( ++p == pe )
 		goto _test_eof149;
 case 149:
-#line 1709 "command.cpp"
+#line 1715 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr211;
 	goto st0;
@@ -2173,7 +2181,7 @@ tr286:
 	{if ((*p)=='0') pmotor=&focus_motor; else pmotor=&aux_motor; buzzerOn(300);}
 	goto st150;
 tr421:
-#line 339 "command.rl"
+#line 341 "command.rl"
 	{if (((*p)>='0')&&((*p)<'3'))telescope->smode=(*p)-'0';
 						else if (((*p)=='3')&&(telescope->mount_mode>EQ)){
 							 telescope->is_tracking = FALSE;
@@ -2188,28 +2196,32 @@ tr210:
 #line 296 "command.rl"
 	{stcmd=(*p);mark=p;mark++;}
 	goto st150;
-tr435:
-#line 359 "command.rl"
+tr427:
+#line 322 "command.rl"
+	{mount_fix_home((*p),telescope);}
+	goto st150;
+tr439:
+#line 361 "command.rl"
 	{setflipmode((*p));}
 	goto st150;
-tr437:
-#line 358 "command.rl"
+tr441:
+#line 360 "command.rl"
 	{setnunchuk((*p));}
 	goto st150;
-tr438:
-#line 324 "command.rl"
+tr442:
+#line 325 "command.rl"
 	{meridianflip(telescope,(*p)=='w');}
 	goto st150;
 st150:
 	if ( ++p == pe )
 		goto _test_eof150;
 case 150:
-#line 1745 "command.cpp"
+#line 1754 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	goto st150;
 tr213:
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2220,11 +2232,11 @@ tr213:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr233:
-#line 327 "command.rl"
+#line 328 "command.rl"
 	{;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2235,26 +2247,11 @@ tr233:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr234:
-#line 325 "command.rl"
-	{telescope->track=0;telescope->azmotor->targetspeed=0.0;}
-#line 348 "command.rl"
-	{switch (stcmd){ 
-						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
-						case 'w':conf_write(mark,WIFI_FILE);break;
-						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
-						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
-						case 'd':conf_write(mark,WHEEL_FILE);read_wheel_config();break;
-						
-						}
-						}
-	goto st321;
-tr235:
 #line 326 "command.rl"
-	{telescope->track=1;}
-#line 348 "command.rl"
+	{telescope->track=0;telescope->azmotor->targetspeed=0.0;}
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2265,7 +2262,22 @@ tr235:
 						
 						}
 						}
-	goto st321;
+	goto st325;
+tr235:
+#line 327 "command.rl"
+	{telescope->track=1;}
+#line 350 "command.rl"
+	{switch (stcmd){ 
+						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
+						case 'w':conf_write(mark,WIFI_FILE);break;
+						case 'n':conf_write(mark,NETWORK_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
+						case 'd':conf_write(mark,WHEEL_FILE);read_wheel_config();break;
+						
+						}
+						}
+	goto st325;
 tr237:
 #line 281 "command.rl"
 	{if (telescope->mount_mode)
@@ -2274,7 +2286,7 @@ tr237:
 						{sync_eq(telescope);telescope->altmotor->slewing= telescope->azmotor->slewing=FALSE;}
 						sprintf(tmessage,"sync#");APPEND;
 						}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2285,11 +2297,11 @@ tr237:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr239:
-#line 329 "command.rl"
+#line 331 "command.rl"
 	{if (telescope->azmotor->slewing || telescope->altmotor->slewing) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2300,11 +2312,11 @@ tr239:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr250:
 #line 308 "command.rl"
 	{gotofocuser(lmotor->max_steps,lmotor->speed_low,lmotor);}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2315,11 +2327,11 @@ tr250:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr252:
 #line 306 "command.rl"
 	{gotofocuser(lmotor->max_steps,lmotor->speed,lmotor);}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2330,11 +2342,11 @@ tr252:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr253:
 #line 307 "command.rl"
 	{gotofocuser(0,lmotor->speed_low,lmotor);}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2345,11 +2357,11 @@ tr253:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr255:
 #line 305 "command.rl"
 	{gotofocuser(0,lmotor->speed,lmotor);}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2360,11 +2372,11 @@ tr255:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr263:
 #line 310 "command.rl"
 	{gotofocuser(focus_counter,lmotor);}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2375,11 +2387,11 @@ tr263:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr264:
 #line 317 "command.rl"
 	{sprintf(tmessage,"%d#",lmotor->state<stop);APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2390,11 +2402,11 @@ tr264:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr275:
 #line 314 "command.rl"
 	{lmotor->position=lmotor->target=focus_counter;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2405,11 +2417,11 @@ tr275:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr283:
 #line 309 "command.rl"
 	{gotofocuser(lmotor->position+(focus_counter*neg));}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2420,11 +2432,11 @@ tr283:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr284:
 #line 311 "command.rl"
 	{stopfocuser(lmotor);}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2435,11 +2447,11 @@ tr284:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr285:
 #line 315 "command.rl"
 	{sprintf(tmessage,"%05d#",lmotor->position);APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2450,11 +2462,11 @@ tr285:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr306:
 #line 271 "command.rl"
 	{lxprintde1(tmessage, st_current.alt); APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2465,11 +2477,11 @@ tr306:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr307:
 #line 274 "command.rl"
 	{lxprintdate1(tmessage);APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2480,12 +2492,12 @@ tr307:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr308:
 #line 268 "command.rl"
 	{if (telescope->mount_mode) lxprintde1(tmessage, st_current.dec);
 							else mount_lxde_str(tmessage,telescope); APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2496,11 +2508,11 @@ tr308:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr309:
 #line 301 "command.rl"
 	{lxprintGMT_offset(tmessage,telescope->time_zone );APPEND}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2511,11 +2523,11 @@ tr309:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr310:
-#line 331 "command.rl"
-	{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2)+((telescope->azmotor->slewing || telescope->altmotor->slewing)<<3));APPEND;}
-#line 348 "command.rl"
+#line 333 "command.rl"
+	{sprintf(tmessage, "%02d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2)+((telescope->azmotor->slewing || telescope->altmotor->slewing)<<3));APPEND;}
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2526,11 +2538,11 @@ tr310:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr311:
 #line 288 "command.rl"
 	{ lxprinttime1(tmessage);APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2541,11 +2553,11 @@ tr311:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr312:
 #line 275 "command.rl"
 	{ lxprintsite();}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2556,12 +2568,12 @@ tr312:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr313:
 #line 266 "command.rl"
 	{if (telescope->mount_mode) lxprintra1(tmessage, st_current.ra);
 							else mount_lxra_str(tmessage,telescope); APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2572,11 +2584,11 @@ tr313:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr314:
 #line 289 "command.rl"
 	{ lxprintra(tmessage, sidereal_timeGMT(telescope->longitude,telescope->time_zone) * 15.0 * DEG_TO_RAD);APPEND;strcat(response,"#");}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2587,11 +2599,11 @@ tr314:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr315:
 #line 304 "command.rl"
 	{sprintf(tmessage,"50.0#");APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2602,56 +2614,11 @@ tr315:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr321:
-#line 332 "command.rl"
-	{sprintf(tmessage,"012 24 2000#") ;APPEND;}
-#line 348 "command.rl"
-	{switch (stcmd){ 
-						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
-						case 'w':conf_write(mark,WIFI_FILE);break;
-						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
-						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
-						case 'd':conf_write(mark,WHEEL_FILE);read_wheel_config();break;
-						
-						}
-						}
-	goto st321;
-tr322:
-#line 336 "command.rl"
-	{sprintf(tmessage,"43Eg#") ;APPEND;}
-#line 348 "command.rl"
-	{switch (stcmd){ 
-						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
-						case 'w':conf_write(mark,WIFI_FILE);break;
-						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
-						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
-						case 'd':conf_write(mark,WHEEL_FILE);read_wheel_config();break;
-						
-						}
-						}
-	goto st321;
-tr323:
-#line 333 "command.rl"
-	{sprintf(tmessage,"01.0#") ;APPEND;}
-#line 348 "command.rl"
-	{switch (stcmd){ 
-						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
-						case 'w':conf_write(mark,WIFI_FILE);break;
-						case 'n':conf_write(mark,NETWORK_FILE);break;
-						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
-						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
-						case 'd':conf_write(mark,WHEEL_FILE);read_wheel_config();break;
-						
-						}
-						}
-	goto st321;
-tr324:
 #line 334 "command.rl"
-	{ sprintf(tmessage,"esp32go#") ;APPEND;}
-#line 348 "command.rl"
+	{sprintf(tmessage,"012 24 2000#") ;APPEND;}
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2662,11 +2629,26 @@ tr324:
 						
 						}
 						}
-	goto st321;
-tr325:
+	goto st325;
+tr322:
+#line 338 "command.rl"
+	{sprintf(tmessage,"43Eg#") ;APPEND;}
+#line 350 "command.rl"
+	{switch (stcmd){ 
+						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
+						case 'w':conf_write(mark,WIFI_FILE);break;
+						case 'n':conf_write(mark,NETWORK_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
+						case 'd':conf_write(mark,WHEEL_FILE);read_wheel_config();break;
+						
+						}
+						}
+	goto st325;
+tr323:
 #line 335 "command.rl"
-	{sprintf(tmessage,"00:00:00#") ;APPEND;}
-#line 348 "command.rl"
+	{sprintf(tmessage,"01.0#") ;APPEND;}
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2677,11 +2659,41 @@ tr325:
 						
 						}
 						}
-	goto st321;
+	goto st325;
+tr324:
+#line 336 "command.rl"
+	{ sprintf(tmessage,"esp32go#") ;APPEND;}
+#line 350 "command.rl"
+	{switch (stcmd){ 
+						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
+						case 'w':conf_write(mark,WIFI_FILE);break;
+						case 'n':conf_write(mark,NETWORK_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
+						case 'd':conf_write(mark,WHEEL_FILE);read_wheel_config();break;
+						
+						}
+						}
+	goto st325;
+tr325:
+#line 337 "command.rl"
+	{sprintf(tmessage,"00:00:00#") ;APPEND;}
+#line 350 "command.rl"
+	{switch (stcmd){ 
+						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
+						case 'w':conf_write(mark,WIFI_FILE);break;
+						case 'n':conf_write(mark,NETWORK_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
+						case 'd':conf_write(mark,WHEEL_FILE);read_wheel_config();break;
+						
+						}
+						}
+	goto st325;
 tr326:
 #line 270 "command.rl"
 	{ lxprintaz1(tmessage, st_current.az); APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2692,11 +2704,11 @@ tr326:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr327:
 #line 303 "command.rl"
 	{sprintf(tmessage,"24#");APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2707,11 +2719,11 @@ tr327:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr328:
 #line 273 "command.rl"
 	{lxprintde1(tmessage, st_target.dec); APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2722,11 +2734,11 @@ tr328:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr329:
 #line 277 "command.rl"
 	{lxprintlong1(tmessage,telescope->longitude);APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2737,11 +2749,11 @@ tr329:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr330:
-#line 330 "command.rl"
+#line 332 "command.rl"
 	{sprintf(tmessage, telescope->is_tracking ? "1":"0");APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2752,11 +2764,11 @@ tr330:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr331:
 #line 272 "command.rl"
 	{ lxprintra1(tmessage, st_target.ra); APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2767,11 +2779,11 @@ tr331:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr332:
 #line 278 "command.rl"
 	{lxprintlat1(tmessage,telescope->lat);APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2782,7 +2794,7 @@ tr332:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr333:
 #line 266 "command.rl"
 	{if (telescope->mount_mode) lxprintra1(tmessage, st_current.ra);
@@ -2794,11 +2806,11 @@ tr333:
 	{ lxprintaz1(tmessage, st_current.az); APPEND;}
 #line 271 "command.rl"
 	{lxprintde1(tmessage, st_current.alt); APPEND;}
-#line 331 "command.rl"
-	{sprintf(tmessage, "%d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2)+((telescope->azmotor->slewing || telescope->altmotor->slewing)<<3));APPEND;}
+#line 333 "command.rl"
+	{sprintf(tmessage, "%02d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2)+((telescope->azmotor->slewing || telescope->altmotor->slewing)<<3));APPEND;}
 #line 316 "command.rl"
 	{sprintf(tmessage,"%05d#",focus_motor.position);APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2809,11 +2821,11 @@ tr333:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr339:
-#line 337 "command.rl"
+#line 339 "command.rl"
 	{setwifipad(ip3,ip2);}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2824,7 +2836,7 @@ tr339:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr346:
 #line 259 "command.rl"
 	{if (telescope->mount_mode)
@@ -2832,7 +2844,7 @@ tr346:
 					 else mount_slew(telescope);
 					 buzzerOn(300);
 					 sprintf(tmessage,"0");APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2843,11 +2855,11 @@ tr346:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr347:
 #line 257 "command.rl"
 	{mount_move(telescope,stcmd);}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2858,11 +2870,11 @@ tr347:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr353:
 #line 258 "command.rl"
 	{pulse_guide(telescope,stcmd,pulse);}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2873,11 +2885,11 @@ tr353:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr355:
 #line 320 "command.rl"
 	{sprintf(tmessage,"%s#",(telescope->parked? "1" : "0"));APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2888,11 +2900,11 @@ tr355:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr356:
 #line 264 "command.rl"
 	{mount_stop(telescope,stcmd);}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2903,11 +2915,11 @@ tr356:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr359:
 #line 265 "command.rl"
 	{select_rate(telescope,stcmd); }
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2918,11 +2930,11 @@ tr359:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr375:
 #line 297 "command.rl"
 	{set_date(min,deg,sec);}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2933,13 +2945,13 @@ tr375:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr380:
 #line 299 "command.rl"
 	{ telescope->time_zone=-deg*neg;}
 #line 276 "command.rl"
 	{sprintf(tmessage,"1");APPEND;deg=sec=min=0;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2950,11 +2962,11 @@ tr380:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr393:
 #line 302 "command.rl"
 	{set_time(deg,min,sec);}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2965,13 +2977,13 @@ tr393:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr403:
 #line 290 "command.rl"
 	{set_cmd_exe(stcmd,(neg*(deg )));
                              sprintf(tmessage,"1");APPEND;deg=sec=min=0;
                             }
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2982,11 +2994,11 @@ tr403:
 						
 						}
 						}
-	goto st321;
+	goto st325;
 tr423:
-#line 338 "command.rl"
+#line 340 "command.rl"
 	{appcmd(stcmd);APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -2997,11 +3009,11 @@ tr423:
 						
 						}
 						}
-	goto st321;
-tr425:
+	goto st325;
+tr428:
 #line 319 "command.rl"
 	{buzzerOn(300);mount_goto_home(telescope);}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -3012,11 +3024,26 @@ tr425:
 						
 						}
 						}
-	goto st321;
-tr432:
-#line 323 "command.rl"
+	goto st325;
+tr429:
+#line 329 "command.rl"
+	{set_home(telescope);}
+#line 350 "command.rl"
+	{switch (stcmd){ 
+						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
+						case 'w':conf_write(mark,WIFI_FILE);break;
+						case 'n':conf_write(mark,NETWORK_FILE);break;
+						case 't':conf_write(mark,TMC_FILE);tmcinit();break;
+						case 'f':conf_write(mark,AUX_FILE);readauxconfig();break;
+						case 'd':conf_write(mark,WHEEL_FILE);read_wheel_config();break;
+						
+						}
+						}
+	goto st325;
+tr436:
+#line 324 "command.rl"
 	{sprintf(tmessage,"%s#",(telescope->autoflip? "1" : "0"));APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -3027,11 +3054,11 @@ tr432:
 						
 						}
 						}
-	goto st321;
-tr433:
+	goto st325;
+tr437:
 #line 321 "command.rl"
 	{mount_home_set(telescope);}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -3042,11 +3069,11 @@ tr433:
 						
 						}
 						}
-	goto st321;
-tr434:
-#line 322 "command.rl"
+	goto st325;
+tr438:
+#line 323 "command.rl"
 	{sprintf(tmessage,"%s#",(get_pierside(telescope)? "WEST" : "EAST"));APPEND;}
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -3057,19 +3084,19 @@ tr434:
 						
 						}
 						}
-	goto st321;
-st321:
+	goto st325;
+st325:
 	if ( ++p == pe )
-		goto _test_eof321;
-case 321:
-#line 2487 "command.cpp"
+		goto _test_eof325;
+case 325:
+#line 2509 "command.cpp"
 	switch( (*p) ) {
-		case 6: goto tr456;
+		case 6: goto tr464;
 		case 35: goto tr213;
 		case 58: goto st152;
 	}
 	goto st150;
-tr456:
+tr464:
 #line 298 "command.rl"
 	{if (telescope->mount_mode==ALTAZ) sprintf(tmessage,"A");else if (telescope->track) sprintf(tmessage,"P"); else sprintf(tmessage,"L"); APPEND; }
 	goto st151;
@@ -3077,7 +3104,7 @@ st151:
 	if ( ++p == pe )
 		goto _test_eof151;
 case 151:
-#line 2500 "command.cpp"
+#line 2522 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr213;
 		case 58: goto st152;
@@ -3104,7 +3131,7 @@ case 152:
 		case 97: goto st296;
 		case 99: goto st297;
 		case 104: goto st299;
-		case 112: goto st301;
+		case 112: goto st303;
 	}
 	goto st150;
 st153:
@@ -3179,7 +3206,7 @@ st161:
 	if ( ++p == pe )
 		goto _test_eof161;
 case 161:
-#line 2600 "command.cpp"
+#line 2622 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr213;
 		case 43: goto st162;
@@ -3244,7 +3271,7 @@ st167:
 	if ( ++p == pe )
 		goto _test_eof167;
 case 167:
-#line 2663 "command.cpp"
+#line 2685 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3258,7 +3285,7 @@ st168:
 	if ( ++p == pe )
 		goto _test_eof168;
 case 168:
-#line 2675 "command.cpp"
+#line 2697 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3272,7 +3299,7 @@ st169:
 	if ( ++p == pe )
 		goto _test_eof169;
 case 169:
-#line 2687 "command.cpp"
+#line 2709 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3286,7 +3313,7 @@ st170:
 	if ( ++p == pe )
 		goto _test_eof170;
 case 170:
-#line 2699 "command.cpp"
+#line 2721 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3300,7 +3327,7 @@ st171:
 	if ( ++p == pe )
 		goto _test_eof171;
 case 171:
-#line 2711 "command.cpp"
+#line 2733 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3314,7 +3341,7 @@ st172:
 	if ( ++p == pe )
 		goto _test_eof172;
 case 172:
-#line 2723 "command.cpp"
+#line 2745 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr263;
 	goto st150;
@@ -3370,7 +3397,7 @@ st178:
 	if ( ++p == pe )
 		goto _test_eof178;
 case 178:
-#line 2777 "command.cpp"
+#line 2799 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3384,7 +3411,7 @@ st179:
 	if ( ++p == pe )
 		goto _test_eof179;
 case 179:
-#line 2789 "command.cpp"
+#line 2811 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3398,7 +3425,7 @@ st180:
 	if ( ++p == pe )
 		goto _test_eof180;
 case 180:
-#line 2801 "command.cpp"
+#line 2823 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3412,7 +3439,7 @@ st181:
 	if ( ++p == pe )
 		goto _test_eof181;
 case 181:
-#line 2813 "command.cpp"
+#line 2835 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3426,7 +3453,7 @@ st182:
 	if ( ++p == pe )
 		goto _test_eof182;
 case 182:
-#line 2825 "command.cpp"
+#line 2847 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3440,7 +3467,7 @@ st183:
 	if ( ++p == pe )
 		goto _test_eof183;
 case 183:
-#line 2837 "command.cpp"
+#line 2859 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr275;
 	goto st150;
@@ -3462,7 +3489,7 @@ st185:
 	if ( ++p == pe )
 		goto _test_eof185;
 case 185:
-#line 2857 "command.cpp"
+#line 2879 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3476,7 +3503,7 @@ st186:
 	if ( ++p == pe )
 		goto _test_eof186;
 case 186:
-#line 2869 "command.cpp"
+#line 2891 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3490,7 +3517,7 @@ st187:
 	if ( ++p == pe )
 		goto _test_eof187;
 case 187:
-#line 2881 "command.cpp"
+#line 2903 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3504,7 +3531,7 @@ st188:
 	if ( ++p == pe )
 		goto _test_eof188;
 case 188:
-#line 2893 "command.cpp"
+#line 2915 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3518,7 +3545,7 @@ st189:
 	if ( ++p == pe )
 		goto _test_eof189;
 case 189:
-#line 2905 "command.cpp"
+#line 2927 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3532,7 +3559,7 @@ st190:
 	if ( ++p == pe )
 		goto _test_eof190;
 case 190:
-#line 2917 "command.cpp"
+#line 2939 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr283;
 	goto st150;
@@ -3788,7 +3815,7 @@ st221:
 	if ( ++p == pe )
 		goto _test_eof221;
 case 221:
-#line 3171 "command.cpp"
+#line 3193 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr213;
 		case 46: goto st222;
@@ -3813,7 +3840,7 @@ st223:
 	if ( ++p == pe )
 		goto _test_eof223;
 case 223:
-#line 3194 "command.cpp"
+#line 3216 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr339;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3827,7 +3854,7 @@ st224:
 	if ( ++p == pe )
 		goto _test_eof224;
 case 224:
-#line 3206 "command.cpp"
+#line 3228 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr339;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3841,7 +3868,7 @@ st225:
 	if ( ++p == pe )
 		goto _test_eof225;
 case 225:
-#line 3218 "command.cpp"
+#line 3240 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr339;
 	goto st150;
@@ -3853,7 +3880,7 @@ st226:
 	if ( ++p == pe )
 		goto _test_eof226;
 case 226:
-#line 3228 "command.cpp"
+#line 3250 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr213;
 		case 46: goto st222;
@@ -3869,7 +3896,7 @@ st227:
 	if ( ++p == pe )
 		goto _test_eof227;
 case 227:
-#line 3242 "command.cpp"
+#line 3264 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr213;
 		case 46: goto st222;
@@ -3906,7 +3933,7 @@ st230:
 	if ( ++p == pe )
 		goto _test_eof230;
 case 230:
-#line 3277 "command.cpp"
+#line 3299 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr347;
 	goto st150;
@@ -3930,7 +3957,7 @@ st232:
 	if ( ++p == pe )
 		goto _test_eof232;
 case 232:
-#line 3299 "command.cpp"
+#line 3321 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3944,7 +3971,7 @@ st233:
 	if ( ++p == pe )
 		goto _test_eof233;
 case 233:
-#line 3311 "command.cpp"
+#line 3333 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3958,7 +3985,7 @@ st234:
 	if ( ++p == pe )
 		goto _test_eof234;
 case 234:
-#line 3323 "command.cpp"
+#line 3345 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3972,7 +3999,7 @@ st235:
 	if ( ++p == pe )
 		goto _test_eof235;
 case 235:
-#line 3335 "command.cpp"
+#line 3357 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -3986,7 +4013,7 @@ st236:
 	if ( ++p == pe )
 		goto _test_eof236;
 case 236:
-#line 3347 "command.cpp"
+#line 3369 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr353;
 	goto st150;
@@ -4026,7 +4053,7 @@ st240:
 	if ( ++p == pe )
 		goto _test_eof240;
 case 240:
-#line 3385 "command.cpp"
+#line 3407 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr356;
 	goto st150;
@@ -4050,7 +4077,7 @@ st242:
 	if ( ++p == pe )
 		goto _test_eof242;
 case 242:
-#line 3407 "command.cpp"
+#line 3429 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr359;
 	if ( 48 <= (*p) && (*p) <= 52 )
@@ -4112,7 +4139,7 @@ st247:
 	if ( ++p == pe )
 		goto _test_eof247;
 case 247:
-#line 3467 "command.cpp"
+#line 3489 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4126,7 +4153,7 @@ st248:
 	if ( ++p == pe )
 		goto _test_eof248;
 case 248:
-#line 3479 "command.cpp"
+#line 3501 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr213;
 		case 47: goto st249;
@@ -4149,7 +4176,7 @@ st250:
 	if ( ++p == pe )
 		goto _test_eof250;
 case 250:
-#line 3500 "command.cpp"
+#line 3522 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4163,7 +4190,7 @@ st251:
 	if ( ++p == pe )
 		goto _test_eof251;
 case 251:
-#line 3512 "command.cpp"
+#line 3534 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr213;
 		case 47: goto st252;
@@ -4186,7 +4213,7 @@ st253:
 	if ( ++p == pe )
 		goto _test_eof253;
 case 253:
-#line 3533 "command.cpp"
+#line 3555 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4200,7 +4227,7 @@ st254:
 	if ( ++p == pe )
 		goto _test_eof254;
 case 254:
-#line 3545 "command.cpp"
+#line 3567 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr375;
 	goto st150;
@@ -4235,7 +4262,7 @@ st257:
 	if ( ++p == pe )
 		goto _test_eof257;
 case 257:
-#line 3578 "command.cpp"
+#line 3600 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4249,7 +4276,7 @@ st258:
 	if ( ++p == pe )
 		goto _test_eof258;
 case 258:
-#line 3590 "command.cpp"
+#line 3612 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr380;
 		case 44: goto st259;
@@ -4282,7 +4309,7 @@ st261:
 	if ( ++p == pe )
 		goto _test_eof261;
 case 261:
-#line 3621 "command.cpp"
+#line 3643 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr380;
 		case 44: goto st259;
@@ -4320,7 +4347,7 @@ st264:
 	if ( ++p == pe )
 		goto _test_eof264;
 case 264:
-#line 3657 "command.cpp"
+#line 3679 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4334,7 +4361,7 @@ st265:
 	if ( ++p == pe )
 		goto _test_eof265;
 case 265:
-#line 3669 "command.cpp"
+#line 3691 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr213;
 		case 58: goto st266;
@@ -4357,7 +4384,7 @@ st267:
 	if ( ++p == pe )
 		goto _test_eof267;
 case 267:
-#line 3690 "command.cpp"
+#line 3712 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4371,7 +4398,7 @@ st268:
 	if ( ++p == pe )
 		goto _test_eof268;
 case 268:
-#line 3702 "command.cpp"
+#line 3724 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr213;
 		case 58: goto st269;
@@ -4394,7 +4421,7 @@ st270:
 	if ( ++p == pe )
 		goto _test_eof270;
 case 270:
-#line 3723 "command.cpp"
+#line 3745 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4408,7 +4435,7 @@ st271:
 	if ( ++p == pe )
 		goto _test_eof271;
 case 271:
-#line 3735 "command.cpp"
+#line 3757 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr393;
 	goto st150;
@@ -4420,7 +4447,7 @@ st272:
 	if ( ++p == pe )
 		goto _test_eof272;
 case 272:
-#line 3745 "command.cpp"
+#line 3767 "command.cpp"
 	switch( (*p) ) {
 		case 32: goto st273;
 		case 35: goto tr213;
@@ -4448,7 +4475,7 @@ st274:
 	if ( ++p == pe )
 		goto _test_eof274;
 case 274:
-#line 3771 "command.cpp"
+#line 3793 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4462,7 +4489,7 @@ st275:
 	if ( ++p == pe )
 		goto _test_eof275;
 case 275:
-#line 3783 "command.cpp"
+#line 3805 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr213;
 		case 47: goto st276;
@@ -4486,7 +4513,7 @@ st277:
 	if ( ++p == pe )
 		goto _test_eof277;
 case 277:
-#line 3805 "command.cpp"
+#line 3827 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4502,7 +4529,7 @@ st278:
 	if ( ++p == pe )
 		goto _test_eof278;
 case 278:
-#line 3818 "command.cpp"
+#line 3840 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr213;
 		case 46: goto st279;
@@ -4527,7 +4554,7 @@ st280:
 	if ( ++p == pe )
 		goto _test_eof280;
 case 280:
-#line 3841 "command.cpp"
+#line 3863 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr403;
 	goto st150;
@@ -4548,7 +4575,7 @@ st282:
 	if ( ++p == pe )
 		goto _test_eof282;
 case 282:
-#line 3860 "command.cpp"
+#line 3882 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4564,7 +4591,7 @@ st283:
 	if ( ++p == pe )
 		goto _test_eof283;
 case 283:
-#line 3873 "command.cpp"
+#line 3895 "command.cpp"
 	switch( (*p) ) {
 		case 35: goto tr403;
 		case 44: goto st284;
@@ -4609,7 +4636,7 @@ st287:
 	if ( ++p == pe )
 		goto _test_eof287;
 case 287:
-#line 3916 "command.cpp"
+#line 3938 "command.cpp"
 	switch( (*p) ) {
 		case 32: goto st288;
 		case 35: goto tr213;
@@ -4646,7 +4673,7 @@ st289:
 	if ( ++p == pe )
 		goto _test_eof289;
 case 289:
-#line 3951 "command.cpp"
+#line 3973 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4660,7 +4687,7 @@ st290:
 	if ( ++p == pe )
 		goto _test_eof290;
 case 290:
-#line 3963 "command.cpp"
+#line 3985 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr415;
 	if ( (*p) < 58 ) {
@@ -4695,7 +4722,7 @@ st292:
 	if ( ++p == pe )
 		goto _test_eof292;
 case 292:
-#line 3996 "command.cpp"
+#line 4018 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 57 )
@@ -4711,7 +4738,7 @@ st293:
 	if ( ++p == pe )
 		goto _test_eof293;
 case 293:
-#line 4009 "command.cpp"
+#line 4031 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr419;
 	goto st281;
@@ -4720,7 +4747,7 @@ tr419:
 	{set_cmd_exe(stcmd,(neg*(deg )));
                              sprintf(tmessage,"1");APPEND;deg=sec=min=0;
                             }
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -4731,14 +4758,14 @@ tr419:
 						
 						}
 						}
-	goto st322;
-st322:
+	goto st326;
+st326:
 	if ( ++p == pe )
-		goto _test_eof322;
-case 322:
-#line 4031 "command.cpp"
+		goto _test_eof326;
+case 326:
+#line 4053 "command.cpp"
 	switch( (*p) ) {
-		case 6: goto tr456;
+		case 6: goto tr464;
 		case 35: goto tr213;
 		case 58: goto st152;
 	}
@@ -4746,7 +4773,7 @@ case 322:
 		goto tr404;
 	goto st150;
 tr415:
-#line 348 "command.rl"
+#line 350 "command.rl"
 	{switch (stcmd){ 
 						case 's':conf_write(mark,MOUNT_FILE); readconfig(telescope);break;
 						case 'w':conf_write(mark,WIFI_FILE);break;
@@ -4757,14 +4784,14 @@ tr415:
 						
 						}
 						}
-	goto st323;
-st323:
+	goto st327;
+st327:
 	if ( ++p == pe )
-		goto _test_eof323;
-case 323:
-#line 4055 "command.cpp"
+		goto _test_eof327;
+case 327:
+#line 4077 "command.cpp"
 	switch( (*p) ) {
-		case 6: goto tr456;
+		case 6: goto tr464;
 		case 35: goto tr213;
 		case 58: goto st152;
 	}
@@ -4779,7 +4806,7 @@ st294:
 	if ( ++p == pe )
 		goto _test_eof294;
 case 294:
-#line 4070 "command.cpp"
+#line 4092 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr415;
 	if ( (*p) < 58 ) {
@@ -4805,7 +4832,7 @@ st295:
 	if ( ++p == pe )
 		goto _test_eof295;
 case 295:
-#line 4094 "command.cpp"
+#line 4116 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr415;
 	if ( (*p) < 58 ) {
@@ -4859,7 +4886,7 @@ st298:
 	if ( ++p == pe )
 		goto _test_eof298;
 case 298:
-#line 4146 "command.cpp"
+#line 4168 "command.cpp"
 	if ( (*p) == 35 )
 		goto tr423;
 	goto st150;
@@ -4869,7 +4896,9 @@ st299:
 case 299:
 	switch( (*p) ) {
 		case 35: goto tr213;
-		case 80: goto st300;
+		case 72: goto st300;
+		case 80: goto st301;
+		case 83: goto st302;
 	}
 	goto st150;
 st300:
@@ -4877,60 +4906,58 @@ st300:
 		goto _test_eof300;
 case 300:
 	if ( (*p) == 35 )
-		goto tr425;
+		goto tr213;
+	if ( 48 <= (*p) && (*p) <= 57 )
+		goto tr427;
 	goto st150;
 st301:
 	if ( ++p == pe )
 		goto _test_eof301;
 case 301:
-	switch( (*p) ) {
-		case 35: goto tr213;
-		case 70: goto st302;
-		case 72: goto st303;
-		case 83: goto st304;
-		case 97: goto st305;
-		case 110: goto st306;
-		case 115: goto st308;
-	}
+	if ( (*p) == 35 )
+		goto tr428;
 	goto st150;
 st302:
 	if ( ++p == pe )
 		goto _test_eof302;
 case 302:
 	if ( (*p) == 35 )
-		goto tr432;
+		goto tr429;
 	goto st150;
 st303:
 	if ( ++p == pe )
 		goto _test_eof303;
 case 303:
-	if ( (*p) == 35 )
-		goto tr433;
+	switch( (*p) ) {
+		case 35: goto tr213;
+		case 70: goto st304;
+		case 72: goto st305;
+		case 83: goto st306;
+		case 97: goto st307;
+		case 110: goto st308;
+		case 115: goto st310;
+	}
 	goto st150;
 st304:
 	if ( ++p == pe )
 		goto _test_eof304;
 case 304:
 	if ( (*p) == 35 )
-		goto tr434;
+		goto tr436;
 	goto st150;
 st305:
 	if ( ++p == pe )
 		goto _test_eof305;
 case 305:
 	if ( (*p) == 35 )
-		goto tr213;
-	if ( 48 <= (*p) && (*p) <= 49 )
-		goto tr435;
+		goto tr437;
 	goto st150;
 st306:
 	if ( ++p == pe )
 		goto _test_eof306;
 case 306:
-	switch( (*p) ) {
-		case 35: goto tr213;
-		case 107: goto st307;
-	}
+	if ( (*p) == 35 )
+		goto tr438;
 	goto st150;
 st307:
 	if ( ++p == pe )
@@ -4939,7 +4966,7 @@ case 307:
 	if ( (*p) == 35 )
 		goto tr213;
 	if ( 48 <= (*p) && (*p) <= 49 )
-		goto tr437;
+		goto tr439;
 	goto st150;
 st308:
 	if ( ++p == pe )
@@ -4947,90 +4974,125 @@ st308:
 case 308:
 	switch( (*p) ) {
 		case 35: goto tr213;
-		case 101: goto tr438;
-		case 119: goto tr438;
+		case 107: goto st309;
 	}
 	goto st150;
 st309:
 	if ( ++p == pe )
 		goto _test_eof309;
 case 309:
-	if ( (*p) == 80 )
-		goto st310;
-	goto st0;
+	if ( (*p) == 35 )
+		goto tr213;
+	if ( 48 <= (*p) && (*p) <= 49 )
+		goto tr441;
+	goto st150;
 st310:
 	if ( ++p == pe )
 		goto _test_eof310;
 case 310:
-	if ( (*p) == 35 )
-		goto tr440;
-	goto st0;
+	switch( (*p) ) {
+		case 35: goto tr213;
+		case 101: goto tr442;
+		case 119: goto tr442;
+	}
+	goto st150;
 st311:
 	if ( ++p == pe )
 		goto _test_eof311;
 case 311:
 	switch( (*p) ) {
-		case 70: goto st312;
-		case 72: goto st313;
+		case 72: goto st312;
+		case 80: goto st313;
 		case 83: goto st314;
-		case 97: goto st315;
-		case 110: goto st316;
-		case 115: goto st318;
 	}
 	goto st0;
 st312:
 	if ( ++p == pe )
 		goto _test_eof312;
 case 312:
-	if ( (*p) == 35 )
-		goto tr447;
+	if ( 48 <= (*p) && (*p) <= 57 )
+		goto tr446;
 	goto st0;
 st313:
 	if ( ++p == pe )
 		goto _test_eof313;
 case 313:
 	if ( (*p) == 35 )
-		goto tr448;
+		goto tr447;
 	goto st0;
 st314:
 	if ( ++p == pe )
 		goto _test_eof314;
 case 314:
 	if ( (*p) == 35 )
-		goto tr449;
+		goto tr448;
 	goto st0;
 st315:
 	if ( ++p == pe )
 		goto _test_eof315;
 case 315:
-	if ( 48 <= (*p) && (*p) <= 49 )
-		goto tr450;
+	switch( (*p) ) {
+		case 70: goto st316;
+		case 72: goto st317;
+		case 83: goto st318;
+		case 97: goto st319;
+		case 110: goto st320;
+		case 115: goto st322;
+	}
 	goto st0;
 st316:
 	if ( ++p == pe )
 		goto _test_eof316;
 case 316:
-	if ( (*p) == 107 )
-		goto st317;
+	if ( (*p) == 35 )
+		goto tr455;
 	goto st0;
 st317:
 	if ( ++p == pe )
 		goto _test_eof317;
 case 317:
-	if ( 48 <= (*p) && (*p) <= 49 )
-		goto tr452;
+	if ( (*p) == 35 )
+		goto tr456;
 	goto st0;
 st318:
 	if ( ++p == pe )
 		goto _test_eof318;
 case 318:
+	if ( (*p) == 35 )
+		goto tr457;
+	goto st0;
+st319:
+	if ( ++p == pe )
+		goto _test_eof319;
+case 319:
+	if ( 48 <= (*p) && (*p) <= 49 )
+		goto tr458;
+	goto st0;
+st320:
+	if ( ++p == pe )
+		goto _test_eof320;
+case 320:
+	if ( (*p) == 107 )
+		goto st321;
+	goto st0;
+st321:
+	if ( ++p == pe )
+		goto _test_eof321;
+case 321:
+	if ( 48 <= (*p) && (*p) <= 49 )
+		goto tr460;
+	goto st0;
+st322:
+	if ( ++p == pe )
+		goto _test_eof322;
+case 322:
 	switch( (*p) ) {
-		case 101: goto tr453;
-		case 119: goto tr453;
+		case 101: goto tr461;
+		case 119: goto tr461;
 	}
 	goto st0;
 	}
-	_test_eof319: cs = 319; goto _test_eof; 
+	_test_eof323: cs = 323; goto _test_eof; 
 	_test_eof1: cs = 1; goto _test_eof; 
 	_test_eof2: cs = 2; goto _test_eof; 
 	_test_eof3: cs = 3; goto _test_eof; 
@@ -5175,14 +5237,14 @@ case 318:
 	_test_eof142: cs = 142; goto _test_eof; 
 	_test_eof143: cs = 143; goto _test_eof; 
 	_test_eof144: cs = 144; goto _test_eof; 
-	_test_eof320: cs = 320; goto _test_eof; 
+	_test_eof324: cs = 324; goto _test_eof; 
 	_test_eof145: cs = 145; goto _test_eof; 
 	_test_eof146: cs = 146; goto _test_eof; 
 	_test_eof147: cs = 147; goto _test_eof; 
 	_test_eof148: cs = 148; goto _test_eof; 
 	_test_eof149: cs = 149; goto _test_eof; 
 	_test_eof150: cs = 150; goto _test_eof; 
-	_test_eof321: cs = 321; goto _test_eof; 
+	_test_eof325: cs = 325; goto _test_eof; 
 	_test_eof151: cs = 151; goto _test_eof; 
 	_test_eof152: cs = 152; goto _test_eof; 
 	_test_eof153: cs = 153; goto _test_eof; 
@@ -5326,8 +5388,8 @@ case 318:
 	_test_eof291: cs = 291; goto _test_eof; 
 	_test_eof292: cs = 292; goto _test_eof; 
 	_test_eof293: cs = 293; goto _test_eof; 
-	_test_eof322: cs = 322; goto _test_eof; 
-	_test_eof323: cs = 323; goto _test_eof; 
+	_test_eof326: cs = 326; goto _test_eof; 
+	_test_eof327: cs = 327; goto _test_eof; 
 	_test_eof294: cs = 294; goto _test_eof; 
 	_test_eof295: cs = 295; goto _test_eof; 
 	_test_eof296: cs = 296; goto _test_eof; 
@@ -5353,12 +5415,16 @@ case 318:
 	_test_eof316: cs = 316; goto _test_eof; 
 	_test_eof317: cs = 317; goto _test_eof; 
 	_test_eof318: cs = 318; goto _test_eof; 
+	_test_eof319: cs = 319; goto _test_eof; 
+	_test_eof320: cs = 320; goto _test_eof; 
+	_test_eof321: cs = 321; goto _test_eof; 
+	_test_eof322: cs = 322; goto _test_eof; 
 
 	_test_eof: {}
 	_out: {}
 	}
 
-#line 444 "command.rl"
+#line 447 "command.rl"
 
 
 //---------------------------------------------------------------------------------------------------------------------

@@ -8,7 +8,7 @@
 #include "sntp.h"
 #include "fysetc.h"
 //#include "tmc.h"
-#define   RTC_IC RTC_DS3231
+//#define   RTC_IC RTC_DS3231
 //#define   RTC_IC RTC_DS1307
 #define   RTC_NVRAM 0   //writing nvram interval in seconds (only when tracking),if 0 disables.
 #if RTC_IC==RTC_DS3231
@@ -25,13 +25,13 @@
 #define SCL_PIN 22
 #define BUZZER_PIN 26
 #define BUZZER_PWM 10 // 5 to 10 is LOW VOLUME
-#define RA_preTrack // EQ ONLY! end RA GOTOs always according to tracking
+//#define RA_preTrack // EQ ONLY! end RA GOTOs always according to tracking
 ///-------------------------------------------------------------
 #define TMC_DRIVERS   //uncomment if using tmc driver
-//#define STEP_FOCUS   // uncomment when using 3d driver for focuser //comment when tb6612
+#define STEP_FOCUS   // uncomment when using 3d driver for focuser //comment when tb6612
 //#define M_STEP         //uncomment when TB6612 microsteppig 
 //#define FYSECT_BRD   //uncommnet for FYSECT 3D-printer board
-//#define PROTO  //uncomment for not Angel´s board
+#define PROTO  //uncomment for not Angel´s board
 //-----------------------------------------------
 #ifdef FYSECT_BRD
 #define CLOCK_OUT_AZ X_STEP

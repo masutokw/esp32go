@@ -37,6 +37,7 @@ void tmc_boot(void) {
 #ifdef TMC_DRIVERS
 
   Serial2.begin(115200, SERIAL_8N1, TMC_SERIAL_RX_PIN, TMC_SERIAL_TX_PIN);
+ // Serial2.setDebugOutput(false);
   //Serial2.begin(115200, SERIAL_8N1, 35, 19);
   driver_ra.begin();
   driver_dec.begin();

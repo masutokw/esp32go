@@ -1,3 +1,4 @@
+#include "Arduino.h"
 #include "mount.h"
 #include "misc.h"
 #include <Ticker.h>
@@ -64,6 +65,8 @@ mount_t *create_mount(void) {
   m->parked = 0;
   init_motor(m->azmotor, AZ_ID, AZ_RED, SID_RATE_RAD, m->prescaler, m->maxspeed[0], 412, 0, 0);
   init_motor(m->altmotor, ALT_ID, ALT_RED, 0, m->prescaler, m->maxspeed[1], 412, 0, 0);
+  m->alt_home = 45.0;
+  m->az_home = 90.0;
   return m;
 }
 
@@ -133,16 +136,13 @@ void eq_track(mount_t *mt1) {
       mt1->azmotor->targetspeed = -(speed) + (SID_RATE_RAD);
     } else {
 #ifdef RA_preTrack
-      if(pretrack && true_target != 0)
-      {
+      if (pretrack && true_target != 0) {
         mt1->azmotor->target = true_target;
         pretrack = false;
         true_target = 0;
         return;
-      }
-      else
-      {
-        mt1->azmotor->targetspeed = mt1->track_speed;  // * mt1->track;  
+      } else {
+        mt1->azmotor->targetspeed = mt1->track_speed;  // * mt1->track;
       }
 #else
       mt1->azmotor->targetspeed = mt1->track_speed;  // * mt1->track;
@@ -151,7 +151,7 @@ void eq_track(mount_t *mt1) {
     }
   }
 
-  if (home_goto && mt1->parked && !mt1->altmotor->slewing && abs(mt1->azmotor->targetspeed) < abs(mt1->track_speed)) // goto HOME ends here
+  if (home_goto && mt1->parked && !mt1->altmotor->slewing && abs(mt1->azmotor->targetspeed) < abs(mt1->track_speed))  // goto HOME ends here
   {
     home_goto = false;
     mt1->azmotor->slewing = 0;
@@ -159,10 +159,14 @@ void eq_track(mount_t *mt1) {
   }
   if (slew && !(mt1->altmotor->slewing || mt1->azmotor->slewing))
     buzzerOn(300);
-
 }
 
+void set_home(mount_t *mt) {
 
+  mt->az_home = mt->azmotor->position * RAD_TO_DEG;
+  mt->alt_home = mt->altmotor->position * RAD_TO_DEG;
+  save_home(mt);
+}
 
 
 int goto_ra_dec(mount_t *mt, double ra, double dec) {
@@ -186,7 +190,7 @@ int sync_ra_dec(mount_t *mt) {
   else
     setpositionf(mt->altmotor, (M_2PI + st_current.alt));
   mt->sync = FALSE;
- // sync_target=true;
+  // sync_target=true;
   return 1;
 }
 
@@ -374,11 +378,10 @@ int mount_slew(mount_t *mt) {
   }
 
 #ifdef RA_preTrack
-  if( mt->azmotor->position > calc_Ra(mt->azmotor->target, mt->longitude) )
-  {
+  if (mt->azmotor->position > calc_Ra(mt->azmotor->target, mt->longitude)) {
     pretrack = true;
     true_target = mt->azmotor->target;
-    mt->azmotor->target = mt->azmotor->target+0.025;
+    mt->azmotor->target = mt->azmotor->target + 0.025;
   }
 #endif
 
@@ -518,7 +521,8 @@ void mount_goto_home(mount_t *mt) {
     case ALTAZ:
       mt->parked = 1;
       az_goto = true;
-      set_star(&st_target, 90.0, 0.0, (mt->lat > 0) ? 0.0 : 180.0, abs(mt->lat), 0);
+      //  set_star(&st_target, 90.0, 0.0, (mt->lat > 0) ? 0.0 : 180.0, abs(mt->lat), 0);
+      set_star(&st_target, 90.0, 0.0, mt->az_home, abs(mt->alt_home), 0);
       break;
     case ALIGN:
       set_star(&st_target, 90.0, 0.0, 00.0, 90 * sign(mt->lat), 0);
@@ -528,9 +532,11 @@ void mount_goto_home(mount_t *mt) {
 #ifdef NCP_HOME
       mt->altmotor->target = ((mt->lat > 0) ? (M_PI / 2) : (M_PI * 1.5)) + 5e-6;
 #else
-      mt->altmotor->target = M_PI;
+                                                     //mt->altmotor->target = M_PI;
+      mt->altmotor->target = mt->alt_home * DEG_TO_RAD;
 #endif
-      mt->fix_ra_target = mt->azmotor->target = M_PI / 2;
+      //  mt->fix_ra_target = mt->azmotor->target = M_PI / 2;
+      mt->fix_ra_target = mt->azmotor->target = mt->az_home * DEG_TO_RAD;
       mt->azmotor->slewing = mt->altmotor->slewing = true;
       mt->track = 0;
       mt->is_tracking = 0;
@@ -550,11 +556,11 @@ void mount_home_set(mount_t *mt)
   switch (mt->mount_mode) {
     case ALTAZ:
       if (mt->lat > 0)
-        setpositionf(mt->azmotor, M_PI);
+        setpositionf(mt->azmotor, mt->az_home * DEG_TO_RAD);
       else
-        setpositionf(mt->azmotor, 0.0);
+        setpositionf(mt->azmotor, mt->az_home * DEG_TO_RAD);
       delay(10);
-      setpositionf(mt->altmotor, M_PI / 4);
+      setpositionf(mt->altmotor, mt->alt_home * DEG_TO_RAD);
       break;
     case ALIGN:
       setpositionf(mt->azmotor, (3.0 * M_PI / 2.0));
@@ -567,9 +573,12 @@ void mount_home_set(mount_t *mt)
 
 
 #else
-      setpositionf(mt->altmotor, M_PI);
+      //setpositionf(mt->altmotor, M_PI);
+      setpositionf(mt->altmotor, mt->alt_home * DEG_TO_RAD);
+
 #endif
-      setpositionf(mt->azmotor, M_PI / 2);
+      // setpositionf(mt->azmotor, M_PI / 2);
+      setpositionf(mt->azmotor, mt->az_home * DEG_TO_RAD);
 
       break;
   }
@@ -665,8 +674,7 @@ void track(mount_t *mt) {
     if (mt->altmotor->slewing) mt->altmotor->slewing = abs(d_alt_r) > 100 / RAD_TO_ARCS;
   }
   if (mt->sync) sync_ra_dec(mt);
-  if(az_goto && !mt->azmotor->slewing && !mt->altmotor->slewing)
-  {
+  if (az_goto && !mt->azmotor->slewing && !mt->altmotor->slewing) {
     az_goto = false;
     buzzerOn(300);
   }
@@ -759,4 +767,75 @@ void load_saved_pos(void) {
 
   } else
     azcounter = altcounter = focus_motor.position = focus_motor.target = 0;
+}
+
+void load_home(mount_t *mt) {
+  File f;
+  if (SPIFFS.exists("/home.config")) {
+    String s;
+    f = SPIFFS.open("/home.config", "r");
+    s = f.readStringUntil('\n');
+    mt->az_home = s.toDouble();
+    s = f.readStringUntil('\n');
+    mt->alt_home = s.toDouble();
+  }
+}
+void save_home(mount_t *mt) {
+  File f = SPIFFS.open("/home.config", "w");
+  f.println(mt->az_home);
+  f.println(mt->alt_home);
+  f.close();
+}
+
+void mount_fix_home(char fc, mount_t *mt) {
+  if (mt->mount_mode == EQ)
+    switch (fc) {
+      case '0':
+        if (mt->lat >= 0.0) {
+          mt->az_home = 0.0;
+          mt->alt_home = 90.0;
+        } else {
+          mt->az_home = 180;
+          mt->alt_home = 180.0;
+        }
+        break;
+      case '1':
+        mt->az_home = 180;
+        mt->alt_home = 180 - mt->lat;
+        break;
+      case '2':
+        mt->az_home = 90.0;
+        mt->alt_home = 180;
+        break;
+      case '3':
+        mt->az_home = 90.0;
+        mt->alt_home = 0.0;
+        break;
+    }
+  else
+    switch (fc) {
+      case '0':
+        if (mt->lat >= 0.0) {
+          mt->az_home = 0.0;
+          mt->alt_home = abs(mt->lat);
+        } else {
+          mt->az_home = 180.0;
+          mt->alt_home = abs(mt->lat);
+        }
+        break;
+      case '1':
+        mt->az_home = 180.0;
+        mt->alt_home = 90;
+        break;
+      case '2':
+        mt->az_home = 90.0;
+        mt->alt_home = 0.0;
+        break;
+      case '3':
+        mt->az_home = 270.0;
+        mt->alt_home = 0.0;
+        break;
+    }
+
+  save_home(mt);
 }

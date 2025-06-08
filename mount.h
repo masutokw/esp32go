@@ -34,6 +34,7 @@ typedef struct
   motor_t *altmotor, *azmotor;
   double dec_target, ra_target;  //radians
   double alt_target, az_target;
+  double az_home,alt_home;
   double lat, longitude;
   double rate[4][2];
   double prescaler;
@@ -49,6 +50,7 @@ typedef struct
   int hmf;
   double fix_ra_target;
   char parked;
+
 } mount_t;
 
 mount_t *create_mount(void);
@@ -80,4 +82,8 @@ void meridianflip(mount_t *mt, int side);
 void set_track_speed(mount_t *mt, int index);
 void load_saved_pos(void);
 void mount_goto_home(mount_t *mt);
+void set_home(mount_t *mt);
+void load_home(mount_t *mt);
+void save_home(mount_t *mt);
+void mount_fix_home(char fc, mount_t *mt);
 #endif

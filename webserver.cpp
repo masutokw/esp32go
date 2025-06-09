@@ -337,7 +337,7 @@ void handleNetwork(void) {
   }
   String msg, ip, mask, gate, dns;
   if (serverweb.hasArg("IP") && serverweb.hasArg("MASK") && serverweb.hasArg("GATEWAY") && serverweb.hasArg("DNS") && serverweb.hasArg("OTAB")) {
-    String net = serverweb.arg("IP") + "\n" + serverweb.arg("MASK") + "\n" + serverweb.arg("GATEWAY") + "\n" + serverweb.arg("DNS") + "\n" + serverweb.arg("OTAB") + "\n" + (serverweb.arg("BT") != "" ? serverweb.arg("BT") : "0") + "\n" + (serverweb.arg("AP") != "" ? serverweb.arg("AP") : "0") + "\n";
+    String net = serverweb.arg("IP") + "\n" + serverweb.arg("MASK") + "\n" + serverweb.arg("GATEWAY") + "\n" + serverweb.arg("DNS") + "\n" + serverweb.arg("OTAB") + "\n" + (serverweb.arg("BT")!="" ? serverweb.arg("BT"):"0") + "\n" + (serverweb.arg("AP")!="" ? serverweb.arg("AP"):"0") + "\n" + serverweb.arg("AP_SSID") + "\n" ;
     File f = SPIFFS.open(NETWORK_FILE, "w");
     if (!f) {
       net = ("file open failed");
@@ -350,7 +350,8 @@ void handleNetwork(void) {
     msg += "\n" + serverweb.arg("DNS");
     msg += "\n" + serverweb.arg("OTAB");
     msg += "\n" + serverweb.arg("BT");
-    msg += "\n" + serverweb.arg("AP") + "\n";
+    msg += "\n" + serverweb.arg("AP");
+    msg += "\n" + serverweb.arg("AP_SSID") + "\n";
   }
   String content = "<html><style>" BUTTTEXTT "</style>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/network' method='POST'><h2>Network Config</h2>";
   content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Login  information:</legend>";
@@ -366,6 +367,7 @@ void handleNetwork(void) {
   content += "<tr><td colspan='2'>OTA on boot</td><td colspan='3'><input type='number' name='OTAB' class=\"text_red\" value='" + String(otab) + "'></td></tr>";
   content += "<tr><td colspan='2'>Bluetooth on boot</td><td colspan='3'><input type='checkbox' name='BT' class=\"text_red\" value='1' " + String(bt_on ? "checked" : "") + "></td></tr>";
   content += "<tr><td colspan='2'>SoftAP on boot</td><td colspan='3'><input type='checkbox' name='AP' class=\"text_red\" value='1' " + String(ap_on ? "checked" : "") + "></td></tr>";
+  content += "<tr><td colspan='2'>SoftAP SSID</td><td colspan='3'><input type='text' name='AP_SSID' class=\"text_red\" value='" + ap_ssid + "'></td></tr>"; 
   content += "</table>";
 
   content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Save'></fieldset></form>" + msg + "<br>";
@@ -795,7 +797,8 @@ void handleAux() {
 </table>\
 <input type='submit' name='SUBMIT' class=\"button_red\" value='Save'>\
 </fieldset>\
-<br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button>\
+<br><button onclick=\"location.href='/focus'\" class=\"button_red\" type=\"button\">Focuser set</button>\
+<br><br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button>\
 </form>\
 </body></html>",
            focus_motor.max_steps, aux_motor.max_steps, rconv(focus_motor.speed_low), rconv(aux_motor.speed_low), rconv(focus_motor.speed), rconv(aux_motor.speed),
@@ -868,10 +871,10 @@ void handlewheelcgf() {
 
   //snprintf(temp,800,
   char tmp[4500] = "<html><style>" BUTTTEXTT TEXTT3 "</style>" AUTO_SIZE
-                   "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/wheelconfig' method='POST'><h2>Aux Motors</h2>\
-<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Focuser</legend>\
+                   "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/wheelconfig' method='POST'><h2>Filter wheel</h2>\
+<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Wheel</legend>\
 <table style='width:250px'>\
-<tr><th>Param</th> <th>Focus</th><th>Aux</th></tr>";
+<tr><th>Slot</th> <th>Filter</th><th>Counter</th></tr>";
   int n = 0;
   for (n = 0; n < 9; n++) {
     snprintf(tbl, 600, "<tr><td>Slot %d:</td><td><input type='text' name='NAME%d' class=\"text_red\" value='%s'></td>\

@@ -78,6 +78,7 @@ mount_t* telescope;
 c_star volatile st_now, st_target, st_current, st_1, st_2;
 String ssi;
 String pwd;
+String ap_ssid;
 Ticker speed_control_tckr, counters_poll_tkr;
 extern long command(char* str);
 time_t now;
@@ -346,6 +347,10 @@ void setup() {
     otab = f.readStringUntil('\n').toInt();
     bt_on = f.readStringUntil('\n').toInt();
     ap_on = f.readStringUntil('\n').toInt();
+    ap_ssid = f.readStringUntil('\n');
+    ap_ssid.trim();
+    if(ap_ssid.length() < 3)
+      ap_ssid=String(SSID_AP);
     f.close();
   }
   if (!sta_ok || ap_on) {
@@ -355,7 +360,11 @@ void setup() {
     } else {
       WiFi.mode(WIFI_AP_STA);
     }
-    WiFi.softAP(SSID_AP, PASS_AP);
+    //WiFi.softAP(SSID_AP, PASS_AP);
+    if(!WiFi.softAP(ap_ssid.c_str(), PASS_AP)) {
+      ap_ssid=String(SSID_AP);
+      WiFi.softAP(SSID_AP, PASS_AP);
+    }
   }
   if (bt_on) {
     SerialBT.begin(BT_NAME + String(baseMac[4], HEX) + "_" + String(baseMac[5], HEX));

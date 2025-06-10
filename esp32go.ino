@@ -291,6 +291,12 @@ void setup() {
 #ifdef OLED_DISPLAY
   oled_initscr();
 #endif
+#ifdef NUNCHUCK_CONTROL
+  pinMode(SDA_PIN, INPUT_PULLUP);
+  pinMode(SCL_PIN, INPUT_PULLUP);
+  delay(10);
+  nunchuck_init(SDA_PIN, SCL_PIN);
+#endif
 #ifdef RTC_IC
   if (!rtc.begin()) {
     Serial.println("Couldn't find RTC");
@@ -537,15 +543,6 @@ void setup() {
   pad_Init();
 #endif  //PAD
 
-#ifdef NUNCHUCK_CONTROL
-  pinMode(SDA_PIN, INPUT_PULLUP);
-  pinMode(SCL_PIN, INPUT_PULLUP);
-  nunchuck_init(SDA_PIN, SCL_PIN);
-#ifdef OLED_DISPLAY
-  nunchuck_init(SDA_PIN, SCL_PIN);  // si no se inicializa otra vez, no se detecta bien el nunchuck al inicio cuando esta el OLED activado
-#endif
-
-#endif
 #ifdef OTA
   if (otab) InitOTA();
 #endif

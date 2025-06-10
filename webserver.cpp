@@ -463,6 +463,7 @@ void handleFocus(void) {
   content += "<td><input type='number' step='1' name='FOCUS' class=\"text_red\" value='" + String(focus_motor.target) + "'></td></tr>";
   content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Set'></form>"
              "<br>";
+  content += "<button onclick=\"location.href='/aux'\" class=\"button_red\" type=\"button\">Back</button><br><br>";
   content += "<button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Home</button><br>";
   // content += "Timer1 " + String(stepcounter1) + "<br>";
   //content += "Timer2 " + String(stepcounter2) + "<br>";

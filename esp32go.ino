@@ -345,8 +345,11 @@ void setup() {
     if (sta_ok)
       WiFi.config(ip, gateway, subnet, dns);
     otab = f.readStringUntil('\n').toInt();
-    bt_on = f.readStringUntil('\n').toInt();
-    ap_on = f.readStringUntil('\n').toInt();
+    if(tmp_value != "")
+      bt_on = tmp_value.toInt();
+    tmp_value = f.readStringUntil('\n');
+    if(tmp_value != "")
+      ap_on = tmp_value.toInt();
     ap_ssid = f.readStringUntil('\n');
     ap_ssid.trim();
     if(ap_ssid.length() < 3)

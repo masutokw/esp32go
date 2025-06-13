@@ -102,20 +102,20 @@ void handleConfig(void) {
            "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/config' method='POST'><h2>ESP32go NUNCHUK</h2>\
 <fieldset style=\"width:15%; border-radius:15px\"> <legend>Mount parameters:</legend><table style='width:250px'>\
 <tr><th><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Main</button></th><th>Azimuth</th><th>Altitude</th></tr>\
-<tr><td>Counter</td><td> <input type='number' name='MAXCOUNTER' class=\"text_red\" value='%d'></td><td> <input type='number' name='MAXCOUNTER_ALT'  class=\"text_red\" value='%d'></td></tr>\
+<tr><td>Msteps</td><td> <input type='number' name='MAXCOUNTER' class=\"text_red\" value='%d'></td><td> <input type='number' name='MAXCOUNTER_ALT'  class=\"text_red\" value='%d'></td></tr>\
 </table><br>\
-<table style='width:250px'><tr><th>Rate X</th><th>RA/AZ</th><th>Dec/Alt</th></tr>\
+<table style='width:250px'><tr><th>Speeds</th><th>RA/AZ</th><th>Dec/Alt</th></tr>\
 <tr><td>Guide</td><td><input type='number' step='0.01' name='GUIDE' class=\"text_red\" value='%.2f'></td><td><input type='number' step='0.01' name='GUIDEA' class=\"text_red\" value='%.2f'></td></tr>\
 <tr><td>Center</td><td><input type='number' step='0.01' name='CENTER' class=\"text_red\" value='%.2f'></td><td><input type='number' step='0.01' name='CENTERA'  class=\"text_red\" value='%.2f'></td></tr>\
 <tr><td>Find</td><td><input type='number' step='0.01' name='FIND' class=\"text_red\" value='%.2f'></td><td><input type='number' step='0.01' name='FINDA' class=\"text_red\" value='%.2f'></td></tr>\
 <tr><td>Slew</td><td><input type='number' step='0.01' name='SLEW' class=\"text_red\" value='%.2f'></td><td><input type='number' step='0.01' name='SLEWA' class=\"text_red\" value='%.2f'></td></tr>\
 <tr><td>Ramp</td><td><input type='number' step='0.01' name='RAMP' class=\"text_red\" value='%.2f'></td><td><input type='number' step='0.01' name='RAMPA' class=\"text_red\" value='%.2f'></td></tr>\
-<tr><td>BackSlash</td><td><input type='number' step='1' name='BACK_AZ' class=\"text_red\" value='%d'></td><td><input type='number' step='1' name='BACK_ALT' class=\"text_red\" value='%d'></td></tr>\
+<tr><td>Backlash</td><td><input type='number' step='1' name='BACK_AZ' class=\"text_red\" value='%d'></td><td><input type='number' step='1' name='BACK_ALT' class=\"text_red\" value='%d'></td></tr>\
 <tr><td>Prescaler</td><td><input type='number' step='0.0001' name='PRESCALER' class=\"text_red\" value='%.5f' uSec</td></tr>\
 <tr><td>EQ Track</td><td><input type='number' min='0' max='4' title='0.No track 1-Sideral 2-Solar 3-Lunar 4-King.' step='1' name='TRACK'  class=\"text_red\" value ='%d' </td></tr>\
 <tr><td>EQ<input type='radio' name='MOUNT' value='0'   %s ></td><td>ALT-AZ<input type='radio' name='MOUNT' value='1' %s ></td><td>EQ2-stars<input type='radio' name='MOUNT' value='2' %s ></td></tr>\
 <tr><td>FLIP<input type='checkbox' name='AUTOFLIP' value='1'  %s ></td><td>Invert Az<input type='checkbox' name='INVAZ' value='1' %s ></td><td>Invert Alt<input type='checkbox' name='INVALT' value='1' %s ></td></tr>\
-<tr><td>AZ<input type='checkbox' name='ACTAZ' value='1' %s></td><td>ALT<input type='checkbox' name='ACTALT' value='1' %s  ></td></tr>\
+<tr><td colspan=2>Active backlash AZ<input type='checkbox' name='ACTAZ' value='1' %s></td><td>ALT<input type='checkbox' name='ACTALT' value='1' %s  ></td></tr>\
 </table><input type='submit' name='SUBMIT' class=\"button_red\" value='Save'></fieldset>\
 ",
            telescope->azmotor->maxcounter, telescope->altmotor->maxcounter,
@@ -458,7 +458,7 @@ void handleFocus(void) {
     move_to(&focus_motor, focus_motor.target, focus_motor.speed);
   }
   String content = "<html><head><style>" BUTT TEXTT "</style>" AUTO_SIZE "</head><body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>Focus</h2><br>";
-  content += "Estado : " + String(focus_motor.position) + "<br>" + "<form action='/focus' method='POST'>";
+  content += "Status: " + String(focus_motor.position) + "<br>" + "<form action='/focus' method='POST'>";
 
   content += "<td><input type='number' step='1' name='FOCUS' class=\"text_red\" value='" + String(focus_motor.target) + "'></td></tr>";
   content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Set'></form>"
@@ -580,8 +580,8 @@ void handleMain(void) {
   content += "<table style='width:250px'>";
   content += "<button onclick=\"location.href='/config'\" class=\"button_red\"   type=\"button\">Mount</button>&ensp; ";
   content += "<button onclick=\"location.href='/network'\" class=\"button_red\"   type=\"button\">WLAN&Network</button><br>";
-  content += "<button onclick=\"location.href='/aux'\" class=\"button_red\" type=\"button\">Focus</button>&ensp;";
-  content += "<button onclick=\"location.href='/wheelconfig'\" class=\"button_red\" type=\"button\">Filter Wheel</button>&ensp;";
+  content += "<button onclick=\"location.href='/aux'\" class=\"button_red\" type=\"button\">Focus&Aux</button>&ensp;";
+  content += "<button onclick=\"location.href='/wheelconfig'\" class=\"button_red\" type=\"button\">Filter Wheel Slots</button>&ensp;";
   content += "<button onclick=\"location.href='/update'\" class=\"button_red\" type=\"button\">Firmware</button>&ensp;";
   content += "<button onclick=\"location.href='/homecfg'\" class=\"button_red\" type=\"button\">Home Set</button>&ensp;";
 #ifdef TMC_DRIVERS
@@ -598,7 +598,7 @@ void handleMain(void) {
   content += "<button onclick=\"location.href='/track?TRACK=1'\" class=\"button_red\" type=\"button\">Track On</button>&ensp;";
   content += "<button onclick=\"location.href='/track?TRACK=0'\" class=\"button_red\" type=\"button\">Track Off</button><br>";
   content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">2 stars align</button><br>";
-  content += "<button onclick=\"location.href='/wheel'\"class=\"button_red\" type=\"button\">Filter Wheel</button></table></fieldset>";
+  content += "<button onclick=\"location.href='/wheel'\"class=\"button_red\" type=\"button\">Filter selection (Wheel)</button></table></fieldset>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Control set</legend>";
   content += "<table style='width:250px'>";
 #ifdef IR_CONTROL
@@ -693,7 +693,7 @@ void handleTmc(void) {
 <td><input type='number' name='z_t'class=\"text_red\"  value='%d'></td>\
 <td><input type='number' name='e_t'class=\"text_red\"  value='%d'></td></tr>\
 </tr>\
-<tr><td>Stcycle</td>\
+<tr><td>Spcycle</td>\
 <td><input type='checkbox' name='ra_spread' value='1' %s></ td>\
 <td><input type='checkbox' name='de_spread' value='1' %s></ td>\
 <td><input type='checkbox' name='z_spread' value='1' %s></ td>\
@@ -778,10 +778,10 @@ void handleAux() {
   snprintf(temp, 4500,
            "<html><style>" BUTTTEXTT TEXTT3 "</style>" AUTO_SIZE
            "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/aux' method='POST'><h2>Aux Motors</h2>\
-<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Focuser</legend>\
+<fieldset style=\"width:15% ; border-radius:15px;\">\
 <table style='width:250px'>\
 <tr><th>Param</th> <th>Focus</th><th>Aux</th></tr>\
-<tr><td>Focus Max:</td><td><input type='number'step='1' name='FOCUSMAX' class=\"text_red\" value='%d'></td>\
+<tr><td>Max travel:</td><td><input type='number'step='1' name='FOCUSMAX' class=\"text_red\" value='%d'></td>\
 <td><input type='number'step='1' name='AUXMAX' class=\"text_red\" value='%d'></td></tr>\
 <tr><td>Low Speed:</td><td><input type='number'step='1' name='FOCUSPEEDLOW' class=\"text_red\" value='%d'></td>\
 <td><input type='number'step='1' name='AUXSPEEDLOW' class=\"text_red\" value='%d'></td></tr>\

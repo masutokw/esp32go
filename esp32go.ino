@@ -291,6 +291,12 @@ void setup() {
 #ifdef OLED_DISPLAY
   oled_initscr();
 #endif
+#ifdef NUNCHUCK_CONTROL
+  pinMode(SDA_PIN, INPUT_PULLUP);
+  pinMode(SCL_PIN, INPUT_PULLUP);
+  delay(10);
+  nunchuck_init(SDA_PIN, SCL_PIN);
+#endif
 #ifdef RTC_IC
   if (!rtc.begin()) {
     Serial.println("Couldn't find RTC");
@@ -345,8 +351,11 @@ void setup() {
     if (sta_ok)
       WiFi.config(ip, gateway, subnet, dns);
     otab = f.readStringUntil('\n').toInt();
-    bt_on = f.readStringUntil('\n').toInt();
-    ap_on = f.readStringUntil('\n').toInt();
+    if(tmp_value != "")
+      bt_on = tmp_value.toInt();
+    tmp_value = f.readStringUntil('\n');
+    if(tmp_value != "")
+      ap_on = tmp_value.toInt();
     ap_ssid = f.readStringUntil('\n');
     ap_ssid.trim();
     if(ap_ssid.length() < 3)
@@ -534,15 +543,6 @@ void setup() {
   pad_Init();
 #endif  //PAD
 
-#ifdef NUNCHUCK_CONTROL
-  pinMode(SDA_PIN, INPUT_PULLUP);
-  pinMode(SCL_PIN, INPUT_PULLUP);
-  nunchuck_init(SDA_PIN, SCL_PIN);
-#ifdef OLED_DISPLAY
-  nunchuck_init(SDA_PIN, SCL_PIN);  // si no se inicializa otra vez, no se detecta bien el nunchuck al inicio cuando esta el OLED activado
-#endif
-
-#endif
 #ifdef OTA
   if (otab) InitOTA();
 #endif

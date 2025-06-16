@@ -26,6 +26,7 @@
 #define BUZZER_PIN 26
 #define BUZZER_PWM 10 // 5 to 10 is LOW VOLUME
 //#define RA_preTrack // EQ ONLY! end RA GOTOs always according to tracking
+//#define MOONLITE_FOCUS // emulate moonlite focuser protocol for main focuser at port 10009 (must be an stepper, STEP_FOCUS must be ON)
 ///-------------------------------------------------------------
 #define TMC_DRIVERS   //uncomment if using tmc driver
 #define STEP_FOCUS   // uncomment when using 3d driver for focuser //comment when tb6612

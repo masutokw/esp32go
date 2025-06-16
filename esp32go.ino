@@ -12,6 +12,9 @@
 #include "tmc.h"
 #include "esp32-hal-ledc.h"
 #include "wheel.h"
+#ifdef MOONLITE_FOCUS
+#include "moonlite_focus.h"
+#endif
 //Comment out undesired Feature at conf.h
 #define FORMAT_SPIFFS_IF_FAILED true
 #ifdef NUNCHUCK_CONTROL
@@ -351,6 +354,7 @@ void setup() {
     if (sta_ok)
       WiFi.config(ip, gateway, subnet, dns);
     otab = f.readStringUntil('\n').toInt();
+    String tmp_value = f.readStringUntil('\n');
     if(tmp_value != "")
       bt_on = tmp_value.toInt();
     tmp_value = f.readStringUntil('\n');
@@ -562,6 +566,9 @@ void setup() {
   // delay(300);
   // buzzerOff();
 #endif
+#ifdef MOONLITE_FOCUS
+  moonlite_init();
+#endif
 }
 
 void loop() {
@@ -620,6 +627,10 @@ void loop() {
     rtc.writenvram(RTC_NVADDR + 4, (uint8_t*)&altcounter, 4);
 #endif
   }
+#endif
+#ifdef MOONLITE_FOCUS
+  if(counter % 2 == 0)
+    moonlite_handle();
 #endif
   //step_out(stepcounter++ % 8);
   counter++;

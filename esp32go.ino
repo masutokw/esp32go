@@ -24,6 +24,10 @@
 #include <TMCStepper.h>
 //extern TMC_DEVICE driver_ra, driver_dec, driver_z, driver_e;
 #endif
+#ifdef MOONLITE_FOCUS
+int moonlite_index = -1;
+extern String moon_response;
+#endif
 volatile int stepcounter1, stepcounter2;
 uint64_t volatile period_az, period_alt;
 int volatile azcounter, altcounter, azbackcounter, altbackcounter;
@@ -233,7 +237,17 @@ int net_task(void) {
           size_t n = serverClients[i].available();
           serverClients[i].readBytes(buff, n);
           buff[n] = 0;
-          command(buff);
+#ifdef MOONLITE_FOCUS
+          if (strncmp(buff, ":GV#", 4) == 0) {
+            moonlite_index = i;
+          }
+          if (i == moonlite_index) {
+            moonlite_cmd(buff);
+            // moonclient.write(moon_response.c_str());
+            serverClients[i].write(moon_response.c_str());
+          } else
+#endif
+        { command(buff);
 #ifdef LX200TRACE
           Serial.write((const uint8_t*)buff, strlen(buff));
           Serial.print("   ");
@@ -244,7 +258,7 @@ int net_task(void) {
           Serial.write((const uint8_t*)response, strlen(response));
           Serial.println();
 #endif
-          //checkfsm();
+         } //checkfsm();
         }
       }
     } else if (serverClients[i]) {
@@ -355,15 +369,15 @@ void setup() {
       WiFi.config(ip, gateway, subnet, dns);
     otab = f.readStringUntil('\n').toInt();
     String tmp_value = f.readStringUntil('\n');
-    if(tmp_value != "")
+    if (tmp_value != "")
       bt_on = tmp_value.toInt();
     tmp_value = f.readStringUntil('\n');
-    if(tmp_value != "")
+    if (tmp_value != "")
       ap_on = tmp_value.toInt();
     ap_ssid = f.readStringUntil('\n');
     ap_ssid.trim();
-    if(ap_ssid.length() < 3)
-      ap_ssid=String(SSID_AP);
+    if (ap_ssid.length() < 3)
+      ap_ssid = String(SSID_AP);
     f.close();
   }
   if (!sta_ok || ap_on) {
@@ -374,8 +388,8 @@ void setup() {
       WiFi.mode(WIFI_AP_STA);
     }
     //WiFi.softAP(SSID_AP, PASS_AP);
-    if(!WiFi.softAP(ap_ssid.c_str(), PASS_AP)) {
-      ap_ssid=String(SSID_AP);
+    if (!WiFi.softAP(ap_ssid.c_str(), PASS_AP)) {
+      ap_ssid = String(SSID_AP);
       WiFi.softAP(SSID_AP, PASS_AP);
     }
   }
@@ -629,7 +643,7 @@ void loop() {
   }
 #endif
 #ifdef MOONLITE_FOCUS
-  if(counter % 2 == 0)
+  if (counter % 2 == 0)
     moonlite_handle();
 #endif
   //step_out(stepcounter++ % 8);

@@ -793,7 +793,7 @@ void mount_fix_home(char fc, mount_t *mt) {
       case '0':
         if (mt->lat >= 0.0) {
           //mt->az_home = 0.0;
-          mt->az_home = 90.0; // M_PI / 2 * RAD_TO_DEG;
+          mt->az_home = 90.0003; // M_PI / 2 * RAD_TO_DEG;
           mt->alt_home = 90.0;
         } else {
           mt->az_home = 180;
@@ -826,7 +826,7 @@ void mount_fix_home(char fc, mount_t *mt) {
         break;
       case '1':
         mt->az_home = 180.0;
-        mt->alt_home = 90;
+        mt->alt_home = 89.0;
         break;
       case '2':
         mt->az_home = 90.0;

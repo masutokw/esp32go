@@ -353,6 +353,26 @@ void handleNetwork(void) {
     msg += "\n" + serverweb.arg("AP");
     msg += "\n" + serverweb.arg("AP_SSID") + "\n";
   }
+
+  IPAddress localip=WiFi.localIP();
+  IPAddress gateway=WiFi.gatewayIP();
+  IPAddress subnet=WiFi.subnetMask();
+  IPAddress dnsserver=WiFi.dnsIP();
+
+  if(localip.toString()="0.0.0.0")
+  {
+    if (SPIFFS.exists(NETWORK_FILE)) 
+    {
+      File f;
+      f = SPIFFS.open(NETWORK_FILE, "r");
+      localip.fromString(f.readStringUntil('\n'));
+      subnet.fromString(f.readStringUntil('\n'));
+      gateway.fromString(f.readStringUntil('\n'));
+      dnsserver.fromString(f.readStringUntil('\n'));
+      f.close();
+    }
+  }
+
   String content = "<html><style>" BUTTTEXTT "</style>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/network' method='POST'><h2>Network Config</h2>";
   content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Login  information:</legend>";
   content += "<table style='width:250px'>";
@@ -360,10 +380,10 @@ void handleNetwork(void) {
   content += "<tr><td>Password:</td><td><input type='password' name='PASSWORD' class=\"text_red\" value='" + pwd + "'></td></tr></table></fieldset>";
 
   content += "<fieldset style=\"width:15%;border-radius:15px\"><legend>Network</legend><table style='width:200px'>";
-  content += "<tr><td>IP</td><td><input type='text' name='IP' class=\"text_red\" value='" + WiFi.localIP().toString() + "'></td></td>";
-  content += "<td><td>MASK</td><td><input type='test' name='MASK'class=\"text_red\"  value='" + WiFi.subnetMask().toString() + "'></td></tr>";
-  content += "<tr><td>Gateway</td><td><input type='text' name='GATEWAY' class=\"text_red\" value='" + WiFi.gatewayIP().toString() + "'></td></td>";
-  content += "<td><td>DNS</td><td><input type='test' name='DNS' class=\"text_red\"  value='" + WiFi.dnsIP().toString() + "'></td></tr>";
+  content += "<tr><td>IP</td><td><input type='text' name='IP' class=\"text_red\" value='" + localip.toString() + "'></td></td>";
+  content += "<td><td>MASK</td><td><input type='test' name='MASK'class=\"text_red\"  value='" + subnet.toString() + "'></td></tr>";
+  content += "<tr><td>Gateway</td><td><input type='text' name='GATEWAY' class=\"text_red\" value='" + gateway.toString() + "'></td></td>";
+  content += "<td><td>DNS</td><td><input type='test' name='DNS' class=\"text_red\"  value='" + dnsserver.toString() + "'></td></tr>";
   content += "<tr><td colspan='2'>OTA on boot</td><td colspan='3'><input type='number' name='OTAB' class=\"text_red\" value='" + String(otab) + "'></td></tr>";
   content += "<tr><td colspan='2'>Bluetooth on boot</td><td colspan='3'><input type='checkbox' name='BT' class=\"text_red\" value='1' " + String(bt_on ? "checked" : "") + "></td></tr>";
   content += "<tr><td colspan='2'>SoftAP on boot</td><td colspan='3'><input type='checkbox' name='AP' class=\"text_red\" value='1' " + String(ap_on ? "checked" : "") + "></td></tr>";

@@ -562,7 +562,7 @@ void setup() {
 #endif  //PAD
 
 #ifdef OTA
-  if (otab) InitOTA();
+  if (otab) InitOTA(ap_ssid);
 #endif
 #ifdef IR_CONTROL
   ir_init();

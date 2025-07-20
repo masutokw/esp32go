@@ -338,6 +338,7 @@ long command( char *str )
 		action a_firm {sprintf(tmessage,"43Eg#") ;APPEND;}
 		action  set_ip {setwifipad(ip3,ip2);}
 		action cmd_app {appcmd(stcmd);APPEND;}
+		action restart_device{mount_park(telescope);ESP.restart();}
 		action syncmode {if ((fc>='0')&&(fc<'3'))telescope->smode=fc-'0';
 						else if ((fc=='3')&&(telescope->mount_mode>EQ)){
 							 telescope->is_tracking = FALSE;
@@ -432,7 +433,8 @@ long command( char *str )
 #app commands
 		cgfsend=[zagjATFD]@storecmd %cmd_app;
 		cgfwrite=[snwtfd]@markinput extend* %writeconf ;
-		Appcmd= 'c'(cgfsend | cgfwrite);
+		restart='RR'%restart_device;
+		Appcmd= 'c'(cgfsend | cgfwrite| restart);
 		
 		
 

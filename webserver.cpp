@@ -353,16 +353,15 @@ void handleNetwork(void) {
     msg += "\n" + serverweb.arg("AP");
     msg += "\n" + serverweb.arg("AP_SSID") + "\n";
   }
-  String content = "<html><style>" BUTTTEXTT "</style>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/network' method='POST'><h2>Network Config</h2>";
-    IPAddress localip=WiFi.localIP();
+  msg += "\n current local IP:"+WiFi.localIP().toString()+"\n";
+
+  IPAddress localip=WiFi.localIP();
   IPAddress gateway=WiFi.gatewayIP();
   IPAddress subnet=WiFi.subnetMask();
   IPAddress dnsserver=WiFi.dnsIP();
 
-  if(localip.toString()="0.0.0.0")
+  if (SPIFFS.exists(NETWORK_FILE)) 
   {
-    if (SPIFFS.exists(NETWORK_FILE)) 
-    {
       File f;
       f = SPIFFS.open(NETWORK_FILE, "r");
       localip.fromString(f.readStringUntil('\n'));
@@ -370,8 +369,9 @@ void handleNetwork(void) {
       gateway.fromString(f.readStringUntil('\n'));
       dnsserver.fromString(f.readStringUntil('\n'));
       f.close();
-    }
   }
+
+  String content = "<html><style>" BUTTTEXTT "</style>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/network' method='POST'><h2>Network Config</h2>";
   content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Login  information:</legend>";
   content += "<table style='width:250px'>";
   content += "<tr><td>SSID</td><td><input type='text' name='SSID' class=\"text_red\" value='" + ssi + "'></td></tr> ";

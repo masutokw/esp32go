@@ -465,22 +465,102 @@ void handleIr(void) {
   serverweb.send(200, "text/html", content);
 }
 #endif
+
+void handleFocusPos(void) {
+  String net="";
+  String msg;
+  if (serverweb.hasArg("MOVE")) {
+    net = serverweb.arg("MOVE");
+    focus_motor.target = net.toInt();
+    move_to(&focus_motor, focus_motor.target, focus_motor.speed);
+    msg = "Focus moved to position " + net;
+  }
+  int memfocus[6];
+  if (SPIFFS.exists(FOCUSPOS_FILE)) 
+  {
+    File f;
+    f = SPIFFS.open(FOCUSPOS_FILE, "r");
+    for(int i=0;i<=5; i++)
+      memfocus[i]=f.readStringUntil('\n').toInt();
+    f.close();
+  }
+
+  String content = "<html><head><style>" BUTT TEXTT "</style>" AUTO_SIZE "</head><body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>Focus position</h2><br>";
+  content += "<form action='/focuspos' method='POST'>";
+  content += "<select name='MOVE' id='MOVE'>";
+  for (int g = 0; g <= 5; g++) {
+    content += "<option value='" + String(memfocus[g]) + "' " + (net == String(memfocus[g]) ? "selected" : "") + ">M" + String(g+1) + "</option>";
+  }
+  content += "</select><input type='submit' name='SUBMIT'  class=\"button_red\" value='Move focus'>";
+  content += "</form><br>" + msg;
+  content += "<button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>";
+  content += "</body></html>";
+
+  serverweb.send(200, "text/html", content);
+
+}
+
+
 void handleFocus(void) {
+  int memfocus[6];
   if (serverweb.hasArg("FOCUS")) {
+    int action=0;
     String net = serverweb.arg("FOCUS");
-    focus_motor.position = focus_motor.target = focus_motor.target = net.toInt();
+    if(serverweb.hasArg("ACTION"))
+      action=serverweb.arg("ACTION").toInt();
+    if(action > 0)
+    {
+      if (SPIFFS.exists(FOCUSPOS_FILE)) 
+      {
+        File f;
+        f = SPIFFS.open(FOCUSPOS_FILE, "r");
+        for(int i=0;i<=5; i++)
+          memfocus[i]=f.readStringUntil('\n').toInt();
+        f.close();
+      }
+      String msg;
+      for(int i=0;i<=5; i++)
+        msg += ((action-1)==i ? String(focus_motor.position):String(memfocus[i]))+"\n";
+      File f = SPIFFS.open(FOCUSPOS_FILE, "w");
+      f.println(msg);
+      f.close();
+    }
+    else
+    {
+      focus_motor.position = focus_motor.target = focus_motor.target = net.toInt();
+    }
   }
   if (serverweb.hasArg("MOVE")) {
     String net = serverweb.arg("MOVE");
     focus_motor.target = net.toInt();
     move_to(&focus_motor, focus_motor.target, focus_motor.speed);
   }
-  String content = "<html><head><style>" BUTT TEXTT "</style>" AUTO_SIZE "</head><body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>Focus</h2><br>";
+
+  if (SPIFFS.exists(FOCUSPOS_FILE)) 
+  {
+    File f;
+    f = SPIFFS.open(FOCUSPOS_FILE, "r");
+    for(int i=0;i <=5; i++)
+      memfocus[i]=f.readStringUntil('\n').toInt();
+    f.close();
+  }
+
+  String content = "<html><head><style>" BUTT TEXTT "</style>" AUTO_SIZE "</head><body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\">";
+  content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Focus</legend>";
   content += "Status: " + String(focus_motor.position) + "<br>" + "<form action='/focus' method='POST'>";
 
   content += "<td><input type='number' step='1' name='FOCUS' class=\"text_red\" value='" + String(focus_motor.target) + "'></td></tr>";
-  content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Set'></form>"
-             "<br>";
+  content += "<input type='hidden' name='ACTION' value='0'>";
+  content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Set as current position'><br>";
+  content += "</fieldset><br>";
+  content += "<fieldset style=\"width:15% ; border-radius:15px\"> <legend>Set current position as</legend>";
+  content += "<input type='submit' name='SUBMIT1'  class=\"button_red\" value='M1' onclick='document.forms[0].elements[\"ACTION\"].value=1;'>&nbsp;&nbsp;Current:&nbsp;"+String(memfocus[0])+"<br>";
+  content += "<input type='submit' name='SUBMIT2'  class=\"button_red\" value='M2' onclick='document.forms[0].elements[\"ACTION\"].value=2;'>&nbsp;&nbsp;Current:&nbsp;"+String(memfocus[1])+"<br>";
+  content += "<input type='submit' name='SUBMIT3'  class=\"button_red\" value='M3' onclick='document.forms[0].elements[\"ACTION\"].value=3;'>&nbsp;&nbsp;Current:&nbsp;"+String(memfocus[2])+"<br>";
+  content += "<input type='submit' name='SUBMIT4'  class=\"button_red\" value='M4' onclick='document.forms[0].elements[\"ACTION\"].value=4;'>&nbsp;&nbsp;Current:&nbsp;"+String(memfocus[3])+"<br>";
+  content += "<input type='submit' name='SUBMIT5'  class=\"button_red\" value='M5' onclick='document.forms[0].elements[\"ACTION\"].value=5;'>&nbsp;&nbsp;Current:&nbsp;"+String(memfocus[4])+"<br>";
+  content += "<input type='submit' name='SUBMIT6'  class=\"button_red\" value='M6' onclick='document.forms[0].elements[\"ACTION\"].value=6;'>&nbsp;&nbsp;Current:&nbsp;"+String(memfocus[5])+"<br>";
+  content += "</form></fieldset><br>";
   content += "<button onclick=\"location.href='/aux'\" class=\"button_red\" type=\"button\">Back</button><br><br>";
   content += "<button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Home</button><br>";
   // content += "Timer1 " + String(stepcounter1) + "<br>";
@@ -551,6 +631,9 @@ void handleMonitor(void) {
   else mount_lxra_str(buffra, telescope);
   if (telescope->mount_mode) lxprintde(buffdec, st_current.dec);
   else mount_lxde_str(buffdec, telescope);
+  char azangle[15],altangle[15];
+  lxprintaz1(azangle,telescope->azmotor->position);
+  lxprintaz1(altangle,telescope->altmotor->position);
   buffdec[3] = ':';
   snprintf(page, 1000,
            "<html>\
@@ -564,6 +647,7 @@ void handleMonitor(void) {
 <br>Target speed: AZ:%s ALT:%s \
 <br>Parked: %d \
 <br>RA: %s<br>De: %s  \
+<br>AZ angle: %s<br>Alt angle: %s \
 <br>PEC:%d  %d<br>\
 <br>WifiPAD IP : X.X%d.%d<br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>\
  Date %s <br> %s <br> NVRAM %d %d\
@@ -572,7 +656,7 @@ void handleMonitor(void) {
            altbackcounter, clients_connected, focus_motor.position, aux_motor.position,
            telescope->azmotor->slewing, telescope->altmotor->slewing, telescope->is_tracking, telescope->track,
            String(telescope->azmotor->targetspeed, 15).c_str(), String(telescope->altmotor->targetspeed, 15).c_str(),
-           telescope->parked, &buffra, &buffdec, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times, zcount[0], zcount[1]);
+           telescope->parked, &buffra, &buffdec, &azangle, &altangle, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times, zcount[0], zcount[1]);
   serverweb.send(200, "text/html", page);
 }
 
@@ -616,6 +700,7 @@ void handleMain(void) {
   content += "<button onclick=\"location.href='/track?TRACK=1'\" class=\"button_red\" type=\"button\">Track On</button>&ensp;";
   content += "<button onclick=\"location.href='/track?TRACK=0'\" class=\"button_red\" type=\"button\">Track Off</button><br>";
   content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">2 stars align</button><br>";
+  content += "<button onclick=\"location.href='/focuspos'\"class=\"button_red\" type=\"button\">Focus</button>";
   content += "<button onclick=\"location.href='/wheel'\"class=\"button_red\" type=\"button\">Filter selection (Wheel)</button></table></fieldset>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Control set</legend>";
   content += "<table style='width:250px'>";
@@ -997,6 +1082,7 @@ void initwebserver(void) {
   serverweb.on("/network", handleNetwork);
   serverweb.on("/meridian", handleMeridian);
   serverweb.on("/focus", handleFocus);
+  serverweb.on("/focuspos", handleFocusPos);
   serverweb.on("/config", handleConfig);
   serverweb.on("/", handleMain);
   serverweb.on("/main", handleMain);

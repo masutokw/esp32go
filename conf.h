@@ -188,6 +188,7 @@
 #define TMC_FILE "/tmc.config"
 #define IANA_FILE "/iana.config"
 #define AUX_FILE "/focus.config"
+#define FOCUSPOS_FILE "/focuspos.config"
 #define WHEEL_FILE "/wheel.config"
 #define SSID_AP  "ESP32go"
 #define PASS_AP  "boquerones"

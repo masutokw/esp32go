@@ -94,6 +94,8 @@ char counter;
 int wifi_pad_IP3 = 0;
 int wifi_pad_IP2 = 0;
 bool NTP_Sync = false;
+extern char sync_target;
+bool reinited = false;
 void timeavailable(struct timeval* t) {
   //Serial.println("Got time adjustment from NTP!");
   NTP_Sync = true;
@@ -101,6 +103,23 @@ void timeavailable(struct timeval* t) {
 #ifdef RTC_IC
   rtc.adjust(DateTime(time(nullptr)));
 #endif
+//------------
+// reset mount
+if(!reinited)
+{
+  reinited = true;
+    if (telescope->mount_mode == EQ) {
+      sdt_init(telescope->longitude, telescope->time_zone);
+    } else {
+      telescope->is_tracking = FALSE;
+      sync_target = TRUE;
+      tak_init(telescope);
+      //telescope->is_tracking = TRUE;
+      telescope->azmotor->targetspeed = 0.0;
+      telescope->altmotor->targetspeed = 0.0;
+    }
+}
+//------------
 }
 
 void IRAM_ATTR nunchuk_reset() {

@@ -1016,7 +1016,7 @@ void handlehomecfg() {
   if (serverweb.hasArg("SYNC")) {
     set_home(telescope);
 
-    msg = "Home set to actual telescope Position";
+    msg = "Home set to current telescope Position";
   } else
 
     if (serverweb.hasArg("HOME")) {
@@ -1036,19 +1036,53 @@ void handlehomecfg() {
       case '3':
         net = "West";
         break;
+      case '4':
+        net = "Polar-East";
+        break;
     }
     msg = " Changed to " + net;
   }
 
+  home_index=get_home_index();
+  String hi = "NONE";
+  switch (home_index) {
+      case '0':
+        hi = "Polar";
+        break;
+      case '1':
+        hi = "Zenit";
+        break;
+      case '2':
+        hi = "East";
+        break;
+      case '3':
+        hi = "West";
+        break;
+      case '4':
+        hi = "Polar-East";
+        break;
+      case '9':
+        hi = "Custom";
+        break;
+      default:
+        home_index = 'x';
+  }
 
-  String content = "<html><head><style>" BUTT TEXTT "</style>" AUTO_SIZE "</head><body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>Mount Home Config</h2><br>";
+  String content = "<html><head><style>" BUTT TEXTT "</style>" AUTO_SIZE "</head><body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>Mount Home Config</h2>";
+  if(hi != "NONE")
+  {
+    content += "Current value: " + hi;
+    if(home_index != 'x')
+      content += " ("+String(telescope->az_home)+" / "+String(telescope->alt_home)+")";
+  }
+  content += "<br><br>";
   content += "<form action='/homecfg' method='POST'>";
   content += "<select name='HOME' id='lang'>";
-
   content += "<option value='0' >Polar</option>";
-  content += "<option value='1' >Zenith</option>";
-  content += "<option value='2' >East</option>";
-  content += "<option value='3' >West</option>";
+  content += "<option value='4' "+String(home_index=='4' ? "selected":"")+">Polar-East</option>";
+  content += "<option value='1' "+String(home_index=='1' ? "selected":"")+">Zenith</option>";
+  content += "<option value='2' "+String(home_index=='2' ? "selected":"")+">East</option>";
+  content += "<option value='3' "+String(home_index=='3' ? "selected":"")+">West</option>";
 
 
   content += "</select><input type='submit' name='SUBMIT'  class=\"button_red\" value='Set Home'>";

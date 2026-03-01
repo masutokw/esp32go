@@ -171,7 +171,7 @@ void set_home(mount_t *mt) {
 
   mt->az_home = mt->azmotor->position * RAD_TO_DEG;
   mt->alt_home = mt->altmotor->position * RAD_TO_DEG;
-  save_home(mt);
+  save_home('9',mt);
 }
 
 
@@ -813,10 +813,11 @@ void load_home(mount_t *mt) {
     mt->alt_home = s.toDouble();
   }
 }
-void save_home(mount_t *mt) {
+void save_home(char fc, mount_t *mt) {
   File f = SPIFFS.open("/home.config", "w");
   f.println(mt->az_home);
   f.println(mt->alt_home);
+  f.println(fc);
   f.close();
 }
 
@@ -829,6 +830,16 @@ void mount_fix_home(char fc, mount_t *mt) {
           mt->az_home = 90.0; // M_PI / 2 * RAD_TO_DEG;
           mt->alt_home = 90.0003;
         } else {
+          mt->az_home = 270;
+          mt->alt_home = 269.99;
+        }
+        break;
+      case '4': // polar - east
+        if (mt->lat >= 0.0) {
+          //mt->az_home = 0.0;
+          mt->az_home = 90; // M_PI / 2 * RAD_TO_DEG;
+          mt->alt_home = 89.99;
+        } else { 
           mt->az_home = 270;
           mt->alt_home = 270.0;
         }
@@ -855,6 +866,7 @@ void mount_fix_home(char fc, mount_t *mt) {
   else
     switch (fc) {
       case '0':
+      case '4':
         if (mt->lat >= 0.0) {
           mt->az_home = 0.0;
           mt->alt_home = abs(mt->lat);
@@ -877,5 +889,19 @@ void mount_fix_home(char fc, mount_t *mt) {
         break;
     }
 
-  save_home(mt);
+  save_home(fc, mt);
+}
+
+char get_home_index(void) {
+  char fc;
+  File f;
+
+  if (!SPIFFS.exists("/home.config")) return -1;
+  f = SPIFFS.open("/home.config", FILE_READ);
+  String s = f.readStringUntil('\n');
+  s = f.readStringUntil('\n');
+  s = f.readStringUntil('\n');
+  fc=s[0];
+  f.close();
+  return fc;
 }

@@ -84,6 +84,7 @@ void load_saved_pos(void);
 void mount_goto_home(mount_t *mt);
 void set_home(mount_t *mt);
 void load_home(mount_t *mt);
-void save_home(mount_t *mt);
+void save_home(char fc, mount_t *mt);
 void mount_fix_home(char fc, mount_t *mt);
+char get_home_index(void);
 #endif

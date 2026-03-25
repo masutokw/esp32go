@@ -553,7 +553,9 @@ void mount_goto_home(mount_t *mt) {
   switch (mt->mount_mode) {
     case ALTAZ:
       mt->parked = 1;
+      mt->azmotor->slewing = mt->altmotor->slewing = true;
       az_goto = true;
+      home_goto = true;
       //  set_star(&st_target, 90.0, 0.0, (mt->lat > 0) ? 0.0 : 180.0, abs(mt->lat), 0);
       set_star(&st_target, 90.0, 0.0, mt->az_home, abs(mt->alt_home), 0);
       break;
@@ -710,6 +712,11 @@ void track(mount_t *mt) {
   if (az_goto && !mt->azmotor->slewing && !mt->altmotor->slewing) {
     az_goto = false;
     buzzerOn(300);
+    if (home_goto)
+    {
+      home_goto = false;
+      mount_park(mt);
+    }
   }
 }
 

@@ -1086,7 +1086,7 @@ void handlehomecfg() {
 
 
   content += "</select><input type='submit' name='SUBMIT'  class=\"button_red\" value='Set Home'>";
-  content += "<input type='submit' name='SYNC'  class=\"button_red\" value='Sync home'></form><br>" + msg;
+  content += "<br><br><input type='submit' name='SYNC'  class=\"button_red\" value='Set current position as home'></form><br>" + msg;
   content += "<button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>";
   content += "</body></html>";
   serverweb.send(200, "text/html", content);

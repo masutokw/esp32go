@@ -54,9 +54,9 @@ void appcmd(char cmd)
   break;
   case 'a':sprintf(tmessage,"%d",telescope->altmotor->maxcounter);
   break;
-  case 'g':sprintf(tmessage,"%f",telescope->rate[0][0]);
+  case 'g':sprintf(tmessage,"%f#",telescope->rate[0][0]);
   break;
-  case 'j':sprintf(tmessage,"%f",telescope->rate[0][1]);
+  case 'j':sprintf(tmessage,"%f#",telescope->rate[0][1]);
   break;
   case 'A':conf();
   break;

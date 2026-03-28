@@ -732,7 +732,10 @@ void handleMain(void) {
     wifiStrength(wifisignal);
     content += "<br>WiFi Signal Strength : "+ String(wifisignal);
   }
-  content += "<br>Loaded at Time :" + String(ctime(&now)) + String(NTP_Sync ? "NTP OK" : "RTC") + " Offset:" + String(getoffset()) + "<br></body></html>";
+  char version[6];
+	versionFromCompileDate(version);
+  content += "<br>Firmware date : "+String(__DATE__)+" ("+String(version)+")";
+  content += "<br>Loaded at Time : " + String(ctime(&now)) + String(NTP_Sync ? "NTP OK" : "RTC") + " Offset:" + String(getoffset()) + "<br></body></html>";
   
   serverweb.send(200, "text/html", content);
 }

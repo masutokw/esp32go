@@ -54,9 +54,9 @@ void appcmd(char cmd)
   break;
   case 'a':sprintf(tmessage,"%d",telescope->altmotor->maxcounter);
   break;
-  case 'g':sprintf(tmessage,"%f",telescope->rate[0][0]);
+  case 'g':sprintf(tmessage,"%f#",telescope->rate[0][0]);
   break;
-  case 'j':sprintf(tmessage,"%f",telescope->rate[0][1]);
+  case 'j':sprintf(tmessage,"%f#",telescope->rate[0][1]);
   break;
   case 'A':conf();
   break;
@@ -331,10 +331,17 @@ long command( char *str )
 		action return_dst{if (telescope->azmotor->slewing || telescope->altmotor->slewing) sprintf(tmessage,"|#");else sprintf(tmessage,"#") ;APPEND;}
 		action return_track{sprintf(tmessage, telescope->is_tracking ? "1":"0");APPEND;}
 		action return_tracks{sprintf(tmessage, "%02d", telescope->is_tracking +(telescope->parked <<1)+(get_pierside(telescope)<<2)+((telescope->azmotor->slewing || telescope->altmotor->slewing)<<3));APPEND;}		
-		action a_date {sprintf(tmessage,"012 24 2000#") ;APPEND;}
-		action a_number {sprintf(tmessage,"01.0#") ;APPEND;}
+		#action a_date {sprintf(tmessage,"012 24 2000#") ;APPEND;}
+		action a_date {sprintf(tmessage,"%s#",__DATE__) ;APPEND;}
+		#action a_number {sprintf(tmessage,"01.0#") ;APPEND;}
+		action a_number {
+			char version[6];
+			versionFromCompileDate(version);
+			sprintf(tmessage,"%s#",version) ;APPEND;
+		}
 		action a_product{ sprintf(tmessage,"esp32go#") ;APPEND;}
-		action a_time {sprintf(tmessage,"00:00:00#") ;APPEND;}
+		#action a_time {sprintf(tmessage,"00:00:00#") ;APPEND;}
+		action a_time {sprintf(tmessage,"%s#",__TIME__) ;APPEND;}
 		action a_firm {sprintf(tmessage,"43Eg#") ;APPEND;}
 		action  set_ip {setwifipad(ip3,ip2);}
 		action cmd_app {appcmd(stcmd);APPEND;}

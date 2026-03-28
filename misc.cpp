@@ -1,6 +1,7 @@
 #include "misc.h"
 #include "time.h"
 #include <Ticker.h>
+#include "build_defs.h"
 double sdt;
 long sdt_millis;
 extern WiFiClass Wifi;
@@ -498,4 +499,17 @@ void wifiStrength(char * signalStrengthStr)
     sprintf(temp, "%lddBm (%ld%%)", signal_strength_dbm, signal_strength_qty);
   }
   strncpy(signalStrengthStr, temp, 20); signalStrengthStr[19] = 0;
+}
+
+void versionFromCompileDate(char *version)
+{
+  char temp[80];  
+
+  sprintf(temp,"%c%c",BUILD_YEAR_CH2,BUILD_YEAR_CH3);
+  int curYear=atoi(temp);
+  sprintf(temp,"%c%c",BUILD_MONTH_CH0,BUILD_MONTH_CH1);
+  int curMonth=atoi(temp);
+  sprintf(temp, "%02d.%1x", (curYear-20), (curMonth));
+
+  strncpy(version, temp, 11); version[11] = 0; 
 }

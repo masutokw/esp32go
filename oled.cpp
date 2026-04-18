@@ -81,6 +81,9 @@ void oled_initscr(void)
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.clear();
 //  display.drawString(0, 0, "Connecting to " + String(ssid));
+  char version[6];
+	versionFromCompileDate(version);
+  display.drawString(0, 13, "ESP32go "+String(version));
   display.display();
 }
 

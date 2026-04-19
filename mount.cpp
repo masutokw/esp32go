@@ -771,6 +771,21 @@ void set_track_speed(mount_t *mt, int index) {
   }
   mt->azmotor->targetspeed = mt->track_speed;
 }
+int get_track_speed(mount_t *mt){
+  if(mt->track_speed == 0.0)
+    return 0;
+  else if(mt->track_speed == SID_RATE_RAD)
+    return 1;
+  else if(mt->track_speed == SOLAR_RATE * SEC_TO_RAD)
+    return 2;
+  else if(mt->track_speed == LUNAR_RATE * SEC_TO_RAD)
+    return 3;
+  else if(mt->track_speed == KING_RATE * SEC_TO_RAD)
+    return 4;
+  else
+    return 1; // not known, return sidereal
+}
+
 
 void load_saved_pos(void) {
   int zcount[2] = { 0, 0 };

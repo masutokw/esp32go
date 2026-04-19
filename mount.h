@@ -87,4 +87,5 @@ void load_home(mount_t *mt);
 void save_home(char fc, mount_t *mt);
 void mount_fix_home(char fc, mount_t *mt);
 char get_home_index(void);
+int get_track_speed(mount_t *mt);
 #endif

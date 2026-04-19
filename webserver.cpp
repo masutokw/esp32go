@@ -99,7 +99,7 @@ void handleConfig(void) {
   snprintf(temp, 4500,
 
            "<html><style>" BUTTTEXTT TEXTT2 "</style>" AUTO_SIZE
-           "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/config' method='POST'><h2>ESP32go NUNCHUK</h2>\
+           "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><form action='/config' method='POST'><h2>ESP32go </h2>\
 <fieldset style=\"width:15%; border-radius:15px\"> <legend>Mount parameters:</legend><table style='width:250px'>\
 <tr><th><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Main</button></th><th>Azimuth</th><th>Altitude</th></tr>\
 <tr><td>Msteps</td><td> <input type='number' name='MAXCOUNTER' class=\"text_red\" value='%d'></td><td> <input type='number' name='MAXCOUNTER_ALT'  class=\"text_red\" value='%d'></td></tr>\
@@ -680,9 +680,12 @@ void handleMain(void) {
 #ifdef IR_CONTROL
   content += " IR Control</h2>";
 #else
+#ifdef NUNCHUCK_CONTROL
   content += " NUNCHUK</h2>";
+#else
+  content += " </h2>";
 #endif
-
+#endif
   content += "Mount mode:" + mount_mode + "<br>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Config</legend>";
   content += "<table style='width:250px'>";
@@ -708,6 +711,7 @@ void handleMain(void) {
   content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">2 stars align</button><br>";
   content += "<button onclick=\"location.href='/focuspos'\"class=\"button_red\" type=\"button\">Focus</button>";
   content += "<button onclick=\"location.href='/wheel'\"class=\"button_red\" type=\"button\">Filter selection (Wheel)</button></table></fieldset>";
+#if defined(IR_CONTROL) || defined(NUNCHUCK_CONTROL) || defined(PAD)
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Control set</legend>";
   content += "<table style='width:250px'>";
 #ifdef IR_CONTROL
@@ -721,7 +725,9 @@ void handleMain(void) {
   content += "<br><button onclick=\"location.href='/home?HOME=3'\" class=\"button_red\" type=\"button\"> PAD/ST4 </button>";
   content += String(pad_enabled ? " ON" : " OFF");
 #endif
-  content += "</table></fieldset> <fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Info</legend>";
+  content += "</table></fieldset>";
+#endif
+  content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Info</legend>";
   content += "<table style='width:250px'>";
   content += "<button onclick=\"location.href='/time'\" class=\"button_red\" type=\"button\">Sync Date/Time</button>";
   content += "<button onclick=\"location.href='/monitor'\" class=\"button_red\" type=\"button\">Monitor Counters</button><br>";
@@ -735,7 +741,11 @@ void handleMain(void) {
   char version[6];
 	versionFromCompileDate(version);
   content += "<br>Firmware date : "+String(__DATE__)+" ("+String(version)+")";
-  content += "<br>Loaded at Time : " + String(ctime(&now)) + String(NTP_Sync ? "NTP OK" : "RTC") + " Offset:" + String(getoffset()) + "<br></body></html>";
+  String rtc_ok="RTC";
+#ifndef RTC_IC
+  rtc_ok="[NO RTC]";
+#endif
+  content += "<br>Loaded at Time : " + String(ctime(&now)) + String(NTP_Sync ? "NTP OK" : rtc_ok) + " Offset:" + String(getoffset()) + "<br></body></html>";
   
   serverweb.send(200, "text/html", content);
 }

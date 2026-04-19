@@ -367,6 +367,11 @@ long command( char *str )
 						}
 	action nunchuk {setnunchuk(fc);}
 	action autoflip {setflipmode(fc);}	
+	action set_sidereal {set_track_speed(telescope,1);}
+	action set_solar {set_track_speed(telescope,2);}
+	action set_lunar {set_track_speed(telescope,3);}
+	action set_king {set_track_speed(telescope,4);}
+	action return_status {sprintf(tmessage,"%c%c%c%c%d#",(telescope->is_tracking ? 'T':'t'),(telescope->parked ? 'P':'p'),(telescope->azmotor->slewing || telescope->altmotor->slewing ? 'S':'s'),(get_pierside(telescope)? 'W' : 'E'),get_track_speed(telescope)) ;APPEND;}
 # LX200  auxiliary terms syntax definitions
         sexmin =  ([0-5][0-9])$getmin@addmin ;
         sex= ([0-5][0-9] )$getsec@addsec ((('.'|',')digit{1,2}){,1})':'{0,1};
@@ -392,6 +397,7 @@ long command( char *str )
 				   'c'%return_formatTime|
 				   'k'%return_track|
 				   'K'%return_tracks|
+				   'U'%return_status|
 				   'x'%return_ra %return_dec %return_az %return_alt %return_tracks %fquery_foc );
         Move = 'M' (([nsweht]@storecmd %dir)|
                     ('S'%Goto)|
@@ -406,6 +412,11 @@ long command( char *str )
                  Timezone |
                  date |
                  time);
+
+		Track='T'(('Q'%set_sidereal)|
+                 ('S'%set_solar)|
+                 ('L'%set_lunar)|
+                 ('K'%set_king));
 
 		Align='A'(('L'%set_land)|
                  ('P'%set_polar)|
@@ -447,7 +458,7 @@ long command( char *str )
 
 		
 #main
-		main :=   ((ACK|''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar | IP_PAD | Sync_mode| Appcmd)  '#')* ;
+		main :=   ((ACK|''|'#')':'(Set | Move | Stop|Rate | Track | Sync | Poll| Focuser | Align | Park | Distance | Autostar | IP_PAD | Sync_mode| Appcmd)  '#')* ;
 		#main :=   ACK | (( ACK | ''|'#')':'(Set | Move | Stop|Rate | Sync | Poll| Focuser | Align | Park | Distance | Autostar)'#')* ;
 		
 # Initialize and execute.

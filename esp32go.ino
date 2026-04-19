@@ -189,7 +189,7 @@ void IRAM_ATTR onTimer_alt() {
 #endif
 
 #ifdef OLED_DISPLAY
-#include "SSD1306.h"
+//#include "SSD1306.h"
 #include "oled.h"
 //#include "SH1106.h"
 //SSD1306 display(0x3c, D5, D6);

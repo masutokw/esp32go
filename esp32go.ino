@@ -98,6 +98,7 @@ int wifi_pad_IP2 = 0;
 bool NTP_Sync = false;
 extern char sync_target;
 bool reinited = false;
+int buzzer_volume = 256;
 void timeavailable(struct timeval* t) {
   //Serial.println("Got time adjustment from NTP!");
   NTP_Sync = true;
@@ -346,6 +347,7 @@ void setup() {
   }
 
 #endif
+
   // SerialBT.enableSSP();
   uint8_t baseMac[6];
   esp_read_mac(baseMac, ESP_MAC_BT);
@@ -436,6 +438,24 @@ void setup() {
 
 #ifdef OLED_DISPLAY
   oled_waitscr();
+#endif
+
+#ifdef BUZZER_PWM
+  buzzer_volume=BUZZER_PWM;
+#endif
+
+#ifdef BUZZER_PIN
+  if (SPIFFS.exists(BUZZER_FILE)) 
+  {
+    File f;
+    f = SPIFFS.open(BUZZER_FILE, "r");
+    buzzer_volume=f.readStringUntil('\n').toInt();
+    f.close();
+    if(buzzer_volume > 255)
+      buzzer_volume = 255;
+    if(buzzer_volume < 0)
+      buzzer_volume = 0;
+  }
 #endif
 
   //start UART and the server

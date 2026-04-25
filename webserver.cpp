@@ -50,6 +50,7 @@ extern c_star st_current;
 extern WiFiClient serverClients[MAX_SRV_CLIENTS];
 extern bool NTP_Sync;
 extern char tzstr[50];
+extern int buzzer_volume;
 //char temp [4800];
 String getContentType(String filename) {
   if (serverweb.hasArg("download")) return "application/octet-stream";
@@ -689,8 +690,12 @@ void handleMain(void) {
   content += "Mount mode:" + mount_mode + "<br>";
   content += "<fieldset style=\"width:15% ; border-radius:15px;\"> <legend>Config</legend>";
   content += "<table style='width:250px'>";
-  content += "<button onclick=\"location.href='/config'\" class=\"button_red\"   type=\"button\">Mount</button>&ensp; ";
-  content += "<button onclick=\"location.href='/network'\" class=\"button_red\"   type=\"button\">WLAN&Network</button><br>";
+  content += "<button onclick=\"location.href='/config'\" class=\"button_red\"   type=\"button\">Mount</button>&ensp;";
+  content += "<button onclick=\"location.href='/network'\" class=\"button_red\"   type=\"button\">WLAN&Network</button>&ensp;";
+#ifdef BUZZER_PIN
+  content += "<button onclick=\"location.href='/buzzer'\" class=\"button_red\"   type=\"button\">Buzzer</button>";
+#endif
+  content += "<br>";
   content += "<button onclick=\"location.href='/aux'\" class=\"button_red\" type=\"button\">Focus&Aux</button>&ensp;";
   content += "<button onclick=\"location.href='/wheelconfig'\" class=\"button_red\" type=\"button\">Filter Wheel Slots</button>&ensp;";
   content += "<button onclick=\"location.href='/update'\" class=\"button_red\" type=\"button\">Firmware</button>&ensp;";
@@ -1130,6 +1135,50 @@ void handleTrack(void) {
   serverweb.send(200, "text/html", content);
 }
 
+void handleBuzzer(void) {
+  String txt="";
+  if (serverweb.hasArg("BUZZER")) {
+    String net = serverweb.arg("BUZZER");
+    buzzer_volume=net.toInt();
+    if(buzzer_volume > 256)
+      buzzer_volume = 256;
+    if(buzzer_volume < 0)
+      buzzer_volume = 0;
+    File f = SPIFFS.open(BUZZER_FILE, "w");
+    if (!f) {
+      net = ("file open failed");
+    } else
+      f.println(net);
+    f.close();
+    if(buzzer_volume==256) // reset pin to HIGH/LOW after PMW
+    {
+      pinMode(BUZZER_PIN, INPUT);
+      pinMode(BUZZER_PIN, OUTPUT);
+    }
+    buzzerOn(300);
+    txt = "Volume set to "+(buzzer_volume == 0 ? "OFF":(buzzer_volume == 256 ? "MAX":String(buzzer_volume)));
+  }
+
+  String content = "<html><head><style>" BUTT TEXTT2 "</style>" AUTO_SIZE "</head><body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>BUZZER VOLUME</h2><br>";
+
+  content += "<form action='/buzzer' method='POST'>";
+  content += "<table style='width:200px'><tr><td>";
+
+  content += "<select name='BUZZER' id='BUZZER'>";
+  content += "<option value='0'>OFF</option>";
+  for (int g = 256; g >= 1; g--) {
+    content += "<option value='" + String(g) + "' " + (g == buzzer_volume ? "selected" : "") + ">" + (g==256?"MAX":String(g)) + "</option>";
+  }
+  content += "</select>";
+
+  content += "</td><td>";
+  content += "<input type='submit' name='SUBMIT'  class=\"button_red\" value='Set volume'></tr></form></table>";
+  content += "<br>" + txt + "<br>";
+  content += "<button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Home</button><br>";
+  content += "</body></html>";
+  serverweb.send(200, "text/html", content);
+}
+
 void initwebserver(void) {
   serverweb.on("/park", handlePark);
   serverweb.on("/time", handleTime);
@@ -1151,6 +1200,9 @@ void initwebserver(void) {
 #endif
 #ifdef NUNCHUCK_CONTROL
   serverweb.on("/nunchuk", handleNunchuk);
+#endif
+#ifdef BUZZER_PIN
+  serverweb.on("/buzzer", handleBuzzer);
 #endif
   serverweb.on("/monitor", handleMonitor);
   serverweb.on("/starinstructions", handleStarInstructions);

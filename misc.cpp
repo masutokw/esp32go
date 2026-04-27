@@ -11,6 +11,7 @@ char tzstr[50] = TZ_SPAIN;
 Ticker buzzer_tckr;
 bool buzzer_on = false;
 unsigned long buzzer_off_at;
+extern int buzzer_volume;
 void sdt_init(double longitude, int tz)
 {
   sdt_millis = millis();
@@ -453,30 +454,34 @@ linfo.tm_isdst=0;
 */
 
 void buzzerOn(unsigned long milliseconds)
-{ char *a;
- // buzzer_on=true;
-//  buzzer_off_at=millis()+milliseconds;
+{ 
+  char *a;
+
+  if(buzzer_volume == 0) // disabled
+    return;
+
 #ifdef BUZZER_PIN
-#ifdef BUZZER_PWM
-  analogWrite(BUZZER_PIN,BUZZER_PWM);
-#else
-  digitalWrite(BUZZER_PIN, HIGH);
-#endif
+  if(buzzer_volume < 256)
+    analogWrite(BUZZER_PIN,buzzer_volume);
+  else
+    digitalWrite(BUZZER_PIN, HIGH);
+
   buzzer_tckr.once_ms( milliseconds,  buzzerOff, a);
 #endif
  
 }
 void buzzerOff(char *p)
 {
- // if( !buzzer_on || millis() < buzzer_off_at )
- //   return;
- // buzzer_on=false;
+  
+  if(buzzer_volume == 0) // disabled
+    return;
+
 #ifdef BUZZER_PIN
-#ifdef BUZZER_PWM
-  analogWrite(BUZZER_PIN,0);
-#else
-  digitalWrite(BUZZER_PIN, LOW);
-#endif
+  if(buzzer_volume < 256 )
+    analogWrite(BUZZER_PIN,0);
+  else
+    digitalWrite(BUZZER_PIN, LOW);
+
 #endif
 }
 

@@ -283,6 +283,7 @@ int mount_stop(mount_t *mt, char direction) {
         mt->azmotor->targetspeed = mt->track_speed;  //* mt->track;
         break;
     }
+    mt->is_tracking = TRUE;
   }
   return 1;
 }

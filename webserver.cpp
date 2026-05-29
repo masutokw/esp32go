@@ -671,6 +671,22 @@ void handleMain(void) {
   time_t now;
   now = time(nullptr);
   String checked = (get_pierside(telescope) ? "West" : "East");
+  String trackmode;
+  if(telescope->is_tracking == FALSE)
+  {
+    trackmode = "Off";
+  }
+  else
+  {
+    switch(get_track_speed(telescope))
+    {
+      case 0: trackmode = "Off"; break;
+      case 2: trackmode = "Solar"; break;
+      case 3: trackmode = "Lunar"; break;
+      case 4: trackmode = "King"; break;
+      default: trackmode = "Sideral";
+    }
+  }
   String mount_mode;
   switch (telescope->mount_mode) {
     case EQ: mount_mode = "EQUATORIAL"; break;
@@ -709,10 +725,14 @@ void handleMain(void) {
   content += "<button onclick=\"location.href='/meridian?SIDE=0'\" class=\"button_red\"  type=\"button\">Set EAST</button>&ensp;";
   content += "<button onclick=\"location.href='/meridian?SIDE=1'\" class=\"button_red\"  type=\"button\">Set WEST</button>&ensp;" + checked + "<br>";
   content += "<button onclick=\"location.href='/park'\" class=\"button_red\" type=\"button\">Park</button>&ensp;";
-  content += "<button onclick=\"location.href='/home?HOME=0'\" class=\"button_red\" type=\"button\">Reset  home</button>&ensp;";
+  content += "<button onclick=\"location.href='/home?HOME=0'\" class=\"button_red\" type=\"button\">Reset home</button>&ensp;";
   content += "<button onclick=\"location.href='/home?HOME=1'\" class=\"button_red\" type=\"button\">GO&Park home</button><br>";
   content += "<button onclick=\"location.href='/track?TRACK=1'\" class=\"button_red\" type=\"button\">Track On</button>&ensp;";
-  content += "<button onclick=\"location.href='/track?TRACK=0'\" class=\"button_red\" type=\"button\">Track Off</button><br>";
+  content += "<button onclick=\"location.href='/track?TRACK=0'\" class=\"button_red\" type=\"button\">Track Off</button>&ensp;" + trackmode + "<br>";
+  content += "<button onclick=\"location.href='/track?TRACKMODE=1'\" class=\"button_red\" type=\"button\">Sideral</button>&ensp;";
+  content += "<button onclick=\"location.href='/track?TRACKMODE=2'\" class=\"button_red\" type=\"button\">Solar</button>&ensp;";
+  content += "<button onclick=\"location.href='/track?TRACKMODE=3'\" class=\"button_red\" type=\"button\">Lunar</button>&ensp;";
+  content += "<button onclick=\"location.href='/track?TRACKMODE=4'\" class=\"button_red\" type=\"button\">King</button><br>";
   content += "<button onclick=\"location.href='/Align'\"class=\"button_red\" type=\"button\">2 stars align</button><br>";
   content += "<button onclick=\"location.href='/focuspos'\"class=\"button_red\" type=\"button\">Focus</button>";
   content += "<button onclick=\"location.href='/wheel'\"class=\"button_red\" type=\"button\">Filter selection (Wheel)</button></table></fieldset>";
@@ -1119,12 +1139,20 @@ void handleTrack(void) {
     if (track) {
       mount_stop(telescope, 'w');
       mount_move(telescope, 't');
+      telescope->is_tracking = TRUE;
     } else
       mount_move(telescope, 'h');
     ;
 
     msg = "Track";
   }
+  if (serverweb.hasArg("TRACKMODE")) {
+     net = serverweb.arg("TRACKMODE");
+    track = net.toInt();
+    set_track_speed(telescope,track);
+
+    msg = "Trackmode";
+  }  
 
   String content = "<html>" AUTO_SIZE "<body  bgcolor=\"#000000\" text=\"" TEXT_COLOR "\"><h2>TrackControl</h2><br>";
   content += net+"<br>";

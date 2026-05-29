@@ -30,6 +30,7 @@ bool az_goto = false;
 bool home_goto = false;
 extern boolean ongoing_pulse_ra;
 extern boolean ongoing_pulse_dec;
+extern long last_pulse;
 boolean ongoing_pulse_n = false;
 boolean ongoing_pulse_s = false;
 boolean ongoing_pulse_w = false;
@@ -342,10 +343,13 @@ void pulse_guide(mount_t *mt, char dir, int interval) {
   int invert = (get_pierside(mt)) ? -1 : 1;
   // int  sid = (srate == 0) ? 1 : -1;
   int sid = 1;
+  //if(interval > 3000) // 3 sec maximum pulse
+  //  interval = 3000;
+  last_pulse = millis();
   switch (dir) {
     case 'n':
-      if(ongoing_pulse_n)
-        break;
+      if(ongoing_pulse_n || ongoing_pulse_dec)
+        pulse_stop_dec(mt);
       ongoing_pulse_n = true;
       ongoing_pulse_dec = true;
       mt->altmotor->targetspeed = SID_RATE_RAD * mt->rate[0][1] * invert;
@@ -353,8 +357,8 @@ void pulse_guide(mount_t *mt, char dir, int interval) {
       pulse_dec_tckr.once_ms(interval, pulse_stop_dec, mt);
       break;
     case 's':
-      if(ongoing_pulse_s)
-        break;
+      if(ongoing_pulse_s || ongoing_pulse_dec)
+        pulse_stop_dec(mt);
       ongoing_pulse_s = true;
       ongoing_pulse_dec = true;
       mt->altmotor->targetspeed = -SID_RATE_RAD * mt->rate[0][1] * invert;
@@ -362,8 +366,8 @@ void pulse_guide(mount_t *mt, char dir, int interval) {
       pulse_dec_tckr.once_ms(interval, pulse_stop_dec, mt);
       break;
     case 'w':
-      if(ongoing_pulse_w)
-        break;
+      if(ongoing_pulse_w || ongoing_pulse_ra)
+        pulse_stop_ra(mt);
       ongoing_pulse_w = true;
       ongoing_pulse_ra = true;
       mt->azmotor->targetspeed = SID_RATE_RAD * (mt->rate[0][0] + sid);
@@ -371,8 +375,8 @@ void pulse_guide(mount_t *mt, char dir, int interval) {
       pulse_ra_tckr.once_ms(interval, pulse_stop_ra, mt);
       break;
     case 'e':
-      if(ongoing_pulse_e)
-        break;
+      if(ongoing_pulse_e || ongoing_pulse_ra)
+        pulse_stop_ra(mt);
       ongoing_pulse_e = true;
       ongoing_pulse_ra = true;
       mt->azmotor->targetspeed = -SID_RATE_RAD * (mt->rate[0][0] - sid);

@@ -42,6 +42,7 @@ hw_timer_t* timer_focus = NULL;
 hw_timer_t* timer_aux = NULL;
 boolean ongoing_pulse_ra = false;
 boolean ongoing_pulse_dec = false;
+long last_pulse = 0;
 #ifdef OTA
 #include <ArduinoOTA.h>
 #include "OTA_helper.hpp"
@@ -643,7 +644,7 @@ void loop() {
   serverweb.handleClient();
 
   // if guiding don't do anything else - back to looop
-  if(ongoing_pulse_ra || ongoing_pulse_dec)
+  if(ongoing_pulse_ra || ongoing_pulse_dec || (last_pulse > 0 && last_pulse + 10000 > millis()))
   {
     counter++;
     return;

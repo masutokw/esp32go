@@ -22,6 +22,7 @@ char volatile sync_stop = FALSE;
 char volatile Az_track = TRUE;
 extern stepper focus_motor;
 extern stepper aux_motor;
+double target_timestamp,st_target_ra;
 #ifdef RA_preTrack
 bool pretrack = false;
 double true_target = 0;
@@ -179,7 +180,8 @@ void set_home(mount_t *mt) {
 int goto_ra_dec(mount_t *mt, double ra, double dec) {
   mt->parked = 0;
   mt->is_tracking = TRUE;
-  st_target.ra = ra;
+ st_target.ra = st_target_ra= ra;
+  target_timestamp = ((millis() - sdt_millis) / 1000.0);
   st_target.dec = dec;
   mt->azmotor->slewing = mt->altmotor->slewing = true;
   az_goto = true;
@@ -189,7 +191,8 @@ int goto_ra_dec(mount_t *mt, double ra, double dec) {
 int sync_ra_dec(mount_t *mt) {
   st_current.timer_count = ((millis() - sdt_millis) / 1000.0);  //chrono_read(&ti);
   st_current.dec = st_target.dec = mt->dec_target;
-  st_current.ra = st_target.ra = mt->ra_target;
+  st_current.ra = st_target.ra = st_target_ra = mt->ra_target;
+   target_timestamp = ((millis() - sdt_millis) / 1000.0);
   to_alt_az(&st_current);
   setpositionf(mt->azmotor, st_current.az);
   if (st_current.alt >= 0.0)
@@ -263,7 +266,8 @@ int mount_stop(mount_t *mt, char direction) {
   } else  // mt->is_tracking = TRUE;
   {
     if (mt->parked) {
-      set_track_speed(mt, 1);
+     // set_track_speed(mt, 1);
+      set_track_speed(mt,mt->track);
       mt->parked = 0;
     }
     mt->altmotor->slewing = mt->azmotor->slewing = FALSE;
@@ -411,7 +415,8 @@ int mount_slew(mount_t *mt) {
   mt->azmotor->slewing = mt->altmotor->slewing = true;
   mt->fix_ra_target = calc_Ra(mt->azmotor->target, mt->longitude);
   if (mt->parked) {
-    set_track_speed(mt, 1);
+    //set_track_speed(mt, 1);
+    set_track_speed(mt,mt->track);
     mt->parked = 0;
   }
 
@@ -687,6 +692,8 @@ void track(mount_t *mt) {
   if ((sync_target) || (sync_stop && ((mt->azmotor->speed == 0.0) || mt->altmotor->speed == 0.0))) {
     st_target.ra = mt->ra_target = st_current.ra;
     st_target.dec = mt->dec_target = st_current.dec;
+    target_timestamp=st_current.timer_count;
+    st_target_ra=st_current.ra;
     sync_target = FALSE;
     sync_stop = FALSE;
     mt->is_tracking = Az_track;  //ultimo
@@ -697,6 +704,9 @@ void track(mount_t *mt) {
     if (!mt->parked) {
       //  st_target.timer_count += 1.0;
       st_target.timer_count += timetarget;
+      if (mt->track>1)
+           st_target.ra=st_target_ra + (st_current.timer_count -target_timestamp)*(SID_RATE_RAD - mt->track_speed);
+       
       to_alt_az(&st_target);
     }
     //compute delta values :next values from actual values for desired target coordinates

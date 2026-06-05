@@ -607,8 +607,7 @@ void handleMonitor(void) {
 
   fg = getoffset();
   sprintf(times, "UTC:%s  %d", asctime(gmtime(&t)), fg);
-
-
+  
   int enc = 0;
 #ifdef ENCODER
   if (encb) enc = read_raw_encoder();
@@ -657,13 +656,13 @@ void handleMonitor(void) {
 <br>WifiPAD IP : X.X%d.%d<br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>\
  Date %s <br> %s \
 <br>Wifi Signal Strength: %s <br>\
-<br> NVRAM %d %d\
+<br> NVRAM %d %d <br> Track: %f\"\
 </body></html>",
            telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
            altbackcounter, clients_connected, focus_motor.position, aux_motor.position,
            telescope->azmotor->slewing, telescope->altmotor->slewing, telescope->is_tracking, telescope->track,
            String(telescope->azmotor->targetspeed, 15).c_str(), String(telescope->altmotor->targetspeed, 15).c_str(),
-           telescope->parked, &buffra, &buffdec, &azangle, &altangle, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times, wifisignal, zcount[0], zcount[1]);
+           telescope->parked, &buffra, &buffdec, &azangle, &altangle, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times, wifisignal, zcount[0], zcount[1],telescope->track_speed /SEC_TO_RAD);
   serverweb.send(200, "text/html", page);
 }
 

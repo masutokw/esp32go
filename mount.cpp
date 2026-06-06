@@ -319,6 +319,7 @@ void mount_move(mount_t *mt, char dir) {
     case 't':
       Az_track = TRUE;
       timetarget = 1.0;
+	  mt->is_tracking = TRUE;
       break;
   };
 }

@@ -22,7 +22,7 @@ char volatile sync_stop = FALSE;
 char volatile Az_track = TRUE;
 extern stepper focus_motor;
 extern stepper aux_motor;
-double target_timestamp,st_target_ra;
+double target_timestamp,st_target_ra,st_target_dec;
 #ifdef RA_preTrack
 bool pretrack = false;
 double true_target = 0;
@@ -182,7 +182,7 @@ int goto_ra_dec(mount_t *mt, double ra, double dec) {
   mt->is_tracking = TRUE;
  st_target.ra = st_target_ra= ra;
   target_timestamp = ((millis() - sdt_millis) / 1000.0);
-  st_target.dec = dec;
+  st_target.dec = st_target_dec= dec;
   mt->azmotor->slewing = mt->altmotor->slewing = true;
   az_goto = true;
   return 1;
@@ -190,7 +190,7 @@ int goto_ra_dec(mount_t *mt, double ra, double dec) {
 
 int sync_ra_dec(mount_t *mt) {
   st_current.timer_count = ((millis() - sdt_millis) / 1000.0);  //chrono_read(&ti);
-  st_current.dec = st_target.dec = mt->dec_target;
+  st_current.dec = st_target.dec = st_target_dec = mt->dec_target;
   st_current.ra = st_target.ra = st_target_ra = mt->ra_target;
    target_timestamp = ((millis() - sdt_millis) / 1000.0);
   to_alt_az(&st_current);
@@ -319,6 +319,7 @@ void mount_move(mount_t *mt, char dir) {
     case 't':
       Az_track = TRUE;
       timetarget = 1.0;
+       mt->is_tracking = TRUE;
       break;
   };
 }
@@ -704,9 +705,10 @@ void track(mount_t *mt) {
     if (!mt->parked) {
       //  st_target.timer_count += 1.0;
       st_target.timer_count += timetarget;
-      if (mt->track>1)
-           st_target.ra=st_target_ra + (st_current.timer_count -target_timestamp)*(SID_RATE_RAD - mt->track_speed);
-       
+      if (mt->track>1){
+        st_target.ra=st_target_ra + (st_current.timer_count -target_timestamp)*(SID_RATE_RAD - mt->track_speed);
+     //   st_target.dec=st_target_dec + 0.15 * SEC_TO_RAD*(st_current.timer_count -target_timestamp);
+      }
       to_alt_az(&st_target);
     }
     //compute delta values :next values from actual values for desired target coordinates

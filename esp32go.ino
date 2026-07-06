@@ -100,6 +100,7 @@ bool NTP_Sync = false;
 extern char sync_target;
 bool reinited = false;
 int buzzer_volume = 256;
+bool check_lunar_rate = false;
 void timeavailable(struct timeval* t) {
   //Serial.println("Got time adjustment from NTP!");
   NTP_Sync = true;
@@ -695,6 +696,8 @@ void loop() {
   if (counter % 2 == 0)
     moonlite_handle();
 #endif
+  if ((counter % 10) && check_lunar_rate)
+    updateLunarRate(telescope);
   //step_out(stepcounter++ % 8);
   counter++;
 }

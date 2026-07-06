@@ -36,6 +36,12 @@ boolean ongoing_pulse_n = false;
 boolean ongoing_pulse_s = false;
 boolean ongoing_pulse_w = false;
 boolean ongoing_pulse_e = false;
+
+#include <Ephemeris.h>
+double lunar_rate = LUNAR_RATE;
+double lunar_rate_dec = 0;
+extern bool check_lunar_rate;
+
 mount_t *create_mount(void) {
   int maxcounter = AZ_RED;
   int maxcounteralt = ALT_RED;
@@ -695,6 +701,7 @@ void track(mount_t *mt) {
     st_target.dec = mt->dec_target = st_current.dec;
     target_timestamp=st_current.timer_count;
     st_target_ra=st_current.ra;
+    st_target_dec=st_current.dec;
     sync_target = FALSE;
     sync_stop = FALSE;
     mt->is_tracking = Az_track;  //ultimo
@@ -706,8 +713,19 @@ void track(mount_t *mt) {
       //  st_target.timer_count += 1.0;
       st_target.timer_count += timetarget;
       if (mt->track>1){
-        st_target.ra=st_target_ra + (st_current.timer_count -target_timestamp)*(SID_RATE_RAD - mt->track_speed);
-     //   st_target.dec=st_target_dec + 0.15 * SEC_TO_RAD*(st_current.timer_count -target_timestamp);
+        //st_target.ra=st_target_ra + (st_current.timer_count -target_timestamp)*(SID_RATE_RAD - mt->track_speed);
+        if(mt->track == 3 && lunar_rate_dec > 0)
+        {
+          st_target.ra=st_target_ra + (st_current.timer_count -target_timestamp)*(SID_RATE_RAD - mt->track_speed);
+          st_target.dec=st_target_dec + lunar_rate_dec * SEC_TO_RAD*(st_current.timer_count -target_timestamp);
+        }
+        else
+        {
+          st_target.ra=st_target_ra + (st_current.timer_count -target_timestamp)*(SID_RATE_RAD - mt->track_speed);
+      //  st_target.dec=st_target_dec + 0.15 * SEC_TO_RAD*(st_current.timer_count -target_timestamp);
+        }
+        //if(mt->track == 3) // fixed centered moon position :-p
+        //  updateMoonRaDec(&st_target, mt);
       }
       to_alt_az(&st_target);
     }
@@ -763,7 +781,21 @@ void align_sync_all(mount_t *mt, long ra, long dec) {
       break;
   }
 };
+
+void set_lunar_track_speed(double value_ra, double value_dec, mount_t *mt) {
+  int rate = get_track_speed(mt);
+  lunar_rate = value_ra;
+  lunar_rate_dec = value_dec;
+  if(rate == 3) // update current value
+  {
+    set_track_speed(mt, rate);
+    if(mt->mount_mode == EQ)
+      mt->altmotor->targetspeed = value_dec * SEC_TO_RAD;
+  }
+}
+
 void set_track_speed(mount_t *mt, int index) {
+  check_lunar_rate = false;
   if (index < 5) mt->track = index;
   else mt->track = 1;
   switch (mt->track) {
@@ -777,7 +809,11 @@ void set_track_speed(mount_t *mt, int index) {
       mt->track_speed = SOLAR_RATE * SEC_TO_RAD;
       break;
     case 3:
-      mt->track_speed = LUNAR_RATE * SEC_TO_RAD;
+      if(lunar_rate > 0 && lunar_rate != LUNAR_RATE)
+        mt->track_speed = lunar_rate * SEC_TO_RAD;
+      else
+        mt->track_speed = LUNAR_RATE * SEC_TO_RAD;
+      check_lunar_rate = true;
       break;
     case 4:
       mt->track_speed = KING_RATE * SEC_TO_RAD;
@@ -795,7 +831,7 @@ int get_track_speed(mount_t *mt){
     return 1;
   else if(mt->track_speed == SOLAR_RATE * SEC_TO_RAD)
     return 2;
-  else if(mt->track_speed == LUNAR_RATE * SEC_TO_RAD)
+  else if(mt->track_speed == LUNAR_RATE * SEC_TO_RAD || mt->track_speed == lunar_rate * SEC_TO_RAD)
     return 3;
   else if(mt->track_speed == KING_RATE * SEC_TO_RAD)
     return 4;
@@ -943,4 +979,51 @@ char get_home_index(void) {
   fc=s[0];
   f.close();
   return fc;
+}
+
+// -------- EPHEMERIS FUNCTIONS
+void updateMoonRaDec(c_star *star, mount_t *mt) // moon position for AltAz tracking
+{
+  time_t now;
+  now = time(nullptr);
+  struct tm *gmt;
+  gmt = gmtime(&now);
+
+  Ephemeris::setLocationOnEarth(mt->lat, mt->longitude);
+  Ephemeris::flipLongitude(false);
+  Ephemeris::setAltitude(10);
+
+  SolarSystemObject moonObject = Ephemeris::solarSystemObjectAtDateAndTime(EarthsMoon, gmt->tm_mday, gmt->tm_mon+1, gmt->tm_year+1900, gmt->tm_hour, gmt->tm_min, gmt->tm_sec);
+  EquatorialCoordinates eq_coord = moonObject.equaCoordinates;
+
+  // should be relative to st_current.ra & dec?????
+
+  star->ra = eq_coord.ra * 15 / RAD_TO_DEG;
+  star->dec = eq_coord.dec / RAD_TO_DEG;
+}
+
+void updateLunarRate(mount_t *mt) // EQ lunar tracking rate for RA & DEC
+{
+  int step = 300;
+  time_t now;
+  now = time(nullptr);
+  struct tm *gmt;
+  gmt = gmtime(&now);
+
+  Ephemeris::setLocationOnEarth(mt->lat, mt->longitude);
+  Ephemeris::flipLongitude(false);
+  Ephemeris::setAltitude(10);
+
+  SolarSystemObject moonObject = Ephemeris::solarSystemObjectAtDateAndTime(EarthsMoon, gmt->tm_mday, gmt->tm_mon+1, gmt->tm_year+1900, gmt->tm_hour, gmt->tm_min, gmt->tm_sec);
+  EquatorialCoordinates eq_coord = moonObject.equaCoordinates;
+  
+  now += step;
+  gmt = gmtime(&now);
+ 
+  SolarSystemObject moonObject2 = Ephemeris::solarSystemObjectAtDateAndTime(EarthsMoon, gmt->tm_mday, gmt->tm_mon+1, gmt->tm_year+1900, gmt->tm_hour, gmt->tm_min, gmt->tm_sec);
+  EquatorialCoordinates eq_coord2 = moonObject2.equaCoordinates;
+  
+  double sp = SID_RATE -  (((eq_coord2.ra-eq_coord.ra)*3600/step) * 15) ;
+  double spa = (eq_coord2.dec-eq_coord.dec)*3600/step ;
+  set_lunar_track_speed(sp, spa, mt);
 }

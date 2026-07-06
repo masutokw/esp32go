@@ -51,6 +51,7 @@ extern WiFiClient serverClients[MAX_SRV_CLIENTS];
 extern bool NTP_Sync;
 extern char tzstr[50];
 extern int buzzer_volume;
+extern double lunar_rate, lunar_rate_dec;
 //char temp [4800];
 String getContentType(String filename) {
   if (serverweb.hasArg("download")) return "application/octet-stream";
@@ -656,14 +657,14 @@ void handleMonitor(void) {
 <br>WifiPAD IP : X.X%d.%d<br><button onclick=\"location.href='/'\" class=\"button_red\" type=\"button\">Back</button><br>\
  Date %s <br> %s \
 <br>Wifi Signal Strength: %s <br>\
-<br> NVRAM %d %d <br> Trackvector: %f\"\
+<br> NVRAM %d %d <br> Trackvector: %f\" <br> Lunar rate: RA %f\" DEC %f\"\
 </body></html>",
            telescope->azmotor->counter, telescope->altmotor->counter, azbackcounter,
            altbackcounter, clients_connected, focus_motor.position, aux_motor.position,
            telescope->azmotor->slewing, telescope->altmotor->slewing, telescope->is_tracking, telescope->track,
            String(telescope->azmotor->targetspeed/SEC_TO_RAD, 15).c_str(), String(telescope->altmotor->targetspeed/SEC_TO_RAD, 15).c_str(),
            telescope->parked, &buffra, &buffdec, &azangle, &altangle, encb, enc, wifi_pad_IP2, wifi_pad_IP3, ctime(&now), times, wifisignal, zcount[0], zcount[1],
-           sqrt(telescope->azmotor->targetspeed*telescope->azmotor->targetspeed+telescope->altmotor->targetspeed*telescope->altmotor->targetspeed)/SEC_TO_RAD);
+           sqrt(telescope->azmotor->targetspeed*telescope->azmotor->targetspeed+telescope->altmotor->targetspeed*telescope->altmotor->targetspeed)/SEC_TO_RAD,lunar_rate,lunar_rate_dec);
            //telescope->track_speed /SEC_TO_RAD);
   serverweb.send(200, "text/html", page);
 }

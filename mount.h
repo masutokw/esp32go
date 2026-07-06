@@ -90,4 +90,7 @@ void save_home(char fc, mount_t *mt);
 void mount_fix_home(char fc, mount_t *mt);
 char get_home_index(void);
 int get_track_speed(mount_t *mt);
+void set_lunar_track_speed(double value_ra, double value_dec, mount_t *mt);
+void updateMoonRaDec(c_star *star, mount_t *mt);
+void updateLunarRate(mount_t *mt);
 #endif
